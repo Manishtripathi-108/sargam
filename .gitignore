@@ -1,0 +1,14 @@
+# Editor directories
+.vscode/*
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# Generated files
+/src/generated/prisma
