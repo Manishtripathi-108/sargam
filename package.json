@@ -15,7 +15,9 @@
     "db:mig:reset": "prisma migrate reset",
     "db:push": "prisma db push",
     "db:pull": "prisma db pull",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",

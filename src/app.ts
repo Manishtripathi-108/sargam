@@ -1,52 +1,19 @@
-import fastifyCors from '@fastify/cors';
-import envPlugin from '@fastify/env';
-import jwt from '@fastify/jwt';
+import corsPlugin from './plugins/cors.ts';
+import envPlugin from './plugins/env.ts';
+import jwtPlugin from './plugins/jwt.ts';
+import rootRoutes from './routes/root.ts';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 
-// Load environment variables early
+// Load environment variables early so plugins can read them
 dotenv.config();
 
-// Environment Schema
-const envSchema = {
-    type: 'object',
-    required: ['JWT_SECRET', 'CLIENT_URLS'],
-    properties: {
-        JWT_SECRET: { type: 'string' },
-        CLIENT_URLS: { type: 'string' },
-    },
-};
+const app = fastify({ logger: true });
 
-// CORS Options
-const corsOptions = {
-    origin:
-        process.env.NODE_ENV === 'production' ? (process.env.CLIENT_URLS?.split(',').map((u) => u.trim()) ?? []) : '*',
+await app.register(envPlugin);
+await app.register(corsPlugin);
+await app.register(jwtPlugin);
 
-    credentials: true,
-    exposedHeaders: ['Content-Disposition'],
-};
-
-const app = fastify({
-    logger: true,
-});
-
-/* ---------------------------- Register plugins ---------------------------- */
-app.register(envPlugin, {
-    schema: envSchema,
-    dotenv: true,
-});
-
-app.register(fastifyCors, corsOptions);
-
-app.register(jwt, {
-    secret: process.env.JWT_SECRET || 'dev-secret',
-    sign: { expiresIn: '15m' },
-});
-
-/* --------------------------------- Routes --------------------------------- */
-app.get('/', async () => ({
-    ok: true,
-    name: 'sargam',
-}));
+await app.register(rootRoutes);
 
 export default app;
