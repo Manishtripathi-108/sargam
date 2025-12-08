@@ -1,6 +1,7 @@
 import corsPlugin from './plugins/cors.ts';
 import envPlugin from './plugins/env.ts';
 import jwtPlugin from './plugins/jwt.ts';
+import successPlugin from './plugins/success.ts';
 import rootRoutes from './routes/root.ts';
 import { formatAndSortZodIssues } from './utils/helper.utils.ts';
 import dotenv from 'dotenv';
@@ -25,6 +26,7 @@ const app = fastify({
 app.register(envPlugin);
 app.register(corsPlugin);
 app.register(jwtPlugin);
+app.register(successPlugin);
 
 // serializer & validator compilers (zod)
 app.setSerializerCompiler(serializerCompiler);
