@@ -27,7 +27,8 @@
     "@fastify/cors": "^11.1.0",
     "@fastify/env": "^5.0.3",
     "@fastify/jwt": "^10.0.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "^7.1.0",
     "@trivago/prettier-plugin-sort-imports": "^6.0.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
@@ -36,7 +37,7 @@
     "fastify-env": "^2.1.1",
     "fastify-plugin": "^5.1.0",
     "fastify-type-provider-zod": "^6.1.0",
-    "prisma": "^6.19.0"
+    "prisma": "^7.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -1,9 +1,11 @@
 import corsPlugin from './plugins/cors.ts';
+import dbPlugin from './plugins/db.ts';
 import envPlugin from './plugins/env.ts';
 import jwtPlugin from './plugins/jwt.ts';
 import successPlugin from './plugins/success.ts';
 import rootRoutes from './routes/root.ts';
 import { formatAndSortZodIssues } from './utils/helper.utils.ts';
+import { isDev } from './utils/main.utils.ts';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import type { FastifyReply, FastifyRequest } from 'fastify';
@@ -14,12 +16,9 @@ import http from 'http';
 // Load environment variables early so plugins can read them
 dotenv.config();
 
-const NODE_ENV = process.env.NODE_ENV ?? 'development';
-const isProd = NODE_ENV === 'production';
-
 const app = fastify({
     logger: {
-        level: process.env.LOG_LEVEL ?? (isProd ? 'info' : 'debug'),
+        level: process.env.LOG_LEVEL ?? (isDev ? 'debug' : 'info'),
     },
 }).withTypeProvider<ZodTypeProvider>();
 
@@ -28,6 +27,7 @@ app.register(envPlugin);
 app.register(corsPlugin);
 app.register(jwtPlugin);
 app.register(successPlugin);
+app.register(dbPlugin);
 
 // serializer & validator compilers (zod)
 app.setSerializerCompiler(serializerCompiler);
