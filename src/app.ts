@@ -37,6 +37,8 @@ app.register(rootRoutes, { prefix: '/api' });
 
 // Global error handler
 app.setErrorHandler(async (err: unknown, req: FastifyRequest, reply: FastifyReply) => {
+    reply.success = false;
+
     // Detect zod-fastify validation errors
     try {
         if (hasZodFastifySchemaValidationErrors(err)) {
@@ -51,6 +53,8 @@ app.setErrorHandler(async (err: unknown, req: FastifyRequest, reply: FastifyRepl
                 message: 'Request validation failed',
                 issues,
             });
+        } else {
+            return reply.send(err);
         }
     } catch (zErr) {
         // If our validation error handling throws, log it and continue to generic handler

@@ -2,22 +2,41 @@ import type { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 
 const successPlugin: FastifyPluginAsync = async (fastify) => {
-    // declare reply property shape at runtime
+    // runtime decorator. keep type augmentation in your types file.
     fastify.decorateReply('success', true);
 
-    // set default for each incoming request
+    // reset default for each incoming request
     fastify.addHook('onRequest', (req, reply, done) => {
         reply.success = true;
         done();
     });
 
-    // wrap payload just before sending
-    fastify.addHook('preSerialization', (req, reply, payload, done) => {
-        const wrapped = {
-            success: reply.success,
-            data: payload,
-        };
-        done(null, wrapped);
+    // transform the payload just before serialization
+    fastify.addHook('preSerialization', async (req, reply, payload) => {
+        try {
+            // treat 2xx as success unless someone changed reply.success
+            const success = reply.statusCode >= 200 && reply.statusCode < 300 ? !!reply.success : false;
+
+            // helper to detect streams and buffers
+            const isBuffer = Buffer.isBuffer(payload);
+            const isStream = payload && typeof (payload as any).pipe === 'function';
+            const isPlainObject =
+                payload !== null && typeof payload === 'object' && !Array.isArray(payload) && !isBuffer && !isStream;
+
+            // If payload is a plain object merge top-level keys.
+            // We take care to ignore any success field from the payload.
+            if (isPlainObject) {
+                const { success: _ignored, ...rest } = payload as Record<string, unknown>;
+                return { success, ...rest };
+            }
+
+            // Arrays, buffers, streams, strings, numbers, null, etc
+            return { success, data: payload };
+        } catch (err) {
+            // never throw from hooks. log and return a minimal safe shape
+            fastify.log.debug({ err, url: req.url, method: req.method }, 'success-plugin:wrap-failed');
+            return { success: false, data: payload };
+        }
     });
 };
 
