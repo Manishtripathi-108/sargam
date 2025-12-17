@@ -2,7 +2,7 @@ import { PrismaClient } from '../generated/prisma/client.ts';
 import { isDev } from '../utils/main.utils.ts';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
-import type { FastifyInstance, FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
+import type {  FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import fp from 'fastify-plugin';
 
 type DbPluginOptions = FastifyPluginOptions & {
@@ -26,7 +26,6 @@ async function wait(ms: number) {
  * Avoid multiple PrismaClient instances during hot reload in dev
  */
 declare global {
-    // eslint-disable-next-line no-var
     var __prismaClient__: PrismaClient | undefined;
 }
 
@@ -43,7 +42,7 @@ const createPrisma = (opts?: DbPluginOptions) => {
     return new PrismaClient({ adapter });
 };
 
-const dbPlugin: FastifyPluginAsync<DbPluginOptions> = async (app: FastifyInstance, opts = {}) => {
+const dbPlugin: FastifyPluginAsync<DbPluginOptions> = async (app, opts = {}) => {
     const cfg = { ...DEFAULTS, ...(opts as DbPluginOptions) };
 
     // sanity check

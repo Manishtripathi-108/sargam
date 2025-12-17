@@ -1,18 +1,18 @@
 import type { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 
-const successPlugin: FastifyPluginAsync = async (fastify) => {
+const successPlugin: FastifyPluginAsync = async (app) => {
     // runtime decorator. keep type augmentation in your types file.
-    fastify.decorateReply('success', true);
+    app.decorateReply('success', true);
 
     // reset default for each incoming request
-    fastify.addHook('onRequest', (req, reply, done) => {
+    app.addHook('onRequest', (req, reply, done) => {
         reply.success = true;
         done();
     });
 
     // transform the payload just before serialization
-    fastify.addHook('preSerialization', async (req, reply, payload) => {
+    app.addHook('preSerialization', async (req, reply, payload) => {
         try {
             // treat 2xx as success unless someone changed reply.success
             const success = reply.statusCode >= 200 && reply.statusCode < 300 ? !!reply.success : false;
@@ -34,7 +34,7 @@ const successPlugin: FastifyPluginAsync = async (fastify) => {
             return { success, data: payload };
         } catch (err) {
             // never throw from hooks. log and return a minimal safe shape
-            fastify.log.debug({ err, url: req.url, method: req.method }, 'success-plugin:wrap-failed');
+            app.log.debug({ err, url: req.url, method: req.method }, 'success-plugin:wrap-failed');
             return { success: false, data: payload };
         }
     });
