@@ -1,6 +1,6 @@
-import { notFound } from '../utils/error.utils.ts';
-import type { MusicRepository } from './repositories/types.ts';
-import type { SongService } from './types.ts';
+import { notFound } from '../utils/error.utils';
+import type { MusicRepository } from './repositories/types';
+import type { SongService } from './types';
 
 export class DefaultSongService implements SongService {
     constructor(private readonly repo: MusicRepository) {}

@@ -8,7 +8,7 @@ import type {
     SearchResultItem,
     Song,
     SongSummary,
-} from '../../types/music.types.ts';
+} from '../../types/music.types';
 
 export interface MusicRepository {
     search(params: { q: string; type?: SearchEntityType; limit: number; offset: number }): Promise<{

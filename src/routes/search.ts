@@ -1,4 +1,4 @@
-import type { SearchEntityType } from '../types/music.types.ts';
+import type { SearchEntityType } from '../types/music.types';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';

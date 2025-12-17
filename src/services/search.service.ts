@@ -1,6 +1,6 @@
-import type { SearchEntityType } from '../types/music.types.ts';
-import type { MusicRepository } from './repositories/types.ts';
-import type { SearchService } from './types.ts';
+import type { SearchEntityType } from '../types/music.types';
+import type { MusicRepository } from './repositories/types';
+import type { SearchService } from './types';
 
 export class DefaultSearchService implements SearchService {
     constructor(private readonly repo: MusicRepository) {}

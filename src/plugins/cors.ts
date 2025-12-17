@@ -1,4 +1,4 @@
-import { isDev } from '../utils/main.utils.ts';
+import { isDev } from '../utils/main.utils';
 import fastifyCors from '@fastify/cors';
 import type { FastifyPluginAsync } from 'fastify';
 

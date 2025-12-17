@@ -1,4 +1,4 @@
-import type { Services } from '../services/types.ts';
+import type { Services } from '../services/types';
 import type { PrismaClient } from '@prisma/client';
 import 'fastify';
 

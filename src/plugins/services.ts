@@ -1,10 +1,10 @@
-import { DefaultAlbumService } from '../services/album.service.ts';
-import { DefaultArtistService } from '../services/artist.service.ts';
-import { InMemoryMusicRepository } from '../services/repositories/inMemoryMusicRepository.ts';
-import type { MusicRepository } from '../services/repositories/types.ts';
-import { DefaultSearchService } from '../services/search.service.ts';
-import { DefaultSongService } from '../services/song.service.ts';
-import type { Services } from '../services/types.ts';
+import { DefaultAlbumService } from '../services/album.service';
+import { DefaultArtistService } from '../services/artist.service';
+import { InMemoryMusicRepository } from '../services/repositories/inMemoryMusicRepository';
+import type { MusicRepository } from '../services/repositories/types';
+import { DefaultSearchService } from '../services/search.service';
+import { DefaultSongService } from '../services/song.service';
+import type { Services } from '../services/types';
 import type { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 

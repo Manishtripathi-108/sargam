@@ -1,7 +1,7 @@
-import albumsRoutes from './albums.ts';
-import artistsRoutes from './artists.ts';
-import searchRoutes from './search.ts';
-import songsRoutes from './songs.ts';
+import albumsRoutes from './albums';
+import artistsRoutes from './artists';
+import searchRoutes from './search';
+import songsRoutes from './songs';
 import type { FastifyPluginAsync } from 'fastify';
 
 const apiRoutes: FastifyPluginAsync = async (app) => {

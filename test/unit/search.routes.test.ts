@@ -1,4 +1,4 @@
-import { buildTestApp } from '../helpers/buildTestApp.ts';
+import { buildTestApp } from '../helpers/buildTestApp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 let app: Awaited<ReturnType<typeof buildTestApp>>;

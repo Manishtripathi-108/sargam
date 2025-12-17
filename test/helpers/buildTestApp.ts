@@ -1,7 +1,7 @@
-import globalErrorPlugin from '../../src/plugins/error-handler.ts';
-import servicesPlugin from '../../src/plugins/services.ts';
-import successPlugin from '../../src/plugins/success.ts';
-import apiRoutes from '../../src/routes/index.ts';
+import globalErrorPlugin from '../../src/plugins/error-handler';
+import servicesPlugin from '../../src/plugins/services';
+import successPlugin from '../../src/plugins/success';
+import apiRoutes from '../../src/routes/index';
 import fastify from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';

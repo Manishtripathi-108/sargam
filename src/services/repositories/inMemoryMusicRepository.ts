@@ -6,8 +6,8 @@ import type {
     SearchResultItem,
     Song,
     SongSummary,
-} from '../../types/music.types.ts';
-import type { MusicRepository } from './types.ts';
+} from '../../types/music.types';
+import type { MusicRepository } from './types';
 
 const songs: Song[] = [
     {

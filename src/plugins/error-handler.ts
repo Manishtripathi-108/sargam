@@ -1,4 +1,4 @@
-import { formatAndSortZodIssues } from '../utils/helper.utils.ts';
+import { formatAndSortZodIssues } from '../utils/helper.utils';
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import http from 'http';

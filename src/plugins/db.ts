@@ -1,8 +1,8 @@
-import { PrismaClient } from '../generated/prisma/client.ts';
-import { isDev } from '../utils/main.utils.ts';
+import { PrismaClient } from '../generated/prisma/client';
+import { isDev } from '../utils/main.utils';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
-import type {  FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
+import type { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import fp from 'fastify-plugin';
 
 type DbPluginOptions = FastifyPluginOptions & {
