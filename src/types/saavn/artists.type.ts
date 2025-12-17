@@ -1,18 +1,11 @@
-import type { SaavnAlbum, SaavnAlbumAPIResponse } from './albums.types';
-import type { SaavnImageLink } from './global.types';
-import type { SaavnSong, SaavnSongAPIResponse } from './song.types';
+import type { SaavnAlbumAPIResponse } from './albums.types';
+import type { SaavnSongAPIResponse } from './song.types';
 
 type SaavnSocialLinks = {
     dob: string | null;
     fb: string | null;
     twitter: string | null;
     wiki: string | null;
-};
-
-type SaavnBioBlock = {
-    text: string | null;
-    title: string | null;
-    sequence: number | null;
 };
 
 type SaavnArtistURLs = {
@@ -55,26 +48,14 @@ type SaavnSimilarArtistApiResponse = Omit<SaavnArtistBaseAPIResponse, 'role'> &
         similar: string | null;
     };
 
-type SaavnSimilarArtist = Omit<SaavnArtistBase, 'role'> &
-    SaavnSocialLinks & {
-        languages: Record<string, string> | null;
-        isRadioPresent: boolean;
-        dominantType: string;
-        aka: string;
-        bio: string | null;
-        similarArtists: { id: string; name: string }[] | null;
-    };
-
 export type SaavnArtistBase = {
     id: string;
     name: string;
     role?: string;
     type: string;
-    image: SaavnImageLink[];
-    url?: string;
 };
 
-export type SaavnArtistBaseAPIResponse = Omit<SaavnArtistBase, 'image' | 'url'> & {
+export type SaavnArtistBaseAPIResponse = SaavnArtistBase & {
     image: string;
     perma_url: string;
 };
@@ -102,26 +83,6 @@ export type SaavnArtistAPIResponse = SaavnArtistBaseAPIResponse &
         is_followed: boolean;
     };
 
-export type SaavnArtist = SaavnSocialLinks & {
-    id: string;
-    name: string;
-    url: string;
-    type: string;
-    image: SaavnImageLink[];
-    followerCount: number | null;
-    fanCount: string | null;
-    isVerified: boolean | null;
-    dominantLanguage: string | null;
-    dominantType: string | null;
-    bio: SaavnBioBlock[] | null;
-    availableLanguages: string[];
-    isRadioPresent: boolean | null;
-    topSongs: SaavnSong[] | null;
-    topAlbums: SaavnAlbum[] | null;
-    singles: SaavnSong[] | null;
-    similarArtists: SaavnSimilarArtist[] | null;
-};
-
 export type SaavnArtistSongAPIResponse = {
     artistId: string;
     name: string;
@@ -138,11 +99,6 @@ export type SaavnArtistSongAPIResponse = {
     };
 };
 
-export type SaavnArtistSong = {
-    total: number;
-    songs: SaavnSong[];
-};
-
 export type SaavnArtistAlbumAPIResponse = {
     artistId: string;
     name: string;
@@ -157,9 +113,4 @@ export type SaavnArtistAlbumAPIResponse = {
         albums: SaavnAlbumAPIResponse[];
         total: number;
     };
-};
-
-export type SaavnArtistAlbum = {
-    total: number;
-    albums: SaavnAlbum[];
 };

@@ -1,5 +1,5 @@
-import type { SaavnArtistBase, SaavnArtistBaseAPIResponse } from './artists.type';
-import type { SaavnDownloadLink, SaavnEntityBase, SaavnImageLink } from './global.types';
+import type { SaavnArtistBaseAPIResponse } from './artists.type';
+import type { SaavnEntityBase } from './global.types';
 
 export type SaavnSongAPIResponse = SaavnEntityBase & {
     header_desc: string;
@@ -45,36 +45,6 @@ export type SaavnSongAPIResponse = SaavnEntityBase & {
             featured_artists: SaavnArtistBaseAPIResponse[];
             artists: SaavnArtistBaseAPIResponse[];
         };
-    };
-};
-
-export type SaavnSong = {
-    id: string;
-    name: string;
-    type: string;
-    url: string;
-    language: string;
-    hasLyrics: boolean;
-    lyricsId: string | null;
-    lyricsSnippet: string | null;
-    label: string | null;
-    year: string | null;
-    releaseDate: string | null;
-    duration: number | null;
-    explicitContent: boolean;
-    playCount: number | null;
-    copyright: string | null;
-    image: SaavnImageLink[];
-    downloadUrl: SaavnDownloadLink[];
-    album: {
-        id: string | null;
-        name: string | null;
-        url: string | null;
-    };
-    artists: {
-        primary: SaavnArtistBase[];
-        featured: SaavnArtistBase[];
-        all: SaavnArtistBase[];
     };
 };
 

@@ -1,12 +1,6 @@
 import type { SaavnArtistBase } from './artists.type';
-import type {
-    SaavnEntityBase,
-    SaavnImageLink,
-    SaavnNormalizedEntityBase,
-    SaavnSearchAPIResponseSection,
-    SaavnSearchSection,
-} from './global.types';
-import type { SaavnSong, SaavnSongAPIResponse } from './song.types';
+import type { SaavnEntityBase, SaavnSearchAPIResponseSection } from './global.types';
+import type { SaavnSongAPIResponse } from './song.types';
 
 type SaavnAlbumRaw = SaavnEntityBase & {
     more_info: {
@@ -67,42 +61,6 @@ export type SaavnSearchAPIResponse = {
 };
 
 /* --------------------- Search API Normalized Response --------------------- */
-export type SaavnSearchResponse = {
-    albums: SaavnSearchSection<
-        SaavnNormalizedEntityBase & {
-            artist: string;
-            url: string;
-            year: string;
-            language: string;
-            songIds: string;
-        }
-    >;
-    songs: SaavnSearchSection<
-        SaavnNormalizedEntityBase & {
-            album: string;
-            url: string;
-            primaryArtists: string;
-            singers: string;
-            language: string;
-        }
-    >;
-    artists: SaavnSearchSection<SaavnNormalizedEntityBase>;
-    playlists: SaavnSearchSection<
-        SaavnNormalizedEntityBase & {
-            url: string;
-            language: string;
-        }
-    >;
-    topQuery: SaavnSearchSection<
-        SaavnNormalizedEntityBase & {
-            album: string;
-            url: string;
-            primaryArtists: string;
-            singers: string;
-            language: string;
-        }
-    >;
-};
 
 export type SaavnSearchPlaylistAPIResponse = {
     total: number;
@@ -116,21 +74,6 @@ export type SaavnSearchPlaylistAPIResponse = {
             numsongs: unknown;
         }
     >;
-};
-
-export type SaavnSearchPlaylist = {
-    total: number;
-    start: number;
-    results: {
-        id: string;
-        name: string;
-        type: string;
-        image: SaavnImageLink[];
-        url: string;
-        songCount: number | null;
-        language: string;
-        explicitContent: boolean;
-    }[];
 };
 
 export type SaavnSearchArtistAPIResponse = {
@@ -161,10 +104,4 @@ export type SaavnSearchSongAPIResponse = {
     total: number;
     start: number;
     results: SaavnSongAPIResponse[];
-};
-
-export type SaavnSearchSong = {
-    total: number;
-    start: number;
-    results: SaavnSong[];
 };

@@ -1,6 +1,4 @@
-import type { SaavnArtistBase } from '../../types/saavn/artists.type';
-import type { SaavnImageLink } from '../../types/saavn/global.types';
-import type { SaavnSong, SaavnSongAPIResponse } from '../../types/saavn/song.types';
+import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
 
 export type SaavnPlaylistAPIResponse = {
     id: string;
@@ -46,20 +44,4 @@ export type SaavnPlaylistAPIResponse = {
             perma_url: string;
         }[];
     };
-};
-
-export type SaavnPlaylist = {
-    id: string;
-    name: string;
-    description: string | null;
-    year: number | null;
-    type: string;
-    playCount: number | null;
-    language: string;
-    explicitContent: boolean;
-    songCount: number | null;
-    url: string;
-    image: SaavnImageLink[];
-    songs: SaavnSong[] | null;
-    artists: SaavnArtistBase[] | null;
 };

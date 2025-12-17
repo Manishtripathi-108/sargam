@@ -1,6 +1,6 @@
-import type { SaavnArtistBase, SaavnArtistBaseAPIResponse } from './artists.type';
-import type { SaavnEntityBase, SaavnImageLink } from './global.types';
-import type { SaavnSong, SaavnSongAPIResponse } from './song.types';
+import type { SaavnArtistBaseAPIResponse } from './artists.type';
+import type { SaavnEntityBase } from './global.types';
+import type { SaavnSongAPIResponse } from './song.types';
 
 export type SaavnSearchAlbumAPIResponse = {
     total: number;
@@ -19,7 +19,7 @@ export type SaavnSearchAlbumAPIResponse = {
         explicit_content: string;
         list_count: string;
         list_type: string;
-        list: SaavnSong[];
+        list: SaavnSongAPIResponse[];
         more_info: {
             query: string;
             text: string;
@@ -31,28 +31,6 @@ export type SaavnSearchAlbumAPIResponse = {
                 artists: SaavnArtistBaseAPIResponse[];
             };
         };
-    }[];
-};
-
-export type avnSearchAlbum = {
-    total: number;
-    start: number;
-    results: {
-        id: string;
-        name: string;
-        description: string;
-        year: number | null;
-        type: string;
-        playCount: number | null;
-        language: string;
-        explicitContent: boolean;
-        artists: {
-            primary: SaavnArtistBase[];
-            featured: SaavnArtistBase[];
-            all: SaavnArtistBase[];
-        };
-        url: string;
-        image: SaavnImageLink[];
     }[];
 };
 
@@ -71,20 +49,4 @@ export type SaavnAlbumAPIResponse = SaavnEntityBase & {
         is_dolby_content: boolean;
         label_url: string;
     };
-};
-
-export type SaavnAlbum = {
-    id: string;
-    name: string;
-    description: string;
-    year: number | null;
-    type: string;
-    playCount: number | null;
-    language: string;
-    explicitContent: boolean;
-    artists: SaavnSong['artists'];
-    songCount: number | null;
-    url: string;
-    image: SaavnImageLink[];
-    songs: SaavnSong[] | null;
 };
