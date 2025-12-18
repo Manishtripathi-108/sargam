@@ -14,7 +14,7 @@ const songByQuerySchema = z
     });
 
 const songIdParamSchema = z.object({
-    id: z.string().min(1, 'Song ID required'),
+    id: z.string('Song ID required').min(1, 'Song ID required'),
 });
 
 const songIdsParamsSchema = z.object({
@@ -45,7 +45,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { ids } = req.query;
-            return songService.getSongByIds(ids);
+            return songService.getByIds(ids);
         }
     );
 
@@ -61,9 +61,9 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         async (req) => {
             const { id, link } = req.query;
             if (link) {
-                return songService.getSongByLink(link);
+                return songService.getByLink(link);
             } else {
-                return songService.getSongById(id!);
+                return songService.getById(id!);
             }
         }
     );
@@ -79,7 +79,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { id } = req.params;
-            return songService.getSongById(id);
+            return songService.getById(id);
         }
     );
 
@@ -96,7 +96,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         async (req) => {
             const { id } = req.params;
             const { limit } = req.query;
-            return songService.getSongSuggestions(id, limit);
+            return songService.getSuggestions(id, limit);
         }
     );
 };

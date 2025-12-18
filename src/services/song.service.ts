@@ -13,7 +13,7 @@ const providers = {
 };
 
 export class DefaultSongService {
-    async getSongById(id: string, opts?: ServiceOptions): Promise<Song> {
+    async getById(id: string, opts?: ServiceOptions): Promise<Song> {
         const provider = providers[opts?.provider ?? 'saavn'];
         if (!provider) {
             throw new AppError(`Provider not found`, 500);
@@ -31,7 +31,7 @@ export class DefaultSongService {
         }
     }
 
-    async getSongByIds(id: string, opts?: ServiceOptions): Promise<Song[]> {
+    async getByIds(id: string, opts?: ServiceOptions): Promise<Song[]> {
         const provider = providers[opts?.provider ?? 'saavn'];
         if (!provider) {
             throw new AppError(`Provider not found`, 500);
@@ -49,7 +49,7 @@ export class DefaultSongService {
         }
     }
 
-    async getSongByLink(link: string): Promise<Song> {
+    async getByLink(link: string): Promise<Song> {
         if (!link) {
             throw new AppError('Link is required', 400);
         }
@@ -64,7 +64,7 @@ export class DefaultSongService {
         }
     }
 
-    async getSongSuggestions(id: string, limit: number = 10): Promise<Song[]> {
+    async getSuggestions(id: string, limit: number = 10): Promise<Song[]> {
         const provider = providers['saavn'];
         try {
             const suggestions = await provider.songs.getSuggestions(id, limit);

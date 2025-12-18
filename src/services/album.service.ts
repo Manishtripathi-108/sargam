@@ -1,5 +1,5 @@
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
-import type { Album, AlbumSummary } from '../types/core/album.model';
+import type { Album } from '../types/core/album.model';
 import { AppError } from '../utils/error.utils';
 
 type Provider = 'saavn';
@@ -13,65 +13,41 @@ const providers = {
 };
 
 export class DefaultAlbumService {
-    async getAlbumById(id: string, opts?: ServiceOptions): Promise<Album> {
+    private getProvider(opts?: ServiceOptions) {
         const provider = providers[opts?.provider ?? 'saavn'];
         if (!provider) {
-            throw new AppError(`Provider not found`, 500);
+            throw new AppError('Provider not found', 500);
+        }
+        return provider;
+    }
+
+    async getById(id: string, opts?: ServiceOptions): Promise<Album> {
+        if (!id) {
+            throw new AppError('Album id is required', 400);
         }
 
+        const provider = this.getProvider(opts);
+
         try {
-            const album = await provider.albums.getById(id);
-            if (!album) {
-                throw new AppError('Album not found', 404);
-            }
-            return album;
+            return await provider.albums.getById(id);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
             throw new AppError(`Failed to fetch album: ${err?.message}`, 500);
         }
     }
 
-    async getAlbumByIdOrLink(params: { id?: string; link?: string }): Promise<Album> {
-        if (!params.id && !params.link) {
-            throw new AppError('Either id or link is required', 400);
+    async getByLink(link: string, opts?: ServiceOptions): Promise<Album> {
+        if (!link) {
+            throw new AppError('Album link is required', 400);
         }
 
-        const provider = providers['saavn'];
+        const provider = this.getProvider(opts);
+
         try {
-            const album = await provider.albums.getByIdOrLink(params);
-            if (!album) {
-                throw new AppError('Album not found', 404);
-            }
-            return album;
+            return await provider.albums.getByLink(link);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
             throw new AppError(`Failed to fetch album: ${err?.message}`, 500);
-        }
-    }
-
-    async searchAlbums(
-        query: string,
-        limit: number = 20,
-        offset: number = 0,
-        opts?: ServiceOptions
-    ): Promise<AlbumSummary[]> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
-        }
-
-        try {
-            const page = Math.floor(offset / limit) + 1;
-            const result = await provider.search.albums({ q: query, limit, offset, page });
-            return (result.results || []).map((a: any) => ({
-                id: a.id,
-                title: a.title || a.name,
-                artists: Array.isArray(a.artists) ? a.artists.map((ar: any) => ar.name || ar) : [],
-                year: Number(a.year || 0),
-            }));
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to search albums: ${err?.message}`, 500);
         }
     }
 }

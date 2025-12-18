@@ -1,4 +1,4 @@
-import albumsRoutes from './albums';
+import albumsRoutes from './albums.routes';
 import artistsRoutes from './artists';
 import searchRoutes from './search.routes';
 import songsRoutes from './songs.routes';

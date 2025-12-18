@@ -11,7 +11,7 @@ const extractAlbumToken = (link: string) => {
     return token;
 };
 
-export async function getAlbumById(id: string): Promise<Album> {
+export async function getById(id: string): Promise<Album> {
     const res = await saavnClient.get<SaavnAlbumAPIResponse>('/', {
         params: {
             albumid: id,
@@ -26,7 +26,7 @@ export async function getAlbumById(id: string): Promise<Album> {
     return mapAlbum(res.data);
 }
 
-export async function getAlbumByLink(link: string): Promise<Album> {
+export async function getByLink(link: string): Promise<Album> {
     const token = extractAlbumToken(link);
 
     const res = await saavnClient.get<SaavnAlbumAPIResponse>('/', {

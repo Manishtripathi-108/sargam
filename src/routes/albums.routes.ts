@@ -14,7 +14,7 @@ const albumByQuerySchema = z
     });
 
 const albumIdParamSchema = z.object({
-    id: z.string().min(1, 'Album ID required'),
+    id: z.string('Album ID required').min(1, 'Album ID required'),
 });
 
 const albumsRoutes: FastifyPluginAsync = async (app) => {
@@ -32,7 +32,11 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { id, link } = req.query;
-            return albumService.getAlbumByIdOrLink({ id, link });
+            if (link) {
+                return albumService.getByLink(link);
+            } else {
+                return albumService.getById(id!);
+            }
         }
     );
 
@@ -47,7 +51,7 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { id } = req.params;
-            return albumService.getAlbumById(id);
+            return albumService.getById(id);
         }
     );
 };
