@@ -1,31 +1,113 @@
-import type { AlbumSummary, Artist, SongSummary } from '../../types/music.types';
-import { SaavnClient } from './saavn.client';
-import { mapAlbumSummary, mapArtist, mapSongSummary } from './saavn.mapper';
+import type { Album } from '../../types/core/album.model';
+import type { Artist } from '../../types/core/artist.model';
+import type { Song } from '../../types/core/song.model';
+import type {
+    SaavnArtistAlbumAPIResponse,
+    SaavnArtistAPIResponse,
+    SaavnArtistSongAPIResponse,
+} from '../../types/saavn/artists.type';
+import { AppError } from '../../utils/error.utils';
+import { saavnClient } from './saavn.client';
+import { mapArtist, mapAlbum, mapSong } from './saavn.mapper';
+import SAAVN_ROUTES from './saavn.routes';
 
-export class SaavnArtistsApi {
-    constructor(private readonly client: SaavnClient) {}
+const extractArtistToken = (link: string) => {
+    const token = link.match(/jiosaavn\.com\/artist\/[^/]+\/([^/]+)$/)?.[1];
+    if (!token) throw new AppError('Invalid artist link', 400);
+    return token;
+};
 
-    async getById(id: string): Promise<Artist> {
-        const data = await this.client.getArtistById(id);
-        const raw = data?.data ?? data;
-        return mapArtist(raw);
+type ArtistQuery = {
+    page: number;
+    songCount: number;
+    albumCount: number;
+    sortBy: string;
+    sortOrder: string;
+};
+
+export async function getArtistById(id: string, q: ArtistQuery): Promise<Artist> {
+    const res = await saavnClient.get<SaavnArtistAPIResponse>('/', {
+        params: {
+            artistId: id,
+            page: q.page,
+            n_song: q.songCount,
+            n_album: q.albumCount,
+            category: q.sortBy,
+            sort_order: q.sortOrder,
+            __call: SAAVN_ROUTES.ARTIST.DETAILS,
+        },
+    });
+
+    if (!res.data) {
+        throw new AppError('Artist not found', 404);
     }
 
-    async getByIdOrLink(params: { id?: string; link?: string }): Promise<Artist[]> {
-        const data = await this.client.getArtistsByIdOrLink(params);
-        const arr = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
-        return arr.map((raw) => mapArtist(raw));
+    return mapArtist(res.data);
+}
+
+export async function getArtistByLink(link: string, q: ArtistQuery): Promise<Artist> {
+    const token = extractArtistToken(link);
+
+    const res = await saavnClient.get<SaavnArtistAPIResponse>('/', {
+        params: {
+            token,
+            type: 'artist',
+            page: q.page,
+            n_song: q.songCount,
+            n_album: q.albumCount,
+            category: q.sortBy,
+            sort_order: q.sortOrder,
+            __call: SAAVN_ROUTES.ARTIST.LINK,
+        },
+    });
+
+    if (!res.data) {
+        throw new AppError('Artist not found', 404);
     }
 
-    async songs(params: { id: string; limit: number; offset: number }): Promise<SongSummary[]> {
-        const data = await this.client.getArtistSongs(params.id, params.limit, params.offset);
-        const arr = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
-        return arr.map(mapSongSummary);
-    }
+    return mapArtist(res.data);
+}
 
-    async albums(params: { id: string; limit: number; offset: number }): Promise<AlbumSummary[]> {
-        const data = await this.client.getArtistAlbums(params.id, params.limit, params.offset);
-        const arr = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
-        return arr.map(mapAlbumSummary);
-    }
+export async function getArtistSongs(
+    id: string,
+    page: number,
+    sortBy: string,
+    sortOrder: string
+): Promise<{ total: number; songs: Song[] }> {
+    const res = await saavnClient.get<SaavnArtistSongAPIResponse>('/', {
+        params: {
+            artistId: id,
+            page,
+            category: sortBy,
+            sort_order: sortOrder,
+            __call: SAAVN_ROUTES.ARTIST.SONGS,
+        },
+    });
+
+    return {
+        total: Number(res.data?.topSongs?.total ?? 0),
+        songs: res.data?.topSongs?.songs?.map(mapSong) ?? [],
+    };
+}
+
+export async function getArtistAlbums(
+    id: string,
+    page: number,
+    sortBy: string,
+    sortOrder: string
+): Promise<{ total: number; albums: Album[] }> {
+    const res = await saavnClient.get<SaavnArtistAlbumAPIResponse>('/', {
+        params: {
+            artistId: id,
+            page,
+            category: sortBy,
+            sort_order: sortOrder,
+            __call: SAAVN_ROUTES.ARTIST.ALBUMS,
+        },
+    });
+
+    return {
+        total: Number(res.data?.topAlbums?.total ?? 0),
+        albums: res.data?.topAlbums?.albums?.map(mapAlbum) ?? [],
+    };
 }

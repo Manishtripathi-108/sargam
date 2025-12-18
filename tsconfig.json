@@ -9,8 +9,10 @@
         "rootDir": "src",
         "outDir": "dist",
         "esModuleInterop": true,
-        "noEmit": false
+        "noEmit": false,
+        "noImplicitAny": true
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]
 }
+

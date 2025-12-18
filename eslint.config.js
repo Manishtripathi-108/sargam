@@ -15,6 +15,7 @@ export default [
             parserOptions: {
                 ecmaVersion: 'latest',
                 sourceType: 'module',
+                project: './tsconfig.json',
             },
             globals: {
                 ...globals.node,
@@ -25,13 +26,28 @@ export default [
             '@typescript-eslint': tsPlugin,
         },
         rules: {
-            ...tsPlugin.configs.recommended.rules,
+            ...tsPlugin.configs.strictTypeChecked.rules,
+
             'no-undef': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-explicit-any': 'error',
+
+            '@typescript-eslint/consistent-type-imports': [
+                'error',
+                {
+                    prefer: 'type-imports',
+                    fixStyle: 'separate-type-imports',
+                },
+            ],
+
             '@typescript-eslint/no-unused-vars': [
                 'warn',
                 { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
             ],
+
+            '@typescript-eslint/no-unsafe-assignment': 'error',
+            '@typescript-eslint/no-unsafe-member-access': 'error',
+            '@typescript-eslint/no-unsafe-call': 'error',
+            '@typescript-eslint/no-unsafe-return': 'error',
         },
     },
 ];

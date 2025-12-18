@@ -2,6 +2,7 @@ import type { Album } from './album.model';
 import type { Artist } from './artist.model';
 import { ImageAsset } from './image.model';
 import type { Playlist } from './playlist.model';
+import type { SongBase } from './song.model';
 
 export type SearchResult<T> = {
     position: number | null;
@@ -39,4 +40,10 @@ export type SearchAlbum = {
     total: number;
     start: number;
     results: Omit<Album, 'songs' | 'popularity' | 'total_songs' | 'artists'>[];
+};
+
+export type SearchSong = {
+    total: number;
+    start: number;
+    results: SongBase[];
 };

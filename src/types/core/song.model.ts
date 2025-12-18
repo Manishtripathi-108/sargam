@@ -19,16 +19,18 @@ export type SongBase = {
     duration: number;
     explicit: boolean;
     language: string | null;
-    disc_number: number;
-    track_number: number;
     image: ImageAsset;
-    release_date: string | null;
     year: number | null;
-    copyright: string | null;
+    album: string;
+    artists: string;
 };
 
 export type Song = Prettify<
-    SongBase & {
+    Omit<SongBase, 'album' | 'artists'> & {
+        disc_number: number;
+        track_number: number;
+        release_date: string | null;
+        copyright: string | null;
         album: AlbumBase;
         artists: ArtistBase[];
         audio: SongAudio;
