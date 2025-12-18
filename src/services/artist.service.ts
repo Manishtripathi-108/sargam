@@ -1,7 +1,7 @@
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
-import type { AlbumSummary } from '../types/core/album.model';
-import type { Artist, ArtistSummary } from '../types/core/artist.model';
-import type { SongSummary } from '../types/core/song.model';
+import type { Album } from '../types/core/album.model';
+import type { Artist } from '../types/core/artist.model';
+import type { Song } from '../types/core/song.model';
 import { AppError } from '../utils/error.utils';
 
 type Provider = 'saavn';
@@ -15,126 +15,84 @@ const providers = {
 };
 
 export class DefaultArtistService {
-    async getArtistById(id: string, opts?: ServiceOptions): Promise<Artist> {
+    private getProvider(opts?: ServiceOptions) {
         const provider = providers[opts?.provider ?? 'saavn'];
         if (!provider) {
-            throw new AppError(`Provider not found`, 500);
+            throw new AppError('Provider not found', 500);
+        }
+        return provider;
+    }
+
+    async getById(id: string, opts?: ServiceOptions): Promise<Artist> {
+        if (!id) {
+            throw new AppError('Artist id is required', 400);
         }
 
+        const provider = this.getProvider(opts);
+
         try {
-            const artist = await provider.artists.getById(id);
-            if (!artist) {
-                throw new AppError('Artist not found', 404);
-            }
-            return artist;
+            return await provider.artists.getById(id);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
             throw new AppError(`Failed to fetch artist: ${err?.message}`, 500);
         }
     }
 
-    async getArtistByIdOrLink(params: { id?: string; link?: string }): Promise<Artist[]> {
-        if (!params.id && !params.link) {
-            throw new AppError('Either id or link is required', 400);
+    async getByLink(link: string, opts?: ServiceOptions): Promise<Artist> {
+        if (!link) {
+            throw new AppError('Artist link is required', 400);
         }
 
-        const provider = providers['saavn'];
+        const provider = this.getProvider(opts);
+
         try {
-            const artists = await provider.artists.getByIdOrLink(params);
-            if (!artists || artists.length === 0) {
-                throw new AppError('Artist not found', 404);
-            }
-            return artists;
+            return await provider.artists.getByLink(link);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch artists: ${err?.message}`, 500);
+            throw new AppError(`Failed to fetch artist: ${err?.message}`, 500);
         }
     }
 
-    async searchArtists(
-        query: string,
-        limit: number = 20,
-        offset: number = 0,
-        opts?: ServiceOptions
-    ): Promise<ArtistSummary[]> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
-        }
-
-        try {
-            const page = Math.floor(offset / limit) + 1;
-            const result = await provider.search.artists({ q: query, limit, offset, page });
-            return (result.results || []).map((a: any) => ({
-                id: a.id,
-                name: a.name,
-                genres: Array.isArray(a.genres) ? a.genres : [],
-            }));
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to search artists: ${err?.message}`, 500);
-        }
-    }
-
-    async getArtistSongs(
+    async getSongs(
         id: string,
-        limit: number = 50,
-        offset: number = 0,
+        offset: number,
+        limit: number,
+        sortBy: string,
+        sortOrder: string,
         opts?: ServiceOptions
-    ): Promise<SongSummary[]> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
+    ): Promise<{ total: number; songs: Song[] }> {
+        if (!id) {
+            throw new AppError('Artist id is required', 400);
         }
 
-        try {
-            // Verify artist exists first
-            const artist = await provider.artists.getById(id);
-            if (!artist) {
-                throw new AppError('Artist not found', 404);
-            }
+        const page = Math.floor(offset / limit) + 1;
+        const provider = this.getProvider(opts);
 
-            const page = Math.floor(offset / limit) + 1;
-            const songs = await provider.artists.songs(id, page, limit);
-            return (songs || []).map((s: any) => ({
-                id: s.id,
-                title: s.title || s.name,
-                artists: Array.isArray(s.artists) ? s.artists.map((a: any) => a.name || a) : [],
-                album: s.album?.name || s.album || '',
-                duration: Number(s.duration || 0),
-            }));
+        try {
+            return await provider.artists.getSongs(id, page, sortBy, sortOrder);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
             throw new AppError(`Failed to fetch artist songs: ${err?.message}`, 500);
         }
     }
 
-    async getArtistAlbums(
+    async getAlbums(
         id: string,
-        limit: number = 50,
-        offset: number = 0,
+        offset: number,
+        limit: number,
+        sortBy: string,
+        sortOrder: string,
         opts?: ServiceOptions
-    ): Promise<AlbumSummary[]> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
+    ): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
+        if (!id) {
+            throw new AppError('Artist id is required', 400);
         }
 
-        try {
-            // Verify artist exists first
-            const artist = await provider.artists.getById(id);
-            if (!artist) {
-                throw new AppError('Artist not found', 404);
-            }
+        const page = Math.floor(offset / limit) + 1;
+        const provider = this.getProvider(opts);
 
-            const page = Math.floor(offset / limit) + 1;
-            const albums = await provider.artists.albums(id, page, limit);
-            return (albums || []).map((a: any) => ({
-                id: a.id,
-                title: a.title || a.name,
-                artists: Array.isArray(a.artists) ? a.artists.map((ar: any) => ar.name || ar) : [],
-                year: Number(a.year || 0),
-            }));
+        try {
+            return await provider.artists.getAlbums(id, page, sortBy, sortOrder);
         } catch (err: any) {
             if (err instanceof AppError) throw err;
             throw new AppError(`Failed to fetch artist albums: ${err?.message}`, 500);

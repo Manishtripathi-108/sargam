@@ -11,12 +11,14 @@ export const saavnClient = axios.create({
 });
 
 saavnClient.interceptors.request.use((config) => {
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
     config.params = {
         ...config.params,
         _format: 'json',
         _marker: '0',
         api_version: 4,
         cc: 'IN',
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
         ctx: config.params?.ctx ?? 'web6dot0',
     };
 

@@ -1,5 +1,5 @@
 import albumsRoutes from './albums.routes';
-import artistsRoutes from './artists';
+import artistsRoutes from './artists.routes';
 import searchRoutes from './search.routes';
 import songsRoutes from './songs.routes';
 import type { FastifyPluginAsync } from 'fastify';

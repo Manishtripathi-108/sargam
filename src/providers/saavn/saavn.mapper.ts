@@ -142,9 +142,22 @@ export const mapAlbum = (a: SaavnAlbumAPIResponse): Album => ({
     explicit: a.explicit_content === '1',
     total_songs: Number(a.more_info?.song_count ?? 0),
     popularity: Number(a.play_count ?? 0),
-    artists: a.more_info?.artistMap?.artists?.map(mapArtistBase) ?? [],
+    artists: a.more_info?.artistMap?.primary_artists?.map(mapArtistBase) ?? [],
     image: imgFromSaavn(a.image),
     songs: a.list?.map(mapSongBase) ?? null,
+});
+
+export const mapAlbumBase = (a: SaavnAlbumAPIResponse): Omit<Album, 'songs'> => ({
+    id: a.id,
+    name: a.title,
+    type: 'album',
+    release_date: a.year ? `${a.year}-01-01` : '0000-01-01',
+    language: a.language,
+    explicit: a.explicit_content === '1',
+    total_songs: Number(a.more_info?.song_count ?? 0),
+    popularity: Number(a.play_count ?? 0),
+    artists: a.more_info?.artistMap?.primary_artists?.map(mapArtistBase) ?? [],
+    image: imgFromSaavn(a.image),
 });
 
 export const mapPlaylist = (p: SaavnPlaylistAPIResponse): Playlist => ({

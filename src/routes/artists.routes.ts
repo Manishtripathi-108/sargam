@@ -8,28 +8,25 @@ const artistByQuerySchema = z
         id: z.string().optional(),
         link: z.string().optional(),
     })
-    .refine((data) => data.id || data.link, {
+    .refine((v) => v.id || v.link, {
         message: 'Either id or link is required',
         path: ['id'],
     });
 
 const artistIdParamSchema = z.object({
-    id: z.string().min(1, 'Artist ID required'),
+    id: z.string('Artist id required').min(1, 'Artist id required'),
 });
 
 const artistSongsQuerySchema = z.object({
-    limit: z.coerce.number().int().min(1).max(100).default(50),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
     offset: z.coerce.number().int().min(0).default(0),
+    sortBy: z.enum(['popularity', 'alphabetical', 'latest']).default('popularity'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
-const artistAlbumsQuerySchema = z.object({
-    limit: z.coerce.number().int().min(1).max(100).default(50),
-    offset: z.coerce.number().int().min(0).default(0),
-});
-
-const artistsRoutes: FastifyPluginAsync = async (app) => {
+const artistRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
-    const artistService = new DefaultArtistService();
+    const service = new DefaultArtistService();
 
     api.get(
         '/artists/by',
@@ -37,12 +34,17 @@ const artistsRoutes: FastifyPluginAsync = async (app) => {
             schema: {
                 querystring: artistByQuerySchema,
                 tags: ['artists'],
-                summary: 'Retrieve artists by id or link',
+                summary: 'Retrieve artist by id or link',
             },
         },
         async (req) => {
             const { id, link } = req.query;
-            return artistService.getArtistByIdOrLink({ id, link });
+
+            if (link) {
+                return service.getByLink(link);
+            }
+
+            return service.getById(id!);
         }
     );
 
@@ -57,7 +59,7 @@ const artistsRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { id } = req.params;
-            return artistService.getArtistById(id);
+            return service.getById(id);
         }
     );
 
@@ -68,13 +70,14 @@ const artistsRoutes: FastifyPluginAsync = async (app) => {
                 params: artistIdParamSchema,
                 querystring: artistSongsQuerySchema,
                 tags: ['artists'],
-                summary: 'Get artist songs',
+                summary: 'Retrieve artist songs',
             },
         },
         async (req) => {
             const { id } = req.params;
-            const { limit, offset } = req.query;
-            return artistService.getArtistSongs(id, limit, offset);
+            const { offset, limit, sortBy, sortOrder } = req.query;
+
+            return service.getSongs(id, offset, limit, sortBy, sortOrder);
         }
     );
 
@@ -83,17 +86,18 @@ const artistsRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: artistIdParamSchema,
-                querystring: artistAlbumsQuerySchema,
+                querystring: artistSongsQuerySchema,
                 tags: ['artists'],
-                summary: 'Get artist albums',
+                summary: 'Retrieve artist albums',
             },
         },
         async (req) => {
             const { id } = req.params;
-            const { limit, offset } = req.query;
-            return artistService.getArtistAlbums(id, limit, offset);
+            const { offset, limit, sortBy, sortOrder } = req.query;
+
+            return service.getAlbums(id, offset, limit, sortBy, sortOrder);
         }
     );
 };
 
-export default artistsRoutes;
+export default artistRoutes;
