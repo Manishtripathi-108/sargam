@@ -22,7 +22,7 @@ const extractSongToken = (link: string): string => {
 /*                                   service                                  */
 /* -------------------------------------------------------------------------- */
 
-export async function getSongByIds(ids: string): Promise<Song[]> {
+export async function getByIds(ids: string): Promise<Song[]> {
     const res = await saavnClient.get<{ songs: SaavnSongAPIResponse[] }>('/', {
         params: {
             pids: ids,
@@ -38,7 +38,7 @@ export async function getSongByIds(ids: string): Promise<Song[]> {
     return songs.map(mapSong);
 }
 
-export async function getSongByLink(link: string): Promise<Song[]> {
+export async function getByLink(link: string): Promise<Song> {
     const token = extractSongToken(link);
 
     const res = await saavnClient.get<{ songs: SaavnSongAPIResponse[] }>('/', {
@@ -54,10 +54,10 @@ export async function getSongByLink(link: string): Promise<Song[]> {
         throw notFound('Song not found');
     }
 
-    return songs.map(mapSong);
+    return mapSong(songs[0]);
 }
 
-export async function getSongStation(songId: string): Promise<string> {
+export async function getStation(songId: string): Promise<string> {
     const encoded = JSON.stringify([encodeURIComponent(songId)]);
 
     const res = await saavnClient.get<{ stationid: string }>(SAAVN_ROUTES.SONG.STATION, {
@@ -76,13 +76,13 @@ export async function getSongStation(songId: string): Promise<string> {
     return stationId;
 }
 
-export async function getSongSuggestions(params: { id: string; limit: number }): Promise<Song[]> {
-    const stationId = await getSongStation(params.id);
+export async function getSuggestions(id: string, limit: number): Promise<Song[]> {
+    const stationId = await getStation(id);
 
     const res = await saavnClient.get<SaavnSongSuggestionAPIResponse>(SAAVN_ROUTES.SONG.SUGGESTIONS, {
         params: {
             stationid: stationId,
-            k: params.limit,
+            k: limit,
             ctx: 'android',
         },
     });
@@ -99,10 +99,10 @@ export async function getSongSuggestions(params: { id: string; limit: number }):
             return null;
         })
         .filter((s) => s !== null)
-        .slice(0, params.limit);
+        .slice(0, limit);
 }
 
-export async function getSongLyrics(songId: string): Promise<string> {
+export async function getLyrics(songId: string): Promise<string> {
     const res = await saavnClient.get<SaavnLyrics>(SAAVN_ROUTES.SONG.LYRICS, {
         params: {
             id: songId,

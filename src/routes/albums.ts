@@ -1,39 +1,53 @@
+import { DefaultAlbumService } from '../services/album.service';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
-const albumParamsSchema = z.object({ id: z.string().min(1) });
+const albumByQuerySchema = z
+    .object({
+        id: z.string().optional(),
+        link: z.string().optional(),
+    })
+    .refine((data) => data.id || data.link, {
+        message: 'Either id or link is required',
+        path: ['id'],
+    });
 
-const albumTrackSchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    artists: z.array(z.string()),
-    album: z.string(),
-    duration: z.number(),
-});
-
-const albumSchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    artists: z.array(z.string()),
-    tracks: z.array(albumTrackSchema),
+const albumIdParamSchema = z.object({
+    id: z.string().min(1, 'Album ID required'),
 });
 
 const albumsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
+    const albumService = new DefaultAlbumService();
 
     api.get(
-        '/albums/{id}',
+        '/albums/by',
         {
             schema: {
-                summary: 'Retrieve album by id',
+                querystring: albumByQuerySchema,
                 tags: ['albums'],
-                params: albumParamsSchema,
-                response: { 200: albumSchema },
+                summary: 'Retrieve album by id or link',
             },
         },
         async (req) => {
-            return app.services.albumService.getAlbumById(req.params.id);
+            const { id, link } = req.query;
+            return albumService.getAlbumByIdOrLink({ id, link });
+        }
+    );
+
+    api.get(
+        '/albums/:id',
+        {
+            schema: {
+                params: albumIdParamSchema,
+                tags: ['albums'],
+                summary: 'Retrieve album by id',
+            },
+        },
+        async (req) => {
+            const { id } = req.params;
+            return albumService.getAlbumById(id);
         }
     );
 };

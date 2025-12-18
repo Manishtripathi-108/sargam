@@ -5,9 +5,16 @@ import type {
     SearchPlaylist,
     SearchSong,
 } from '../../types/core/search.model';
+import type { SaavnSearchAlbumAPIResponse } from '../../types/saavn/albums.types';
+import type {
+    SaavnSearchAPIResponse,
+    SaavnSearchArtistAPIResponse,
+    SaavnSearchPlaylistAPIResponse,
+    SaavnSearchSongAPIResponse,
+} from '../../types/saavn/search.types';
 import { notFound } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
-import { mapGlobalSearch, mapSearchAlbum, mapSearchPlaylist, mapArtist, mapSongBase } from './saavn.mapper';
+import { mapGlobalSearch, mapSearchAlbum, mapSearchPlaylist, mapSongBase, mapSearchArtist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 
 type SearchParams = {
@@ -16,8 +23,8 @@ type SearchParams = {
     limit: number;
 };
 
-export async function searchAll(query: string): Promise<GlobalSearchResult> {
-    const res = await saavnClient.get('/', {
+export async function all(query: string): Promise<GlobalSearchResult> {
+    const res = await saavnClient.get<SaavnSearchAPIResponse>('/', {
         params: { query, __call: SAAVN_ROUTES.SEARCH.ALL },
     });
 
@@ -28,8 +35,8 @@ export async function searchAll(query: string): Promise<GlobalSearchResult> {
     return mapGlobalSearch(res.data);
 }
 
-export async function searchSongs({ query, page, limit }: SearchParams): Promise<SearchSong> {
-    const res = await saavnClient.get('/', {
+export async function songs({ query, page, limit }: SearchParams): Promise<SearchSong> {
+    const res = await saavnClient.get<SaavnSearchSongAPIResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -49,8 +56,8 @@ export async function searchSongs({ query, page, limit }: SearchParams): Promise
     };
 }
 
-export async function searchAlbums({ query, page, limit }: SearchParams): Promise<SearchAlbum> {
-    const res = await saavnClient.get('/', {
+export async function albums({ query, page, limit }: SearchParams): Promise<SearchAlbum> {
+    const res = await saavnClient.get<SaavnSearchAlbumAPIResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -66,8 +73,8 @@ export async function searchAlbums({ query, page, limit }: SearchParams): Promis
     return mapSearchAlbum(res.data);
 }
 
-export async function searchArtists({ query, page, limit }: SearchParams): Promise<SearchArtist> {
-    const res = await saavnClient.get('/', {
+export async function artists({ query, page, limit }: SearchParams): Promise<SearchArtist> {
+    const res = await saavnClient.get<SaavnSearchArtistAPIResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -80,15 +87,11 @@ export async function searchArtists({ query, page, limit }: SearchParams): Promi
         throw notFound('No artists found');
     }
 
-    return {
-        total: Number(res.data?.total),
-        start: Number(res.data?.start),
-        results: res.data.results.map(mapArtist).slice(0, limit),
-    };
+    return mapSearchArtist(res.data);
 }
 
-export async function searchPlaylists({ query, page, limit }: SearchParams): Promise<SearchPlaylist> {
-    const res = await saavnClient.get('/', {
+export async function playlists({ query, page, limit }: SearchParams): Promise<SearchPlaylist> {
+    const res = await saavnClient.get<SaavnSearchPlaylistAPIResponse>('/', {
         params: {
             q: query,
             p: page,

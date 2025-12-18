@@ -1,31 +1,120 @@
-import type { SearchEntityType } from '../types/music.types';
-import type { SearchService } from './types';
+import { SaavnProvider } from '../providers/saavn/saavn.provider';
+import type {
+    GlobalSearchResult,
+    SearchAlbum,
+    SearchArtist,
+    SearchPlaylist,
+    SearchSong,
+} from '../types/core/search.model';
+import { AppError } from '../utils/error.utils';
 
-export class DefaultSearchService implements SearchService {
-    constructor(private readonly repo: MusicRepository) {}
+type Provider = 'saavn';
 
-    async globalSearch(params: { q: string; type?: SearchEntityType; limit: number; offset: number }) {
-        // Swap repository with real search provider (e.g., Elastic) when available.
-        const { total, results } = await this.repo.search(params);
-        return {
-            meta: { total, limit: params.limit, offset: params.offset },
-            results,
-        };
+interface ServiceOptions {
+    provider?: Provider;
+}
+
+const providers = {
+    saavn: SaavnProvider,
+};
+
+export class DefaultSearchService {
+    private getProvider(opts?: ServiceOptions) {
+        const provider = providers[opts?.provider ?? 'saavn'];
+        if (!provider) {
+            throw new AppError('Provider not found', 500);
+        }
+        return provider;
     }
 
-    async searchSongs(params: { q: string; limit: number; offset: number }) {
-        return this.repo.searchSongs(params);
+    async globalSearch(
+        query: string,
+        type: 'song' | 'album' | 'artist' | 'playlist' | 'all',
+        limit: number,
+        offset: number,
+        opts?: ServiceOptions
+    ): Promise<GlobalSearchResult | SearchSong | SearchAlbum | SearchArtist | SearchPlaylist> {
+        if (!query) {
+            throw new AppError('Query is required', 400);
+        }
+
+        const provider = this.getProvider(opts);
+        const page = Math.floor(offset / limit) + 1;
+
+        try {
+            switch (type) {
+                case 'song':
+                    return provider.search.songs({ query, page, limit });
+
+                case 'album':
+                    return provider.search.albums({ query, page, limit });
+
+                case 'artist':
+                    return provider.search.artists({ query, page, limit });
+
+                case 'playlist':
+                    return provider.search.playlists({ query, page, limit });
+
+                case 'all':
+                default:
+                    return provider.search.all(query);
+            }
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Search failed: ${err?.message}`, 500);
+        }
     }
 
-    async searchAlbums(params: { q: string; limit: number; offset: number }) {
-        return this.repo.searchAlbums(params);
+    async searchSongs(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchSong> {
+        const provider = this.getProvider(opts);
+        const page = Math.floor(offset / limit) + 1;
+
+        try {
+            return await provider.search.songs({ query, page, limit });
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Song search failed: ${err?.message}`, 500);
+        }
     }
 
-    async searchArtists(params: { q: string; limit: number; offset: number }) {
-        return this.repo.searchArtists(params);
+    async searchAlbums(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchAlbum> {
+        const provider = this.getProvider(opts);
+        const page = Math.floor(offset / limit) + 1;
+
+        try {
+            return await provider.search.albums({ query, page, limit });
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Album search failed: ${err?.message}`, 500);
+        }
     }
 
-    async searchPlaylists(params: { q: string; limit: number; offset: number }) {
-        return this.repo.searchPlaylists(params);
+    async searchArtists(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchArtist> {
+        const provider = this.getProvider(opts);
+        const page = Math.floor(offset / limit) + 1;
+
+        try {
+            return await provider.search.artists({ query, page, limit });
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Artist search failed: ${err?.message}`, 500);
+        }
+    }
+
+    async searchPlaylists(
+        query: string,
+        limit: number,
+        offset: number,
+        opts?: ServiceOptions
+    ): Promise<SearchPlaylist> {
+        const provider = this.getProvider(opts);
+        const page = Math.floor(offset / limit) + 1;
+
+        try {
+            return await provider.search.playlists({ query, page, limit });
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Playlist search failed: ${err?.message}`, 500);
+        }
     }
 }

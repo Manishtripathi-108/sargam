@@ -1,6 +1,6 @@
 import type { Album } from './album.model';
 import type { Artist } from './artist.model';
-import { ImageAsset } from './image.model';
+import type { ImageAsset } from './image.model';
 import type { Playlist } from './playlist.model';
 import type { SongBase } from './song.model';
 
@@ -33,7 +33,7 @@ export type SearchPlaylist = {
 export type SearchArtist = {
     total: number;
     start: number;
-    results: Artist[];
+    results: Omit<Artist, 'bio' | 'follower_count'>[];
 };
 
 export type SearchAlbum = {

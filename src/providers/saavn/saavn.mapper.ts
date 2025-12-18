@@ -3,12 +3,16 @@ import type { Album } from '../../types/core/album.model';
 import type { Artist, ArtistBase } from '../../types/core/artist.model';
 import type { ImageAsset } from '../../types/core/image.model';
 import type { Playlist } from '../../types/core/playlist.model';
-import type { GlobalSearchResult, SearchAlbum, SearchPlaylist } from '../../types/core/search.model';
+import type { GlobalSearchResult, SearchAlbum, SearchArtist, SearchPlaylist } from '../../types/core/search.model';
 import type { Song, SongAudio, SongBase } from '../../types/core/song.model';
 import type { SaavnAlbumAPIResponse, SaavnSearchAlbumAPIResponse } from '../../types/saavn/albums.types';
 import type { SaavnArtistAPIResponse, SaavnArtistBaseAPIResponse } from '../../types/saavn/artists.type';
 import type { SaavnPlaylistAPIResponse } from '../../types/saavn/playlist.types';
-import type { SaavnSearchAPIResponse, SaavnSearchPlaylistAPIResponse } from '../../types/saavn/search.types';
+import type {
+    SaavnSearchAPIResponse,
+    SaavnSearchArtistAPIResponse,
+    SaavnSearchPlaylistAPIResponse,
+} from '../../types/saavn/search.types';
 import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
 import crypto from 'node-forge';
 
@@ -115,7 +119,7 @@ export const mapSongBase = (s: SaavnSongAPIResponse): SongBase => {
         explicit: s.explicit_content === '1',
         language: s.language,
         album: decodeHtml(s.more_info?.album) || 'unknown album',
-        artists: s.more_info?.artistMap?.primary_artists?.join(', ') ?? 'unknown artists',
+        artists: s.more_info?.artistMap?.primary_artists?.map((a) => a.name).join(', ') ?? 'unknown artists',
         image: imgFromSaavn(s.image),
     };
 };
@@ -124,7 +128,7 @@ export const mapArtist = (a: SaavnArtistAPIResponse): Artist => ({
     id: a.artistId ?? a.id,
     name: a.name,
     type: 'artist',
-    followerCount: Number(a.follower_count ?? 0),
+    follower_count: Number(a.follower_count ?? 0),
     bio: a.bio ? JSON.parse(a.bio) : null,
     image: imgFromSaavn(a.image),
 });
@@ -242,5 +246,16 @@ export const mapSearchPlaylist = (p: SaavnSearchPlaylistAPIResponse): SearchPlay
         total_songs: Number(i.more_info?.song_count ?? 0),
         language: i.more_info?.language,
         explicit: i.explicit_content === '1',
+    })),
+});
+
+export const mapSearchArtist = (a: SaavnSearchArtistAPIResponse): SearchArtist => ({
+    total: Number(a.total),
+    start: Number(a.start),
+    results: a.results.map((i) => ({
+        id: i.id,
+        name: i.name,
+        type: 'artist',
+        image: imgFromSaavn(i.image),
     })),
 });

@@ -1,94 +1,97 @@
+import { DefaultArtistService } from '../services/artist.service';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 
-const toFastifyPath = (path: string) => path.replace(/\{(\w+)\}/g, ':$1');
+const artistByQuerySchema = z
+    .object({
+        id: z.string().optional(),
+        link: z.string().optional(),
+    })
+    .refine((data) => data.id || data.link, {
+        message: 'Either id or link is required',
+        path: ['id'],
+    });
 
-const artistParamsSchema = z.object({ id: z.string().min(1) });
+const artistIdParamSchema = z.object({
+    id: z.string().min(1, 'Artist ID required'),
+});
 
-const paginationSchema = z.object({
-    limit: z.coerce.number().int().positive().max(100).default(50),
+const artistSongsQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(50),
     offset: z.coerce.number().int().min(0).default(0),
 });
 
-const songSummarySchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    artists: z.array(z.string()),
-    album: z.string(),
-    duration: z.number(),
-});
-
-const albumSummarySchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    artists: z.array(z.string()),
-    year: z.number(),
-});
-
-const artistSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    bio: z.string().optional(),
-    genres: z.array(z.string()),
-    topTracks: z.array(songSummarySchema),
+const artistAlbumsQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    offset: z.coerce.number().int().min(0).default(0),
 });
 
 const artistsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
-    // Public artist endpoints; add authentication hooks when protection is required.
+    const artistService = new DefaultArtistService();
 
-    const artistByIdPath = '/artists/{id}';
     api.get(
-        toFastifyPath(artistByIdPath),
+        '/artists/by',
         {
             schema: {
-                summary: 'Retrieve artist by id',
+                querystring: artistByQuerySchema,
                 tags: ['artists'],
-                params: artistParamsSchema,
-                response: { 200: artistSchema },
+                summary: 'Retrieve artists by id or link',
             },
         },
         async (req) => {
-            return app.services.artistService.getArtistById(req.params.id);
+            const { id, link } = req.query;
+            return artistService.getArtistByIdOrLink({ id, link });
         }
     );
 
-    const artistSongsPath = '/artists/{id}/songs';
     api.get(
-        toFastifyPath(artistSongsPath),
+        '/artists/:id',
         {
             schema: {
-                summary: 'Retrieve artist songs',
-                tags: ['artists', 'songs'],
-                params: artistParamsSchema,
-                querystring: paginationSchema,
-                response: { 200: z.object({ data: z.array(songSummarySchema) }) },
+                params: artistIdParamSchema,
+                tags: ['artists'],
+                summary: 'Retrieve artist by id',
+            },
+        },
+        async (req) => {
+            const { id } = req.params;
+            return artistService.getArtistById(id);
+        }
+    );
+
+    api.get(
+        '/artists/:id/songs',
+        {
+            schema: {
+                params: artistIdParamSchema,
+                querystring: artistSongsQuerySchema,
+                tags: ['artists'],
+                summary: 'Get artist songs',
             },
         },
         async (req) => {
             const { id } = req.params;
             const { limit, offset } = req.query;
-            return app.services.artistService.getArtistSongs({ id, limit, offset });
+            return artistService.getArtistSongs(id, limit, offset);
         }
     );
 
-    const artistAlbumsPath = '/artists/{id}/albums';
     api.get(
-        artistAlbumsPath,
+        '/artists/:id/albums',
         {
             schema: {
-                summary: 'Retrieve artist albums',
-                tags: ['artists', 'albums'],
-                params: artistParamsSchema,
-                querystring: paginationSchema,
-                response: { 200: z.object({ success: z.boolean(), data: z.array(albumSummarySchema) }) },
+                params: artistIdParamSchema,
+                querystring: artistAlbumsQuerySchema,
+                tags: ['artists'],
+                summary: 'Get artist albums',
             },
         },
         async (req) => {
             const { id } = req.params;
             const { limit, offset } = req.query;
-            return app.services.artistService.getArtistAlbums({ id, limit, offset });
+            return artistService.getArtistAlbums(id, limit, offset);
         }
     );
 };

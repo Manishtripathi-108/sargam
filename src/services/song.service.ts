@@ -1,27 +1,77 @@
-import { notFound } from '../utils/error.utils';
-import type { SongService } from './types';
+import { SaavnProvider } from '../providers/saavn/saavn.provider';
+import type { Song } from '../types/core/song.model';
+import { AppError } from '../utils/error.utils';
 
-export class DefaultSongService implements SongService {
-    constructor(private readonly repo: MusicRepository) {}
+type Provider = 'saavn';
 
-    async getSongsByIdOrLink(params: { id?: string; link?: string }) {
-        // Replace with DB or external provider lookup.
-        return this.repo.findSongsByIdOrLink(params);
+interface ServiceOptions {
+    provider?: Provider;
+}
+
+const providers = {
+    saavn: SaavnProvider,
+};
+
+export class DefaultSongService {
+    async getSongById(id: string, opts?: ServiceOptions): Promise<Song> {
+        const provider = providers[opts?.provider ?? 'saavn'];
+        if (!provider) {
+            throw new AppError(`Provider not found`, 500);
+        }
+
+        try {
+            const songs = await provider.songs.getByIds(id);
+            if (!songs || songs?.length === 0) {
+                throw new AppError('Song not found', 404);
+            }
+            return songs[0];
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Failed to fetch song: ${err?.message}`, 500);
+        }
     }
 
-    async getSongById(id: string) {
-        const song = await this.repo.findSongById(id);
-        if (!song) {
-            throw notFound('Song not found');
+    async getSongByIds(id: string, opts?: ServiceOptions): Promise<Song[]> {
+        const provider = providers[opts?.provider ?? 'saavn'];
+        if (!provider) {
+            throw new AppError(`Provider not found`, 500);
         }
-        return song;
+
+        try {
+            const songs = await provider.songs.getByIds(id);
+            if (!songs || songs.length === 0) {
+                throw new AppError('Song not found', 404);
+            }
+            return songs;
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Failed to fetch song: ${err?.message}`, 500);
+        }
     }
 
-    async getSongSuggestions(params: { id: string; limit: number }) {
-        const base = await this.repo.findSongById(params.id);
-        if (!base) {
-            throw notFound('Song not found');
+    async getSongByLink(link: string): Promise<Song> {
+        if (!link) {
+            throw new AppError('Link is required', 400);
         }
-        return this.repo.findSongSuggestions(params.id, params.limit);
+
+        const provider = providers['saavn'];
+        try {
+            const song = await provider.songs.getByLink(link);
+            return song;
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Failed to fetch songs: ${err?.message}`, 500);
+        }
+    }
+
+    async getSongSuggestions(id: string, limit: number = 10): Promise<Song[]> {
+        const provider = providers['saavn'];
+        try {
+            const suggestions = await provider.songs.getSuggestions(id, limit);
+            return suggestions || [];
+        } catch (err: any) {
+            if (err instanceof AppError) throw err;
+            throw new AppError(`Failed to fetch suggestions: ${err?.message}`, 500);
+        }
     }
 }

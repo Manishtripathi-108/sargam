@@ -1,7 +1,7 @@
 import corsPlugin from './plugins/cors';
 import dbPlugin from './plugins/db';
 import envPlugin from './plugins/env';
-import globalErrorPlugin from './plugins/error-handler';
+import registerErrorHandler from './plugins/error-handler';
 import jwtPlugin from './plugins/jwt';
 import servicesPlugin from './plugins/services';
 import successPlugin from './plugins/success';
@@ -28,7 +28,6 @@ app.register(jwtPlugin);
 app.register(successPlugin);
 app.register(dbPlugin);
 app.register(servicesPlugin);
-app.register(globalErrorPlugin);
 
 // serializer & validator compilers (zod)
 app.setSerializerCompiler(serializerCompiler);
@@ -36,5 +35,7 @@ app.setValidatorCompiler(validatorCompiler);
 
 // Register API routes
 app.register(apiRoutes, { prefix: '/api' });
+
+registerErrorHandler(app);
 
 export default app;

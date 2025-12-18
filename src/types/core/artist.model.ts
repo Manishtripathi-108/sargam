@@ -1,4 +1,4 @@
-import { Prettify } from '../helper.types';
+import type { Prettify } from '../helper.types';
 import type { ImageAsset } from './image.model';
 
 export type ArtistBase = {
@@ -11,6 +11,6 @@ export type Artist = Prettify<
     ArtistBase & {
         bio: string | null;
         image: ImageAsset;
-        followerCount: number;
+        follower_count: number;
     }
 >;

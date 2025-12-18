@@ -1,9 +1,17 @@
 import { formatAndSortZodIssues } from '../utils/helper.utils';
-import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import http from 'http';
 
-const globalErrorPlugin: FastifyPluginAsync = async (app) => {
+type HttpLikeError = {
+    statusCode?: number;
+    status?: number;
+    message?: unknown;
+};
+
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+
+const registerErrorHandler = async (app: FastifyInstance) => {
     app.setErrorHandler(async (err: unknown, req: FastifyRequest, reply: FastifyReply) => {
         // ensure the success flag is false for any error
         reply.success = false;
@@ -17,8 +25,8 @@ const globalErrorPlugin: FastifyPluginAsync = async (app) => {
         // handle zod validation errors only
         try {
             if (hasZodFastifySchemaValidationErrors(err)) {
-                const rawIssues = (err as any).validation;
-                const issues = formatAndSortZodIssues(rawIssues);
+                const validation = err.validation;
+                const issues = formatAndSortZodIssues(validation);
 
                 req.log.info({ url: req.url, method: req.method, issues }, 'validation_error');
 
@@ -34,32 +42,37 @@ const globalErrorPlugin: FastifyPluginAsync = async (app) => {
             req.log.error({ err: zErr, origErr: err }, 'error_formatting_zod_issues');
         }
 
-        // default error handling
         try {
-            const maybeErr = err as any;
-            const statusCode = Number(maybeErr?.statusCode ?? maybeErr?.status ?? 500) || 500;
-            const statusMessage = http.STATUS_CODES[statusCode] ?? 'Internal Server Error';
-            const message =
-                typeof maybeErr?.message === 'string' && maybeErr?.message.length > 0
-                    ? maybeErr.message
-                    : statusMessage;
+            const httpErr: HttpLikeError | null = isObject(err) ? err : null;
 
-            // log server errors at error level, client errors at info level
-            if (statusCode >= 500) {
+            const statusCode =
+                typeof httpErr?.statusCode === 'number'
+                    ? httpErr.statusCode
+                    : typeof httpErr?.status === 'number'
+                      ? httpErr.status
+                      : 500;
+
+            const safeStatusCode = statusCode || 500;
+            const statusMessage = http.STATUS_CODES[safeStatusCode] ?? 'Internal Server Error';
+
+            const message =
+                typeof httpErr?.message === 'string' && httpErr.message.length > 0 ? httpErr.message : statusMessage;
+
+            if (safeStatusCode >= 500) {
                 req.log.error({ err, url: req.url, method: req.method }, 'unhandled_error');
             } else {
                 req.log.info({ err, url: req.url, method: req.method }, 'http_error');
             }
 
-            return reply.status(statusCode).send({
-                statusCode,
+            return reply.status(safeStatusCode).send({
+                statusCode: safeStatusCode,
                 error: statusMessage,
                 message,
                 success: false,
             });
-        } catch (finalErr) {
-            // last resort. If our default builder throws, log and send minimal 500
+        } catch (finalErr: unknown) {
             req.log.error({ err: finalErr, origErr: err }, 'fatal_error_in_error_handler');
+
             return reply.status(500).send({
                 statusCode: 500,
                 error: 'Internal Server Error',
@@ -70,4 +83,4 @@ const globalErrorPlugin: FastifyPluginAsync = async (app) => {
     });
 };
 
-export default globalErrorPlugin;
+export default registerErrorHandler;
