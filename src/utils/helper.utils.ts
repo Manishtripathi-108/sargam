@@ -13,6 +13,8 @@ export const formatAndSortZodIssues = (issues: ZodFastifySchemaValidationError[]
             // primary: path, secondary: message
             if (a.path < b.path) return -1;
             if (a.path > b.path) return 1;
-            return a.message < b.message ? -1 : a.message > b.message ? 1 : 0;
+            const msgA = a.message ?? '';
+            const msgB = b.message ?? '';
+            return msgA < msgB ? -1 : msgA > msgB ? 1 : 0;
         });
 };
