@@ -1,5 +1,4 @@
 import { notFound } from '../utils/error.utils';
-import type { MusicRepository } from './repositories/types';
 import type { SongService } from './types';
 
 export class DefaultSongService implements SongService {

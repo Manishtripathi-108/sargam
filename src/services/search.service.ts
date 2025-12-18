@@ -1,5 +1,4 @@
 import type { SearchEntityType } from '../types/music.types';
-import type { MusicRepository } from './repositories/types';
 import type { SearchService } from './types';
 
 export class DefaultSearchService implements SearchService {
