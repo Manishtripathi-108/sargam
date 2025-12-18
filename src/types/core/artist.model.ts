@@ -1,4 +1,4 @@
-import { Prettify } from '../helper.type';
+import { Prettify } from '../helper.types';
 import type { ImageAsset } from './image.model';
 
 export type ArtistBase = {

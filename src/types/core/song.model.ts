@@ -1,4 +1,4 @@
-import { Prettify } from '../helper.type';
+import { Prettify } from '../helper.types';
 import type { AlbumBase } from './album.model';
 import type { ArtistBase } from './artist.model';
 import type { ImageAsset } from './image.model';
