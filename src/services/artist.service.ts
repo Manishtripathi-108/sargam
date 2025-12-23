@@ -51,14 +51,21 @@ export class DefaultArtistService {
         }
     }
 
-    async getSongs(
-        id: string,
-        offset: number,
-        limit: number,
-        sortBy: string,
-        sortOrder: string,
-        opts?: ServiceOptions
-    ): Promise<{ total: number; songs: Song[] }> {
+    async getSongs({
+        id,
+        offset,
+        limit,
+        sortBy,
+        sortOrder,
+        opts,
+    }: {
+        id: string;
+        offset: number;
+        limit: number;
+        sortBy: string;
+        sortOrder: string;
+        opts?: ServiceOptions;
+    }): Promise<{ total: number; songs: Song[] }> {
         if (!id) {
             throw new AppError('Artist id is required', 400);
         }
@@ -66,20 +73,27 @@ export class DefaultArtistService {
         const provider = this.getProvider(opts);
 
         try {
-            return await provider.artists.getSongs(id, limit, offset, sortBy, sortOrder);
+            return await provider.artists.getSongs({ id, limit, offset, sortBy, sortOrder });
         } catch (err: unknown) {
             return wrapError(err, 'Failed to fetch artist songs', 500);
         }
     }
 
-    async getAlbums(
-        id: string,
-        offset: number,
-        limit: number,
-        sortBy: string,
-        sortOrder: string,
-        opts?: ServiceOptions
-    ): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
+    async getAlbums({
+        id,
+        offset,
+        limit,
+        sortBy,
+        sortOrder,
+        opts,
+    }: {
+        id: string;
+        offset: number;
+        limit: number;
+        sortBy: string;
+        sortOrder: string;
+        opts?: ServiceOptions;
+    }): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
         if (!id) {
             throw new AppError('Artist id is required', 400);
         }
@@ -87,7 +101,7 @@ export class DefaultArtistService {
         const provider = this.getProvider(opts);
 
         try {
-            return await provider.artists.getAlbums(id, limit, offset, sortBy, sortOrder);
+            return await provider.artists.getAlbums({ id, limit, offset, sortBy, sortOrder });
         } catch (err: unknown) {
             return wrapError(err, 'Failed to fetch artist albums', 500);
         }

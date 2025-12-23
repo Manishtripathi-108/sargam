@@ -31,7 +31,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { q, type, limit, offset } = req.query;
-            return service.globalSearch(q, type, limit, offset);
+            return service.globalSearch({ query: q, type, limit, offset });
         }
     );
 
@@ -46,7 +46,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { q, limit, offset } = req.query;
-            return service.searchSongs(q, limit, offset);
+            return service.searchSongs({ query: q, limit, offset });
         }
     );
 
@@ -61,7 +61,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { q, limit, offset } = req.query;
-            return service.searchAlbums(q, limit, offset);
+            return service.searchAlbums({ query: q, limit, offset });
         }
     );
 
@@ -76,7 +76,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { q, limit, offset } = req.query;
-            return service.searchArtists(q, limit, offset);
+            return service.searchArtists({ query: q, limit, offset });
         }
     );
 
@@ -91,7 +91,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         },
         async (req) => {
             const { q, limit, offset } = req.query;
-            return service.searchPlaylists(q, limit, offset);
+            return service.searchPlaylists({ query: q, limit, offset });
         }
     );
 };

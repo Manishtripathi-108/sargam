@@ -28,13 +28,19 @@ export class DefaultSearchService {
         return provider;
     }
 
-    async globalSearch(
-        query: string,
-        type: 'song' | 'album' | 'artist' | 'playlist' | 'all',
-        limit: number,
-        offset: number,
-        opts?: ServiceOptions
-    ): Promise<GlobalSearchResult | SearchSong | SearchAlbum | SearchArtist | SearchPlaylist> {
+    async globalSearch({
+        query,
+        type,
+        limit,
+        offset,
+        opts,
+    }: {
+        query: string;
+        type: 'song' | 'album' | 'artist' | 'playlist' | 'all';
+        limit: number;
+        offset: number;
+        opts?: ServiceOptions;
+    }): Promise<GlobalSearchResult | SearchSong | SearchAlbum | SearchArtist | SearchPlaylist> {
         if (!query) {
             throw new AppError('Query is required', 400);
         }
@@ -65,7 +71,17 @@ export class DefaultSearchService {
         }
     }
 
-    async searchSongs(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchSong> {
+    async searchSongs({
+        query,
+        limit,
+        offset,
+        opts,
+    }: {
+        query: string;
+        limit: number;
+        offset: number;
+        opts?: ServiceOptions;
+    }): Promise<SearchSong> {
         const provider = this.getProvider(opts);
         const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
@@ -76,7 +92,17 @@ export class DefaultSearchService {
         }
     }
 
-    async searchAlbums(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchAlbum> {
+    async searchAlbums({
+        query,
+        limit,
+        offset,
+        opts,
+    }: {
+        query: string;
+        limit: number;
+        offset: number;
+        opts?: ServiceOptions;
+    }): Promise<SearchAlbum> {
         const provider = this.getProvider(opts);
         const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
@@ -87,7 +113,17 @@ export class DefaultSearchService {
         }
     }
 
-    async searchArtists(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchArtist> {
+    async searchArtists({
+        query,
+        limit,
+        offset,
+        opts,
+    }: {
+        query: string;
+        limit: number;
+        offset: number;
+        opts?: ServiceOptions;
+    }): Promise<SearchArtist> {
         const provider = this.getProvider(opts);
         const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
@@ -98,12 +134,17 @@ export class DefaultSearchService {
         }
     }
 
-    async searchPlaylists(
-        query: string,
-        limit: number,
-        offset: number,
-        opts?: ServiceOptions
-    ): Promise<SearchPlaylist> {
+    async searchPlaylists({
+        query,
+        limit,
+        offset,
+        opts,
+    }: {
+        query: string;
+        limit: number;
+        offset: number;
+        opts?: ServiceOptions;
+    }): Promise<SearchPlaylist> {
         const provider = this.getProvider(opts);
         const { page, limit: safeLimit } = normalizePagination(limit, offset);
 

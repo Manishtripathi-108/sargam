@@ -77,7 +77,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
             const { id } = req.params;
             const { offset, limit, sortBy, sortOrder } = req.query;
 
-            return service.getSongs(id, offset, limit, sortBy, sortOrder);
+            return service.getSongs({ id, offset, limit, sortBy, sortOrder });
         }
     );
 
@@ -95,7 +95,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
             const { id } = req.params;
             const { offset, limit, sortBy, sortOrder } = req.query;
 
-            return service.getAlbums(id, offset, limit, sortBy, sortOrder);
+            return service.getAlbums({ id, offset, limit, sortBy, sortOrder });
         }
     );
 };
