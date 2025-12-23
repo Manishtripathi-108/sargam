@@ -3,6 +3,12 @@ import type { AlbumBase } from './album.model';
 import type { ArtistBase } from './artist.model';
 import type { ImageAsset } from './image.model';
 
+
+
+
+
+
+
 export type SongAudioQuality = 'low' | 'medium' | 'high' | 'lossless';
 
 export type SongAudio = {
@@ -16,7 +22,7 @@ export type SongBase = {
     id: string;
     name: string;
     type: 'song';
-    duration: number;
+    duration_ms: number;
     explicit: boolean;
     language: string | null;
     image: ImageAsset;

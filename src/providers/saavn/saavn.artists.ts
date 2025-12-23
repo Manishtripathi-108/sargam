@@ -8,7 +8,7 @@ import type {
 } from '../../types/saavn/artists.type';
 import { AppError, notFound } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
-import { mapArtist, mapAlbum, mapSong, mapAlbumBase } from './saavn.mapper';
+import { mapArtist, mapSong, mapAlbumBase } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 
 const extractArtistToken = (link: string) => {
