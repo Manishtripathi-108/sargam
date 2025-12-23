@@ -1,110 +1,68 @@
-import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Album } from '../types/core/album.model';
 import type { Artist } from '../types/core/artist.model';
 import type { Paginated } from '../types/core/pagination.model';
 import type { Song } from '../types/core/song.model';
 import { AppError, wrapError } from '../utils/error.utils';
+import { getProvider, type ServiceOptions } from '../utils/provider.util';
 
-type Provider = 'saavn';
+export async function getArtistById(id: string, opts?: ServiceOptions): Promise<Artist> {
+    if (!id) {
+        throw new AppError('Artist id is required', 400);
+    }
 
-interface ServiceOptions {
-    provider?: Provider;
+    try {
+        return await getProvider(opts).artists.getById(id);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch artist', 500);
+    }
 }
 
-const providers = {
-    saavn: SaavnProvider,
-};
-
-export class DefaultArtistService {
-    private getProvider(opts?: ServiceOptions) {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError('Provider not found', 500);
-        }
-        return provider;
+export async function getArtistByLink(link: string, opts?: ServiceOptions): Promise<Artist> {
+    if (!link) {
+        throw new AppError('Artist link is required', 400);
     }
 
-    async getById(id: string, opts?: ServiceOptions): Promise<Artist> {
-        if (!id) {
-            throw new AppError('Artist id is required', 400);
-        }
+    try {
+        return await getProvider(opts).artists.getByLink(link);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch artist', 500);
+    }
+}
 
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.artists.getById(id);
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch artist', 500);
-        }
+export async function getArtistSongs(params: {
+    id: string;
+    offset: number;
+    limit: number;
+    sortBy: string;
+    sortOrder: string;
+    opts?: ServiceOptions;
+}): Promise<Paginated<Song>> {
+    if (!params.id) {
+        throw new AppError('Artist id is required', 400);
     }
 
-    async getByLink(link: string, opts?: ServiceOptions): Promise<Artist> {
-        if (!link) {
-            throw new AppError('Artist link is required', 400);
-        }
+    try {
+        return await getProvider(params.opts).artists.getSongs(params);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch artist songs', 500);
+    }
+}
 
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.artists.getByLink(link);
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch artist', 500);
-        }
+export async function getArtistAlbums(params: {
+    id: string;
+    offset: number;
+    limit: number;
+    sortBy: string;
+    sortOrder: string;
+    opts?: ServiceOptions;
+}): Promise<Paginated<Omit<Album, 'songs'>>> {
+    if (!params.id) {
+        throw new AppError('Artist id is required', 400);
     }
 
-    async getSongs({
-        id,
-        offset,
-        limit,
-        sortBy,
-        sortOrder,
-        opts,
-    }: {
-        id: string;
-        offset: number;
-        limit: number;
-        sortBy: string;
-        sortOrder: string;
-        opts?: ServiceOptions;
-    }): Promise<Paginated<Song>> {
-        if (!id) {
-            throw new AppError('Artist id is required', 400);
-        }
-
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.artists.getSongs({ id, limit, offset, sortBy, sortOrder });
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch artist songs', 500);
-        }
-    }
-
-    async getAlbums({
-        id,
-        offset,
-        limit,
-        sortBy,
-        sortOrder,
-        opts,
-    }: {
-        id: string;
-        offset: number;
-        limit: number;
-        sortBy: string;
-        sortOrder: string;
-        opts?: ServiceOptions;
-    }): Promise<Paginated<Omit<Album, 'songs'>>> {
-        if (!id) {
-            throw new AppError('Artist id is required', 400);
-        }
-
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.artists.getAlbums({ id, limit, offset, sortBy, sortOrder });
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch artist albums', 500);
-        }
+    try {
+        return await getProvider(params.opts).artists.getAlbums(params);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch artist albums', 500);
     }
 }

@@ -58,7 +58,7 @@ export async function getSongs({
     const res = await saavnClient.get<SaavnArtistSongAPIResponse>('/', {
         params: {
             artistId: id,
-            page,
+            page: page - 1,
             category: sortBy,
             sort_order: sortOrder,
             __call: SAAVN_ROUTES.ARTIST.SONGS,
@@ -67,10 +67,12 @@ export async function getSongs({
 
     const data = assertData(res.data, 'Artist not found');
 
-    const total = Number(data.topSongs?.total ?? 0);
-    const items = data.topSongs?.songs?.map(mapSong) ?? [];
-
-    return createPagination({ total, offset: page * 10, items, hasNext: !data.topSongs.last_page });
+    return createPagination({
+        items: data.topSongs?.songs?.map(mapSong),
+        offset: (page - 1) * 10,
+        total: data.topSongs?.total,
+        hasNext: !data.topSongs.last_page,
+    });
 }
 
 export async function getAlbums({
@@ -91,7 +93,7 @@ export async function getAlbums({
     const res = await saavnClient.get<SaavnArtistAlbumAPIResponse>('/', {
         params: {
             artistId: id,
-            page,
+            page: page - 1,
             category: sortBy,
             sort_order: sortOrder,
             __call: SAAVN_ROUTES.ARTIST.ALBUMS,
@@ -100,8 +102,10 @@ export async function getAlbums({
 
     const data = assertData(res.data, 'Artist not found');
 
-    const total = Number(data.topAlbums?.total ?? 0);
-    const items = data.topAlbums?.albums?.map(mapAlbumBase) ?? [];
-
-    return createPagination({ total, offset: page * 10, items, hasNext: !data.topAlbums.last_page });
+    return createPagination({
+        items: data.topAlbums?.albums?.map(mapAlbumBase),
+        offset: (page - 1) * 10,
+        total: data.topAlbums?.total,
+        hasNext: !data.topAlbums.last_page,
+    });
 }

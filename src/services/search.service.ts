@@ -1,151 +1,47 @@
-import { SaavnProvider } from '../providers/saavn/saavn.provider';
-import type {
-    GlobalSearchResult,
-    SearchAlbum,
-    SearchArtist,
-    SearchPlaylist,
-    SearchSong,
-} from '../types/core/search.model';
+import type { GlobalSearchResult, SearchAlbum, SearchArtist, SearchPlaylist, SearchSong } from '../types/core/search.model';
 import { AppError, wrapError } from '../utils/error.utils';
+import { getProvider, type ServiceOptions } from '../utils/provider.util';
 
-type Provider = 'saavn';
-
-interface ServiceOptions {
-    provider?: Provider;
-}
-
-const providers = {
-    saavn: SaavnProvider,
-};
-
-export class DefaultSearchService {
-    private getProvider(opts?: ServiceOptions) {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError('Provider not found', 500);
-        }
-        return provider;
+export async function globalSearch(params: {
+    query: string;
+    type: 'song' | 'album' | 'artist' | 'playlist' | 'all';
+    limit: number;
+    offset: number;
+    opts?: ServiceOptions;
+}): Promise<GlobalSearchResult | SearchSong | SearchAlbum | SearchArtist | SearchPlaylist> {
+    if (!params.query) {
+        throw new AppError('Query is required', 400);
     }
 
-    async globalSearch({
-        query,
-        type,
-        limit,
-        offset,
-        opts,
-    }: {
-        query: string;
-        type: 'song' | 'album' | 'artist' | 'playlist' | 'all';
-        limit: number;
-        offset: number;
-        opts?: ServiceOptions;
-    }): Promise<GlobalSearchResult | SearchSong | SearchAlbum | SearchArtist | SearchPlaylist> {
-        if (!query) {
-            throw new AppError('Query is required', 400);
-        }
+    const search = getProvider(params.opts).search;
 
-        const provider = this.getProvider(opts);
-
-        try {
-            switch (type) {
-                case 'song':
-                    return provider.search.songs({ query, offset, limit });
-
-                case 'album':
-                    return provider.search.albums({ query, offset, limit });
-
-                case 'artist':
-                    return provider.search.artists({ query, offset, limit });
-
-                case 'playlist':
-                    return provider.search.playlists({ query, offset, limit });
-
-                case 'all':
-                default:
-                    return provider.search.all(query);
-            }
-        } catch (err: unknown) {
-            return wrapError(err, 'Search failed', 500);
-        }
-    }
-
-    async searchSongs({
-        query,
-        limit,
-        offset,
-        opts,
-    }: {
-        query: string;
-        limit: number;
-        offset: number;
-        opts?: ServiceOptions;
-    }): Promise<SearchSong> {
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.search.songs({ query, offset, limit });
-        } catch (err: unknown) {
-            return wrapError(err, 'Song search failed', 500);
-        }
-    }
-
-    async searchAlbums({
-        query,
-        limit,
-        offset,
-        opts,
-    }: {
-        query: string;
-        limit: number;
-        offset: number;
-        opts?: ServiceOptions;
-    }): Promise<SearchAlbum> {
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.search.albums({ query, offset, limit });
-        } catch (err: unknown) {
-            return wrapError(err, 'Album search failed', 500);
-        }
-    }
-
-    async searchArtists({
-        query,
-        limit,
-        offset,
-        opts,
-    }: {
-        query: string;
-        limit: number;
-        offset: number;
-        opts?: ServiceOptions;
-    }): Promise<SearchArtist> {
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.search.artists({ query, offset, limit });
-        } catch (err: unknown) {
-            return wrapError(err, 'Artist search failed', 500);
-        }
-    }
-
-    async searchPlaylists({
-        query,
-        limit,
-        offset,
-        opts,
-    }: {
-        query: string;
-        limit: number;
-        offset: number;
-        opts?: ServiceOptions;
-    }): Promise<SearchPlaylist> {
-        const provider = this.getProvider(opts);
-
-        try {
-            return await provider.search.playlists({ query, offset, limit });
-        } catch (err: unknown) {
-            return wrapError(err, 'Playlist search failed', 500);
-        }
+    try {
+        if (params.type === 'song') return search.songs(params);
+        if (params.type === 'album') return search.albums(params);
+        if (params.type === 'artist') return search.artists(params);
+        if (params.type === 'playlist') return search.playlists(params);
+        return search.all(params.query);
+    } catch (err) {
+        return wrapError(err, 'Search failed', 500);
     }
 }
+
+export const searchSongs = (p: { query: string; limit: number; offset: number; opts?: ServiceOptions }) =>
+    getProvider(p.opts)
+        .search.songs(p)
+        .catch((e) => wrapError(e, 'Song search failed', 500));
+
+export const searchAlbums = (p: { query: string; limit: number; offset: number; opts?: ServiceOptions }) =>
+    getProvider(p.opts)
+        .search.albums(p)
+        .catch((e) => wrapError(e, 'Album search failed', 500));
+
+export const searchArtists = (p: { query: string; limit: number; offset: number; opts?: ServiceOptions }) =>
+    getProvider(p.opts)
+        .search.artists(p)
+        .catch((e) => wrapError(e, 'Artist search failed', 500));
+
+export const searchPlaylists = (p: { query: string; limit: number; offset: number; opts?: ServiceOptions }) =>
+    getProvider(p.opts)
+        .search.playlists(p)
+        .catch((e) => wrapError(e, 'Playlist search failed', 500));

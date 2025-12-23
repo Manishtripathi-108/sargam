@@ -1,6 +1,6 @@
 import type { Album } from '../../types/core/album.model';
 import type { SaavnAlbumAPIResponse } from '../../types/saavn/albums.types';
-import { assertData, AppError, notFound } from '../../utils/error.utils';
+import { assertData } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbum } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';

@@ -1,73 +1,44 @@
-import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Song } from '../types/core/song.model';
 import { AppError, wrapError } from '../utils/error.utils';
+import { getProvider, type ServiceOptions } from '../utils/provider.util';
 
-type Provider = 'saavn';
+export async function getSongById(id: string, opts?: ServiceOptions): Promise<Song> {
+    if (!id) {
+        throw new AppError('Song id is required', 400);
+    }
 
-interface ServiceOptions {
-    provider?: Provider;
+    try {
+        const list = await getProvider(opts).songs.getByIds(id);
+        return list[0];
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch song', 500);
+    }
 }
 
-const providers = {
-    saavn: SaavnProvider,
-};
+export async function getSongsByIds(ids: string, opts?: ServiceOptions): Promise<Song[]> {
+    try {
+        return await getProvider(opts).songs.getByIds(ids);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch song', 500);
+    }
+}
 
-export class DefaultSongService {
-    async getById(id: string, opts?: ServiceOptions): Promise<Song> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
-        }
-
-        try {
-            const songs = await provider.songs.getByIds(id);
-            if (!songs || songs?.length === 0) {
-                throw new AppError('Song not found', 404);
-            }
-            return songs[0];
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch song', 500);
-        }
+export async function getSongByLink(link: string): Promise<Song> {
+    if (!link) {
+        throw new AppError('Link is required', 400);
     }
 
-    async getByIds(id: string, opts?: ServiceOptions): Promise<Song[]> {
-        const provider = providers[opts?.provider ?? 'saavn'];
-        if (!provider) {
-            throw new AppError(`Provider not found`, 500);
-        }
-
-        try {
-            const songs = await provider.songs.getByIds(id);
-            if (!songs || songs.length === 0) {
-                throw new AppError('Song not found', 404);
-            }
-            return songs;
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch song', 500);
-        }
+    try {
+        return await getProvider().songs.getByLink(link);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch song', 500);
     }
+}
 
-    async getByLink(link: string): Promise<Song> {
-        if (!link) {
-            throw new AppError('Link is required', 400);
-        }
-
-        const provider = providers['saavn'];
-        try {
-            const song = await provider.songs.getByLink(link);
-            return song;
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch songs', 500);
-        }
-    }
-
-    async getSuggestions(id: string, limit: number = 10): Promise<Song[]> {
-        const provider = providers['saavn'];
-        try {
-            const suggestions = await provider.songs.getSuggestions(id, limit);
-            return suggestions || [];
-        } catch (err: unknown) {
-            return wrapError(err, 'Failed to fetch suggestions', 500);
-        }
+export async function getSongSuggestions(id: string, limit = 10): Promise<Song[]> {
+    try {
+        return await await getProvider().songs.getSuggestions(id, limit);
+    } catch (err) {
+        return wrapError(err, 'Failed to fetch suggestions', 500);
     }
 }

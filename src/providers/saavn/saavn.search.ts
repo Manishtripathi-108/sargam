@@ -12,7 +12,7 @@ import type {
     SaavnSearchPlaylistAPIResponse,
     SaavnSearchSongAPIResponse,
 } from '../../types/saavn/search.types';
-import { notFound } from '../../utils/error.utils';
+import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapGlobalSearch, mapSearchAlbum, mapSearchArtist, mapSearchPlaylist, mapSearchSong } from './saavn.mapper';
@@ -29,11 +29,7 @@ export async function all(query: string): Promise<GlobalSearchResult> {
         params: { query, __call: SAAVN_ROUTES.SEARCH.ALL },
     });
 
-    if (!res.data) {
-        throw notFound('Search failed');
-    }
-
-    return mapGlobalSearch(res.data);
+    return mapGlobalSearch(assertData(res.data, 'No results found'));
 }
 
 export async function songs({ query, offset, limit }: SearchParams): Promise<SearchSong> {
@@ -48,11 +44,9 @@ export async function songs({ query, offset, limit }: SearchParams): Promise<Sea
         },
     });
 
-    if (!res.data || !res.data.results || res.data.results.length === 0) {
-        throw notFound('No songs found');
-    }
-
-    return mapSearchSong(res.data, limit);
+    return mapSearchSong(
+        assertData(res.data, 'No songs found', () => !res.data.results || res.data.results.length === 0)
+    );
 }
 
 export async function albums({ query, offset, limit }: SearchParams): Promise<SearchAlbum> {
@@ -67,11 +61,10 @@ export async function albums({ query, offset, limit }: SearchParams): Promise<Se
         },
     });
 
-    if (!res.data || !res.data.results || res.data.results.length === 0) {
-        throw notFound('No albums found');
-    }
-
-    return mapSearchAlbum(res.data, limit);
+    return mapSearchAlbum(
+        assertData(res.data, 'No albums found', () => !res.data.results || res.data.results.length === 0),
+        limit
+    );
 }
 
 export async function artists({ query, offset, limit }: SearchParams): Promise<SearchArtist> {
@@ -86,11 +79,10 @@ export async function artists({ query, offset, limit }: SearchParams): Promise<S
         },
     });
 
-    if (!res.data || !res.data.results || res.data.results.length === 0) {
-        throw notFound('No artists found');
-    }
-
-    return mapSearchArtist(res.data, limit);
+    return mapSearchArtist(
+        assertData(res.data, 'No artists found', () => !res.data.results || res.data.results.length === 0),
+        limit
+    );
 }
 
 export async function playlists({ query, offset, limit }: SearchParams): Promise<SearchPlaylist> {
@@ -105,9 +97,8 @@ export async function playlists({ query, offset, limit }: SearchParams): Promise
         },
     });
 
-    if (!res.data || !res.data.results || res.data.results.length === 0) {
-        throw notFound('No playlists found');
-    }
-
-    return mapSearchPlaylist(res.data, limit);
+    return mapSearchPlaylist(
+        assertData(res.data, 'No playlists found', () => !res.data.results || res.data.results.length === 0),
+        limit
+    );
 }

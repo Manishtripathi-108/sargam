@@ -11,8 +11,8 @@ export class AppError extends Error {
 
 export const notFound = (message: string) => new AppError(message, 404);
 
-export const assertData = <T>(data: T | null | undefined, message: string): T => {
-    if (data === null || data === undefined) {
+export const assertData = <T>(data: T | null | undefined, message: string, cn?: () => boolean): T => {
+    if (data === null || data === undefined || (cn && cn())) {
         throw notFound(message);
     }
     return data;

@@ -1,21 +1,11 @@
 import type { Song } from '../../types/core/song.model';
 import type { SaavnLyrics } from '../../types/saavn/global.types';
 import type { SaavnSongAPIResponse, SaavnSongSuggestionAPIResponse } from '../../types/saavn/song.types';
-import { AppError, assertData, notFound } from '../../utils/error.utils';
+import { AppError, assertData } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 import { extractSongToken } from './saavn.utils';
-
-/* -------------------------------------------------------------------------- */
-/*                                   helpers                                  */
-/* -------------------------------------------------------------------------- */
-
-// token extraction centralized in saavn.utils.ts
-
-/* -------------------------------------------------------------------------- */
-/*                                   service                                  */
-/* -------------------------------------------------------------------------- */
 
 export async function getByIds(ids: string): Promise<Song[]> {
     const res = await saavnClient.get<{ songs: SaavnSongAPIResponse[] }>('/', {
@@ -25,12 +15,9 @@ export async function getByIds(ids: string): Promise<Song[]> {
         },
     });
 
-    const songs = assertData(res.data?.songs, 'Song not found');
-    if (!songs.length) {
-        throw notFound('Song not found');
-    }
-
-    return songs.map(mapSong);
+    return assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0).map(
+        mapSong
+    );
 }
 
 export async function getByLink(link: string): Promise<Song> {
@@ -44,12 +31,9 @@ export async function getByLink(link: string): Promise<Song> {
         },
     });
 
-    const songs = assertData(res.data?.songs, 'Song not found');
-    if (!songs.length) {
-        throw notFound('Song not found');
-    }
-
-    return mapSong(songs[0]);
+    return mapSong(
+        assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0)[0]
+    );
 }
 
 export async function getStation(songId: string): Promise<string> {
@@ -82,11 +66,9 @@ export async function getSuggestions(id: string, limit: number): Promise<Song[]>
         },
     });
 
-    if (!res.data) {
-        throw new AppError('Failed to fetch song suggestions', 502);
-    }
+    const data = assertData(res.data, 'No suggestions found');
 
-    return Object.values(res.data)
+    return Object.values(data)
         .map((entry) => {
             if (typeof entry === 'object' && entry.song) {
                 return mapSong(entry.song);
@@ -105,9 +87,5 @@ export async function getLyrics(songId: string): Promise<string> {
         },
     });
 
-    if (!res.data?.lyrics) {
-        throw notFound('Lyrics not found');
-    }
-
-    return res.data.lyrics;
+    return assertData(res.data.lyrics, 'Lyrics not found');
 }

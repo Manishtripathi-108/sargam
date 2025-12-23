@@ -3,7 +3,6 @@ import dbPlugin from './plugins/db';
 import envPlugin from './plugins/env';
 import registerErrorHandler from './plugins/error-handler';
 import jwtPlugin from './plugins/jwt';
-import servicesPlugin from './plugins/services';
 import successPlugin from './plugins/success';
 import apiRoutes from './routes/index';
 import { isDev } from './utils/main.utils';
@@ -27,7 +26,6 @@ app.register(corsPlugin);
 app.register(jwtPlugin);
 app.register(successPlugin);
 app.register(dbPlugin);
-app.register(servicesPlugin);
 
 // serializer & validator compilers (zod)
 app.setSerializerCompiler(serializerCompiler);
