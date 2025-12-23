@@ -1,5 +1,6 @@
 import { IMAGE_FALLBACKS } from '../constants/common.constants';
 import type { ImageAsset } from '../types/core/image.model';
+import type { Paginated } from '../types/core/pagination.model';
 import type { ZodFastifySchemaValidationError } from 'fastify-type-provider-zod';
 
 const HTTP_RX = /^http:\/\//;
@@ -73,3 +74,38 @@ export const fallbackImage = (): ImageAsset => ({
     medium: IMAGE_FALLBACKS.AUDIO_COVER,
     high: IMAGE_FALLBACKS.AUDIO_COVER,
 });
+
+/**
+ * Creates a Paginated object from the given parameters.
+ * @template T - The type of the items in the Paginated object.
+ * @param {Object} params - An object containing the items, total, offset, and limit.
+ * @param {T[]} params.items - The items to be paginated.
+ * @param {number} params.total - The total number of items.
+ * @param {number} params.offset - The offset of the current page.
+ * @param {number} [params.limit] - The limit of items per page. Defaults to the length of the items array.
+ * @returns {Paginated<T>} - A Paginated object containing the items, total, offset, limit, and a hasNext flag indicating whether there are more items to fetch.
+ */
+export const createPagination = <T>({
+    items,
+    total,
+    offset,
+    limit,
+    hasNext,
+}: {
+    items: T[];
+    total: number;
+    offset: number;
+    limit?: number;
+    hasNext?: boolean;
+}): Paginated<T> => {
+    const size = items.length;
+    const safeLimit = limit && limit > 0 ? limit : size;
+
+    return {
+        total,
+        offset,
+        limit: safeLimit,
+        hasNext: hasNext ?? offset + size < total,
+        items,
+    };
+};

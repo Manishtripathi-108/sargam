@@ -15,7 +15,7 @@ import type {
 import { notFound } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
-import { mapGlobalSearch, mapSearchAlbum, mapSearchPlaylist, mapSongBase, mapSearchArtist } from './saavn.mapper';
+import { mapGlobalSearch, mapSearchAlbum, mapSearchArtist, mapSearchPlaylist, mapSearchSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 
 type SearchParams = {
@@ -52,11 +52,7 @@ export async function songs({ query, offset, limit }: SearchParams): Promise<Sea
         throw notFound('No songs found');
     }
 
-    return {
-        total: Number(res.data?.total),
-        start: Number(res.data?.start),
-        results: res.data.results.map(mapSongBase).slice(0, limit),
-    };
+    return mapSearchSong(res.data, limit);
 }
 
 export async function albums({ query, offset, limit }: SearchParams): Promise<SearchAlbum> {
@@ -75,7 +71,7 @@ export async function albums({ query, offset, limit }: SearchParams): Promise<Se
         throw notFound('No albums found');
     }
 
-    return mapSearchAlbum(res.data);
+    return mapSearchAlbum(res.data, limit);
 }
 
 export async function artists({ query, offset, limit }: SearchParams): Promise<SearchArtist> {
@@ -94,7 +90,7 @@ export async function artists({ query, offset, limit }: SearchParams): Promise<S
         throw notFound('No artists found');
     }
 
-    return mapSearchArtist(res.data);
+    return mapSearchArtist(res.data, limit);
 }
 
 export async function playlists({ query, offset, limit }: SearchParams): Promise<SearchPlaylist> {
@@ -113,5 +109,5 @@ export async function playlists({ query, offset, limit }: SearchParams): Promise
         throw notFound('No playlists found');
     }
 
-    return mapSearchPlaylist(res.data);
+    return mapSearchPlaylist(res.data, limit);
 }

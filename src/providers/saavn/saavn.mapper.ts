@@ -2,7 +2,13 @@ import type { Album } from '../../types/core/album.model';
 import type { Artist, ArtistBase } from '../../types/core/artist.model';
 import type { ImageAsset } from '../../types/core/image.model';
 import type { Playlist } from '../../types/core/playlist.model';
-import type { GlobalSearchResult, SearchAlbum, SearchArtist, SearchPlaylist } from '../../types/core/search.model';
+import type {
+    GlobalSearchResult,
+    SearchAlbum,
+    SearchArtist,
+    SearchPlaylist,
+    SearchSong,
+} from '../../types/core/search.model';
 import type { Song, SongAudio, SongBase } from '../../types/core/song.model';
 import type { SaavnAlbumAPIResponse, SaavnSearchAlbumAPIResponse } from '../../types/saavn/albums.types';
 import type { SaavnArtistAPIResponse, SaavnArtistBaseAPIResponse } from '../../types/saavn/artists.type';
@@ -11,10 +17,11 @@ import type {
     SaavnSearchAPIResponse,
     SaavnSearchArtistAPIResponse,
     SaavnSearchPlaylistAPIResponse,
+    SaavnSearchSongAPIResponse,
 } from '../../types/saavn/search.types';
 import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
 import { AppError } from '../../utils/error.utils';
-import { decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
+import { createPagination, decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
 import crypto from 'node-forge';
 
 /* -------------------------------------------------------------------------- */
@@ -30,6 +37,7 @@ const AUDIO_QUALITIES = [
     { id: '_160', key: 'medium' },
     { id: '_320', key: 'high' },
 ] as const;
+const safeOffset = (offset?: number) => Math.max(0, (offset ?? 0) - 1);
 
 /* -------------------------------------------------------------------------- */
 /*                              low level mappers                             */
@@ -178,99 +186,96 @@ export const mapPlaylist = (p: SaavnPlaylistAPIResponse): Playlist => ({
 /* -------------------------------------------------------------------------- */
 
 export const mapGlobalSearch = (s: SaavnSearchAPIResponse): GlobalSearchResult => ({
-    topQuery: {
-        results:
-            s.topquery?.data.map((i) => ({
-                id: i.id,
-                name: i.title,
-                type: i.type as 'song' | 'album' | 'artist' | 'playlist',
-                image: imgFromSaavn(i.image),
-                artists: i.more_info?.primary_artists,
-            })) ?? [],
-        position: s.topquery?.position ?? 0,
-    },
-    songs: {
-        results:
-            s.songs?.data.map((i) => ({
-                id: i.id,
-                name: i.title,
-                type: 'song',
-                image: imgFromSaavn(i.image),
-                album: i.more_info?.album,
-                artists: i.more_info?.primary_artists,
-            })) ?? [],
-        position: s.songs?.position ?? 0,
-    },
-    albums: {
-        results:
-            s.albums?.data.map((i) => ({
-                id: i.id,
-                name: i.title,
-                type: 'album',
-                image: imgFromSaavn(i.image),
-                artists: i.more_info?.music,
-            })) ?? [],
-        position: s.albums?.position ?? 0,
-    },
-    artists: {
-        results:
-            s.artists?.data.map((i) => ({
-                id: i.id,
-                name: i.name ?? i.title,
-                type: 'artist',
-                image: imgFromSaavn(i.image),
-            })) ?? [],
-        position: s.artists?.position ?? 0,
-    },
-    playlists: {
-        results:
-            s.playlists?.data.map((i) => ({
-                id: i.id,
-                name: i.title,
-                type: 'playlist',
-                image: imgFromSaavn(i.image),
-            })) ?? [],
-        position: s.playlists?.position ?? 0,
-    },
+    topQuery:
+        s.topquery?.data.map((i) => ({
+            id: i.id,
+            name: i.title,
+            type: i.type as 'song' | 'album' | 'artist' | 'playlist',
+            image: imgFromSaavn(i.image),
+            artists: i.more_info?.primary_artists,
+        })) ?? [],
+    songs:
+        s.songs?.data.map((i) => ({
+            id: i.id,
+            name: i.title,
+            type: 'song',
+            image: imgFromSaavn(i.image),
+            album: i.more_info?.album ?? 'Unknown Album',
+            artists: i.more_info?.primary_artists ?? 'Unknown Artists',
+        })) ?? [],
+    albums:
+        s.albums?.data.map((i) => ({
+            id: i.id,
+            name: i.title,
+            type: 'album',
+            image: imgFromSaavn(i.image),
+            artists: i.more_info?.music ?? 'Unknown Artists',
+        })) ?? [],
+    artists:
+        s.artists?.data.map((i) => ({
+            id: i.id,
+            name: i.name ?? i.title,
+            type: 'artist',
+            image: imgFromSaavn(i.image),
+        })) ?? [],
+    playlists:
+        s.playlists?.data.map((i) => ({
+            id: i.id,
+            name: i.title,
+            type: 'playlist',
+            image: imgFromSaavn(i.image),
+        })) ?? [],
 });
 
-export const mapSearchAlbum = (a: SaavnSearchAlbumAPIResponse): SearchAlbum => ({
-    total: safeNumber(a.total),
-    start: safeNumber(a.start),
-    results: a.results.map((i) => ({
-        id: i.id,
-        name: i.title,
-        url: i.perma_url,
-        release_date: i.year ? `${i.year}-01-01` : null,
-        type: 'album',
-        language: i.language,
-        explicit: i.explicit_content === '1',
-        image: imgFromSaavn(i.image),
-    })),
-});
+export const mapSearchSong = (s: SaavnSearchSongAPIResponse, limit?: number): SearchSong =>
+    createPagination({
+        items: s.results.map(mapSongBase),
+        limit,
+        total: s.total,
+        offset: safeOffset(s.start),
+    });
 
-export const mapSearchPlaylist = (p: SaavnSearchPlaylistAPIResponse): SearchPlaylist => ({
-    total: safeNumber(p.total),
-    start: safeNumber(p.start),
-    results: p.results.map((i) => ({
-        id: i.id,
-        name: i.title,
-        type: 'playlist',
-        image: imgFromSaavn(i.image),
-        url: i.perma_url,
-        total_songs: safeNumber(i.more_info?.song_count),
-        language: i.more_info?.language,
-        explicit: i.explicit_content === '1',
-    })),
-});
+export const mapSearchAlbum = (a: SaavnSearchAlbumAPIResponse, limit?: number): SearchAlbum =>
+    createPagination({
+        items: a.results.map((i) => ({
+            id: i.id,
+            name: i.title,
+            release_date: i.year ? `${i.year}-01-01` : null,
+            type: 'album' as const,
+            language: i.language,
+            explicit: i.explicit_content === '1',
+            image: imgFromSaavn(i.image),
+        })),
+        limit,
+        total: a.total,
+        offset: safeOffset(a.start),
+    });
 
-export const mapSearchArtist = (a: SaavnSearchArtistAPIResponse): SearchArtist => ({
-    total: safeNumber(a.total),
-    start: safeNumber(a.start),
-    results: a.results.map((i) => ({
-        id: i.id,
-        name: i.name,
-        type: 'artist',
-        image: imgFromSaavn(i.image),
-    })),
-});
+export const mapSearchPlaylist = (p: SaavnSearchPlaylistAPIResponse, limit?: number): SearchPlaylist =>
+    createPagination({
+        items: p.results.map((i) => ({
+            id: i.id,
+            name: i.title,
+            type: 'playlist' as const,
+            image: imgFromSaavn(i.image),
+            total_songs: safeNumber(i.more_info?.song_count),
+            language: i.more_info?.language,
+            explicit: i.explicit_content === '1',
+        })),
+        limit,
+        total: p.total,
+        offset: safeOffset(p.start),
+    });
+
+export const mapSearchArtist = (a: SaavnSearchArtistAPIResponse, limit?: number): SearchArtist =>
+    createPagination({
+        items: a.results.map((i) => ({
+            id: i.id,
+            name: i.name,
+            type: 'artist' as const,
+            image: imgFromSaavn(i.image),
+        })),
+        limit,
+        total: a.total,
+        offset: safeOffset(a.start),
+    });

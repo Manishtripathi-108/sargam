@@ -96,6 +96,7 @@ export type SaavnArtistSongAPIResponse = {
     topSongs: {
         songs: SaavnSongAPIResponse[];
         total: number;
+        last_page: boolean;
     };
 };
 
@@ -112,5 +113,6 @@ export type SaavnArtistAlbumAPIResponse = {
     topAlbums: {
         albums: SaavnAlbumAPIResponse[];
         total: number;
+        last_page: boolean;
     };
 };

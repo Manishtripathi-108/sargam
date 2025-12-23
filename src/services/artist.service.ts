@@ -1,6 +1,7 @@
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Album } from '../types/core/album.model';
 import type { Artist } from '../types/core/artist.model';
+import type { Paginated } from '../types/core/pagination.model';
 import type { Song } from '../types/core/song.model';
 import { AppError, wrapError } from '../utils/error.utils';
 
@@ -65,7 +66,7 @@ export class DefaultArtistService {
         sortBy: string;
         sortOrder: string;
         opts?: ServiceOptions;
-    }): Promise<{ total: number; songs: Song[] }> {
+    }): Promise<Paginated<Song>> {
         if (!id) {
             throw new AppError('Artist id is required', 400);
         }
@@ -93,7 +94,7 @@ export class DefaultArtistService {
         sortBy: string;
         sortOrder: string;
         opts?: ServiceOptions;
-    }): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
+    }): Promise<Paginated<Omit<Album, 'songs'>>> {
         if (!id) {
             throw new AppError('Artist id is required', 400);
         }

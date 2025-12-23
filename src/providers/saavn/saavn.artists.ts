@@ -1,5 +1,6 @@
 import type { Album } from '../../types/core/album.model';
 import type { Artist } from '../../types/core/artist.model';
+import type { Paginated } from '../../types/core/pagination.model';
 import type { Song } from '../../types/core/song.model';
 import type {
     SaavnArtistAlbumAPIResponse,
@@ -7,6 +8,7 @@ import type {
     SaavnArtistSongAPIResponse,
 } from '../../types/saavn/artists.type';
 import { assertData } from '../../utils/error.utils';
+import { createPagination } from '../../utils/helper.utils';
 import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
@@ -50,7 +52,7 @@ export async function getSongs({
     offset: number;
     sortBy: string;
     sortOrder: string;
-}): Promise<{ total: number; songs: Song[] }> {
+}): Promise<Paginated<Song>> {
     const { page } = normalizePagination(limit, offset);
 
     const res = await saavnClient.get<SaavnArtistSongAPIResponse>('/', {
@@ -63,10 +65,12 @@ export async function getSongs({
         },
     });
 
-    return {
-        total: Number(res.data?.topSongs?.total ?? 0),
-        songs: res.data?.topSongs?.songs?.map(mapSong) ?? [],
-    };
+    const data = assertData(res.data, 'Artist not found');
+
+    const total = Number(data.topSongs?.total ?? 0);
+    const items = data.topSongs?.songs?.map(mapSong) ?? [];
+
+    return createPagination({ total, offset: page * 10, items, hasNext: !data.topSongs.last_page });
 }
 
 export async function getAlbums({
@@ -81,7 +85,7 @@ export async function getAlbums({
     offset: number;
     sortBy: string;
     sortOrder: string;
-}): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
+}): Promise<Paginated<Omit<Album, 'songs'>>> {
     const { page } = normalizePagination(limit, offset);
 
     const res = await saavnClient.get<SaavnArtistAlbumAPIResponse>('/', {
@@ -94,8 +98,10 @@ export async function getAlbums({
         },
     });
 
-    return {
-        total: Number(res.data?.topAlbums?.total ?? 0),
-        albums: res.data?.topAlbums?.albums?.map(mapAlbumBase) ?? [],
-    };
+    const data = assertData(res.data, 'Artist not found');
+
+    const total = Number(data.topAlbums?.total ?? 0);
+    const items = data.topAlbums?.albums?.map(mapAlbumBase) ?? [];
+
+    return createPagination({ total, offset: page * 10, items, hasNext: !data.topAlbums.last_page });
 }
