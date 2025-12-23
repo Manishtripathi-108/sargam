@@ -1,6 +1,6 @@
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Album } from '../types/core/album.model';
-import { AppError } from '../utils/error.utils';
+import { AppError, wrapError } from '../utils/error.utils';
 
 type Provider = 'saavn';
 
@@ -30,9 +30,8 @@ export class DefaultAlbumService {
 
         try {
             return await provider.albums.getById(id);
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch album: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch album', 500);
         }
     }
 
@@ -45,9 +44,8 @@ export class DefaultAlbumService {
 
         try {
             return await provider.albums.getByLink(link);
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch album: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch album', 500);
         }
     }
 }

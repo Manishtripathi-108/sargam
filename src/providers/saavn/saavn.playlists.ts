@@ -1,15 +1,10 @@
 import type { Playlist } from '../../types/core/playlist.model';
-import { SaavnPlaylistAPIResponse } from '../../types/saavn/playlist.types';
-import { AppError } from '../../utils/error.utils';
+import type { SaavnPlaylistAPIResponse } from '../../types/saavn/playlist.types';
+import { AppError, assertData, notFound } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapPlaylist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-
-const extractPlaylistToken = (link: string) => {
-    const token = link.match(/jiosaavn\.com\/playlist\/([^/]+)$/)?.[1];
-    if (!token) throw new AppError('Invalid playlist link', 400);
-    return token;
-};
+import { extractPlaylistToken } from './saavn.utils';
 
 export async function getPlaylistById(id: string, page: number, limit: number): Promise<Playlist> {
     const res = await saavnClient.get<SaavnPlaylistAPIResponse>('/', {
@@ -21,11 +16,7 @@ export async function getPlaylistById(id: string, page: number, limit: number): 
         },
     });
 
-    if (!res.data) {
-        throw new AppError('Playlist not found', 404);
-    }
-
-    return mapPlaylist(res.data);
+    return mapPlaylist(assertData(res.data, 'Playlist not found'));
 }
 
 export async function getPlaylistByLink(link: string, page: number, limit: number): Promise<Playlist> {
@@ -41,9 +32,5 @@ export async function getPlaylistByLink(link: string, page: number, limit: numbe
         },
     });
 
-    if (!res.data) {
-        throw new AppError('Playlist not found', 404);
-    }
-
-    return mapPlaylist(res.data);
+    return mapPlaylist(assertData(res.data, 'Playlist not found'));
 }

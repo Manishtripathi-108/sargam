@@ -3,12 +3,6 @@ import type { AlbumBase } from './album.model';
 import type { ArtistBase } from './artist.model';
 import type { ImageAsset } from './image.model';
 
-
-
-
-
-
-
 export type SongAudioQuality = 'low' | 'medium' | 'high' | 'lossless';
 
 export type SongAudio = {
@@ -33,8 +27,8 @@ export type SongBase = {
 
 export type Song = Prettify<
     Omit<SongBase, 'album' | 'artists'> & {
-        disc_number: number;
-        track_number: number;
+        disc_number: number | null;
+        track_number: number | null;
         release_date: string | null;
         copyright: string | null;
         album: AlbumBase;

@@ -1,6 +1,6 @@
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Song } from '../types/core/song.model';
-import { AppError } from '../utils/error.utils';
+import { AppError, wrapError } from '../utils/error.utils';
 
 type Provider = 'saavn';
 
@@ -25,9 +25,8 @@ export class DefaultSongService {
                 throw new AppError('Song not found', 404);
             }
             return songs[0];
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch song: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch song', 500);
         }
     }
 
@@ -43,9 +42,8 @@ export class DefaultSongService {
                 throw new AppError('Song not found', 404);
             }
             return songs;
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch song: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch song', 500);
         }
     }
 
@@ -58,9 +56,8 @@ export class DefaultSongService {
         try {
             const song = await provider.songs.getByLink(link);
             return song;
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch songs: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch songs', 500);
         }
     }
 
@@ -69,9 +66,8 @@ export class DefaultSongService {
         try {
             const suggestions = await provider.songs.getSuggestions(id, limit);
             return suggestions || [];
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Failed to fetch suggestions: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Failed to fetch suggestions', 500);
         }
     }
 }

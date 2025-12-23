@@ -10,3 +10,16 @@ export class AppError extends Error {
 }
 
 export const notFound = (message: string) => new AppError(message, 404);
+
+export const assertData = <T>(data: T | null | undefined, message: string): T => {
+    if (data === null || data === undefined) {
+        throw notFound(message);
+    }
+    return data;
+};
+
+export const wrapError = (err: unknown, message: string, statusCode: number = 500): never => {
+    if (err instanceof AppError) throw err;
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    throw new AppError(`${message}: ${errorMessage}`, statusCode);
+};

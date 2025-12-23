@@ -13,6 +13,7 @@ import type {
     SaavnSearchPlaylistAPIResponse,
 } from '../../types/saavn/search.types';
 import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
+import { AppError } from '../../utils/error.utils';
 import { decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
 import crypto from 'node-forge';
 
@@ -73,9 +74,14 @@ export const mapArtistBase = (a: SaavnArtistBaseAPIResponse): ArtistBase => ({
 });
 
 export const mapSong = (s: SaavnSongAPIResponse): Song => {
-    const audio = audioFromSaavn(s.more_info?.encrypted_media_url);
+    // Guard: required fields must be present
+    if (!s.id || !s.title || !s.more_info?.encrypted_media_url) {
+        throw new AppError(`Saavn provider data corruption: missing fields for song ${s.id ?? 'unknown'}`, 502);
+    }
+
+    const audio = audioFromSaavn(s.more_info.encrypted_media_url);
     if (!audio) {
-        throw new Error(`Audio missing for song ${s.id}`);
+        throw new AppError(`Saavn provider data corruption: audio missing for song ${s.id}`, 502);
     }
 
     return {
@@ -87,8 +93,8 @@ export const mapSong = (s: SaavnSongAPIResponse): Song => {
         duration_ms: safeNumber(s.more_info?.duration),
         explicit: s.explicit_content === '1',
         language: s.language,
-        disc_number: 0,
-        track_number: 0,
+        disc_number: null,
+        track_number: null,
         copyright: s.more_info?.copyright_text ?? null,
         album: {
             id: s.more_info?.album_id,
@@ -133,7 +139,7 @@ export const mapAlbum = (a: SaavnAlbumAPIResponse): Album => ({
     id: a.id,
     name: a.title,
     type: 'album',
-    release_date: a.year ? `${a.year}-01-01` : '0000-01-01',
+    release_date: a.year ? `${a.year}-01-01` : null,
     language: a.language,
     explicit: a.explicit_content === '1',
     total_songs: safeNumber(a.more_info?.song_count),
@@ -147,7 +153,7 @@ export const mapAlbumBase = (a: SaavnAlbumAPIResponse): Omit<Album, 'songs'> => 
     id: a.id,
     name: a.title,
     type: 'album',
-    release_date: a.year ? `${a.year}-01-01` : '0000-01-01',
+    release_date: a.year ? `${a.year}-01-01` : null,
     language: a.language,
     explicit: a.explicit_content === '1',
     total_songs: safeNumber(a.more_info?.song_count),
@@ -235,7 +241,7 @@ export const mapSearchAlbum = (a: SaavnSearchAlbumAPIResponse): SearchAlbum => (
         id: i.id,
         name: i.title,
         url: i.perma_url,
-        release_date: i.year ? `${i.year}-01-01` : '0000-01-01',
+        release_date: i.year ? `${i.year}-01-01` : null,
         type: 'album',
         language: i.language,
         explicit: i.explicit_content === '1',

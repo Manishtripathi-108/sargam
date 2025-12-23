@@ -6,16 +6,12 @@ import type {
     SaavnArtistAPIResponse,
     SaavnArtistSongAPIResponse,
 } from '../../types/saavn/artists.type';
-import { AppError, notFound } from '../../utils/error.utils';
+import { assertData } from '../../utils/error.utils';
+import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapArtist, mapSong, mapAlbumBase } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-
-const extractArtistToken = (link: string) => {
-    const token = link.match(/jiosaavn\.com\/artist\/[^/]+\/([^/]+)$/)?.[1];
-    if (!token) throw new AppError('Invalid artist link', 400);
-    return token;
-};
+import { extractArtistToken } from './saavn.utils';
 
 export async function getById(id: string): Promise<Artist> {
     const res = await saavnClient.get<SaavnArtistAPIResponse>('/', {
@@ -25,11 +21,7 @@ export async function getById(id: string): Promise<Artist> {
         },
     });
 
-    if (!res.data) {
-        throw notFound('Artist not found');
-    }
-
-    return mapArtist(res.data);
+    return mapArtist(assertData(res.data, 'Artist not found'));
 }
 
 export async function getByLink(link: string): Promise<Artist> {
@@ -43,19 +35,18 @@ export async function getByLink(link: string): Promise<Artist> {
         },
     });
 
-    if (!res.data) {
-        throw notFound('Artist not found');
-    }
-
-    return mapArtist(res.data);
+    return mapArtist(assertData(res.data, 'Artist not found'));
 }
 
 export async function getSongs(
     id: string,
-    page: number,
+    limit: number,
+    offset: number,
     sortBy: string,
     sortOrder: string
 ): Promise<{ total: number; songs: Song[] }> {
+    const { page } = normalizePagination(limit, offset);
+
     const res = await saavnClient.get<SaavnArtistSongAPIResponse>('/', {
         params: {
             artistId: id,
@@ -74,10 +65,13 @@ export async function getSongs(
 
 export async function getAlbums(
     id: string,
-    page: number,
+    limit: number,
+    offset: number,
     sortBy: string,
     sortOrder: string
 ): Promise<{ total: number; albums: Omit<Album, 'songs'>[] }> {
+    const { page } = normalizePagination(limit, offset);
+
     const res = await saavnClient.get<SaavnArtistAlbumAPIResponse>('/', {
         params: {
             artistId: id,

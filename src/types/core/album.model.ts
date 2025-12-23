@@ -18,7 +18,7 @@ export type Album = Prettify<
         artists: ArtistBase[];
         songs: SongBase[];
         popularity: number;
-        release_date: string;
+        release_date: string | null;
         explicit: boolean;
         total_songs: number;
     }

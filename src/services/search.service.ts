@@ -6,7 +6,8 @@ import type {
     SearchPlaylist,
     SearchSong,
 } from '../types/core/search.model';
-import { AppError } from '../utils/error.utils';
+import { AppError, wrapError } from '../utils/error.utils';
+import { normalizePagination } from '../utils/main.utils';
 
 type Provider = 'saavn';
 
@@ -39,65 +40,61 @@ export class DefaultSearchService {
         }
 
         const provider = this.getProvider(opts);
-        const page = Math.floor(offset / limit) + 1;
+        const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
         try {
             switch (type) {
                 case 'song':
-                    return provider.search.songs({ query, page, limit });
+                    return provider.search.songs({ query, page, limit: safeLimit });
 
                 case 'album':
-                    return provider.search.albums({ query, page, limit });
+                    return provider.search.albums({ query, page, limit: safeLimit });
 
                 case 'artist':
-                    return provider.search.artists({ query, page, limit });
+                    return provider.search.artists({ query, page, limit: safeLimit });
 
                 case 'playlist':
-                    return provider.search.playlists({ query, page, limit });
+                    return provider.search.playlists({ query, page, limit: safeLimit });
 
                 case 'all':
                 default:
                     return provider.search.all(query);
             }
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Search failed: ${err?.message}`, 500);
+        } catch (err: unknown) {
+            return wrapError(err, 'Search failed', 500);
         }
     }
 
     async searchSongs(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchSong> {
         const provider = this.getProvider(opts);
-        const page = Math.floor(offset / limit) + 1;
+        const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
         try {
-            return await provider.search.songs({ query, page, limit });
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Song search failed: ${err?.message}`, 500);
+            return await provider.search.songs({ query, page, limit: safeLimit });
+        } catch (err: unknown) {
+            return wrapError(err, 'Song search failed', 500);
         }
     }
 
     async searchAlbums(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchAlbum> {
         const provider = this.getProvider(opts);
-        const page = Math.floor(offset / limit) + 1;
+        const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
         try {
-            return await provider.search.albums({ query, page, limit });
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Album search failed: ${err?.message}`, 500);
+            return await provider.search.albums({ query, page, limit: safeLimit });
+        } catch (err: unknown) {
+            return wrapError(err, 'Album search failed', 500);
         }
     }
 
     async searchArtists(query: string, limit: number, offset: number, opts?: ServiceOptions): Promise<SearchArtist> {
         const provider = this.getProvider(opts);
-        const page = Math.floor(offset / limit) + 1;
+        const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
         try {
-            return await provider.search.artists({ query, page, limit });
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Artist search failed: ${err?.message}`, 500);
+            return await provider.search.artists({ query, page, limit: safeLimit });
+        } catch (err: unknown) {
+            return wrapError(err, 'Artist search failed', 500);
         }
     }
 
@@ -108,13 +105,12 @@ export class DefaultSearchService {
         opts?: ServiceOptions
     ): Promise<SearchPlaylist> {
         const provider = this.getProvider(opts);
-        const page = Math.floor(offset / limit) + 1;
+        const { page, limit: safeLimit } = normalizePagination(limit, offset);
 
         try {
-            return await provider.search.playlists({ query, page, limit });
-        } catch (err: any) {
-            if (err instanceof AppError) throw err;
-            throw new AppError(`Playlist search failed: ${err?.message}`, 500);
+            return await provider.search.playlists({ query, page, limit: safeLimit });
+        } catch (err: unknown) {
+            return wrapError(err, 'Playlist search failed', 500);
         }
     }
 }

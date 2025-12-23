@@ -1,22 +1,17 @@
 import type { Song } from '../../types/core/song.model';
 import type { SaavnLyrics } from '../../types/saavn/global.types';
 import type { SaavnSongAPIResponse, SaavnSongSuggestionAPIResponse } from '../../types/saavn/song.types';
-import { AppError, notFound } from '../../utils/error.utils';
+import { AppError, assertData, notFound } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
+import { extractSongToken } from './saavn.utils';
 
 /* -------------------------------------------------------------------------- */
 /*                                   helpers                                  */
 /* -------------------------------------------------------------------------- */
 
-const extractSongToken = (link: string): string => {
-    const token = link.match(/jiosaavn\.com\/song\/[^/]+\/([^/]+)$/)?.[1];
-    if (!token) {
-        throw new AppError('Invalid song link', 400);
-    }
-    return token;
-};
+// token extraction centralized in saavn.utils.ts
 
 /* -------------------------------------------------------------------------- */
 /*                                   service                                  */
@@ -30,8 +25,8 @@ export async function getByIds(ids: string): Promise<Song[]> {
         },
     });
 
-    const songs = res.data?.songs;
-    if (!songs?.length) {
+    const songs = assertData(res.data?.songs, 'Song not found');
+    if (!songs.length) {
         throw notFound('Song not found');
     }
 
@@ -49,8 +44,8 @@ export async function getByLink(link: string): Promise<Song> {
         },
     });
 
-    const songs = res.data?.songs;
-    if (!songs?.length) {
+    const songs = assertData(res.data?.songs, 'Song not found');
+    if (!songs.length) {
         throw notFound('Song not found');
     }
 

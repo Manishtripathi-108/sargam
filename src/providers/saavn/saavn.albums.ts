@@ -1,15 +1,10 @@
-import { Album } from '../../types/core/album.model';
+import type { Album } from '../../types/core/album.model';
 import type { SaavnAlbumAPIResponse } from '../../types/saavn/albums.types';
-import { AppError, notFound } from '../../utils/error.utils';
+import { assertData, AppError, notFound } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbum } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-
-const extractAlbumToken = (link: string) => {
-    const token = link.match(/jiosaavn\.com\/album\/[^/]+\/([^/]+)$/)?.[1];
-    if (!token) throw new AppError('Invalid album link', 400);
-    return token;
-};
+import { extractAlbumToken } from './saavn.utils';
 
 export async function getById(id: string): Promise<Album> {
     const res = await saavnClient.get<SaavnAlbumAPIResponse>('/', {
@@ -19,11 +14,7 @@ export async function getById(id: string): Promise<Album> {
         },
     });
 
-    if (!res.data) {
-        throw notFound('Album not found');
-    }
-
-    return mapAlbum(res.data);
+    return mapAlbum(assertData(res.data, 'Album not found'));
 }
 
 export async function getByLink(link: string): Promise<Album> {
@@ -37,9 +28,5 @@ export async function getByLink(link: string): Promise<Album> {
         },
     });
 
-    if (!res.data) {
-        throw notFound('Album not found');
-    }
-
-    return mapAlbum(res.data);
+    return mapAlbum(assertData(res.data, 'Album not found'));
 }
