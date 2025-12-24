@@ -1,4 +1,6 @@
-export const userAgents = [
+import type { RawAxiosRequestHeaders } from 'axios';
+
+export const USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0',
@@ -101,4 +103,41 @@ export const userAgents = [
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
 ];
 
-export const getRandomUserAgent = () => userAgents[Math.floor(Math.random() * userAgents.length)];
+function pick<T>(list: readonly T[]): T {
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+export function getRandomUserAgent(): string {
+    return pick(USER_AGENTS);
+}
+
+export function getBrowserHeaders({
+    ua = getRandomUserAgent(),
+    include,
+}: {
+    ua?: string;
+    include?: RawAxiosRequestHeaders;
+} = {}): RawAxiosRequestHeaders {
+    const isMobile = ua.includes('Mobile') || ua.includes('iPhone') || ua.includes('Android');
+
+    const isChrome = ua.includes('Chrome') && !ua.includes('Firefox') && !ua.includes('Edg');
+
+    const headers: RawAxiosRequestHeaders = {
+        'User-Agent': ua,
+        Accept: 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        ...include,
+    };
+
+    if (isChrome) {
+        headers['sec-ch-ua'] = '"Chromium";v="134", "Google Chrome";v="134", "Not.A/Brand";v="99"';
+        headers['sec-ch-ua-mobile'] = isMobile ? '?1' : '?0';
+        headers['sec-ch-ua-platform'] = isMobile ? '"Android"' : '"Windows"';
+        headers['Sec-Fetch-Dest'] = 'empty';
+        headers['Sec-Fetch-Mode'] = 'cors';
+        headers['Sec-Fetch-Site'] = 'same-origin';
+    }
+
+    return headers;
+}

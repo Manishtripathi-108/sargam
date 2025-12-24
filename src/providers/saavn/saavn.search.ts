@@ -12,17 +12,12 @@ import type {
     SaavnSearchPlaylistAPIResponse,
     SaavnSearchSongAPIResponse,
 } from '../../types/saavn/search.types';
+import type { SearchParams } from '../../types/services.types';
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapGlobalSearch, mapSearchAlbum, mapSearchArtist, mapSearchPlaylist, mapSearchSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-
-type SearchParams = {
-    query: string;
-    offset: number;
-    limit: number;
-};
 
 export async function all(query: string): Promise<GlobalSearchResult> {
     const res = await saavnClient.get<SaavnSearchAPIResponse>('/', {
