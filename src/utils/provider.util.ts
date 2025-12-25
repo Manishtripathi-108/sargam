@@ -1,11 +1,10 @@
 import { GaanaProvider } from '../providers/gaana/gaana.provider';
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import { AppError } from '../utils/error.utils';
-
-export type ProviderName = 'saavn' | 'gaana';
+import type { Provider } from '../validators/common.validators';
 
 export type ServiceOptions = {
-    provider?: ProviderName;
+    provider?: Provider;
 };
 
 const providers = {

@@ -1,6 +1,6 @@
+import type { Provider } from '../validators/common.validators';
 import { AppError } from './error.utils';
 
-type Provider = 'saavn' | 'gaana';
 type Entity = 'song' | 'album' | 'artist' | 'playlist';
 
 const SAAVN_PATTERNS: Record<Entity, RegExp> = {

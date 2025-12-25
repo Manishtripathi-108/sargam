@@ -22,6 +22,7 @@ import type {
 import type { SaavnSongResponse } from '../../types/saavn/song.types';
 import { AppError } from '../../utils/error.utils';
 import { createPagination, decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
+import type { SearchType } from '../../validators/common.validators';
 import crypto from 'node-forge';
 
 /* -------------------------------------------------------------------------- */
@@ -190,7 +191,7 @@ export const mapGlobalSearch = (s: SaavnSearchResponse): GlobalSearchResult => (
         s.topquery?.data.map((i) => ({
             id: i.id,
             name: i.title,
-            type: i.type as 'song' | 'album' | 'artist' | 'playlist',
+            type: i.type as Exclude<SearchType, 'all'>,
             image: imgFromSaavn(i.image),
             artists: i.more_info?.primary_artists,
         })) ?? [],

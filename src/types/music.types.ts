@@ -1,4 +1,6 @@
-export type SearchEntityType = 'song' | 'album' | 'artist' | 'playlist' | 'all';
+import type { SearchType } from '../validators/common.validators';
+
+export type SearchEntityType = SearchType;
 
 export interface SearchResultItem {
     id: string;

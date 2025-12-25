@@ -4,6 +4,7 @@ import type { Paginated } from '../types/core/pagination.model';
 import type { Song } from '../types/core/song.model';
 import { AppError, wrapError } from '../utils/error.utils';
 import { getProvider, type ServiceOptions } from '../utils/provider.util';
+import type { SortBy, SortOrder } from '../validators/common.validators';
 
 export async function getArtistById(id: string, opts?: ServiceOptions): Promise<Artist> {
     if (!id) {
@@ -33,8 +34,8 @@ export async function getArtistSongs(params: {
     id: string;
     offset: number;
     limit: number;
-    sortBy: string;
-    sortOrder: string;
+    sortBy: SortBy;
+    sortOrder: SortOrder;
     opts?: ServiceOptions;
 }): Promise<Paginated<Song>> {
     if (!params.id) {
@@ -52,8 +53,8 @@ export async function getArtistAlbums(params: {
     id: string;
     offset: number;
     limit: number;
-    sortBy: string;
-    sortOrder: string;
+    sortBy: SortBy;
+    sortOrder: SortOrder;
     opts?: ServiceOptions;
 }): Promise<Paginated<Omit<Album, 'songs'>>> {
     if (!params.id) {

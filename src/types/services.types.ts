@@ -1,3 +1,5 @@
+import type { SearchType } from '../validators/common.validators';
+
 export type SearchParams = {
     query: string;
     limit: number;
@@ -5,5 +7,5 @@ export type SearchParams = {
 };
 
 export type GlobalSearchParams = SearchParams & {
-    type: 'song' | 'album' | 'artist' | 'playlist' | 'all';
+    type: SearchType;
 };

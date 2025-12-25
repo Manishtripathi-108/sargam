@@ -1,3 +1,4 @@
+import type { SearchType } from '../../validators/common.validators';
 import type { Album } from './album.model';
 import type { Artist } from './artist.model';
 import type { ImageAsset } from './image.model';
@@ -9,7 +10,7 @@ export type SearchBase = {
     id: string;
     name: string;
     image: ImageAsset;
-    type: 'song' | 'album' | 'artist' | 'playlist';
+    type: Exclude<SearchType, 'all'>;
 };
 
 export type GlobalSearchResult = {

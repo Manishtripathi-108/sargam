@@ -8,6 +8,7 @@ import type {
 import type { SearchParams } from '../types/services.types';
 import { AppError, wrapError } from '../utils/error.utils';
 import { getProvider, type ServiceOptions } from '../utils/provider.util';
+import type { SearchType } from '../validators/common.validators';
 
 type SearchParamsWithOpts = SearchParams & {
     opts?: ServiceOptions;
@@ -15,7 +16,7 @@ type SearchParamsWithOpts = SearchParams & {
 
 export async function globalSearch(p: {
     query: string;
-    type: 'song' | 'album' | 'artist' | 'playlist' | 'all';
+    type: SearchType;
     limit: number;
     offset: number;
     opts?: ServiceOptions;
