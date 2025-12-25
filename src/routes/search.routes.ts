@@ -1,21 +1,7 @@
-import { globalSearch, searchSongs, searchAlbums, searchArtists, searchPlaylists } from '../services/search.service';
+import { globalSearch, searchAlbums, searchArtists, searchPlaylists, searchSongs } from '../services/search.service';
+import { globalSearchQuery, searchQuery } from '../validators/common.validators';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { z } from 'zod';
-
-const baseQuery = {
-    q: z.string().min(1, 'Query required'),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-    offset: z.coerce.number().int().min(0).default(0),
-    provider: z.enum(['saavn', 'gaana']).default('saavn'),
-};
-
-const globalSchema = z.object({
-    ...baseQuery,
-    type: z.enum(['song', 'album', 'artist', 'playlist', 'all']).default('all'),
-});
-
-const simpleSchema = z.object(baseQuery);
 
 const searchRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
@@ -24,7 +10,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         '/search',
         {
             schema: {
-                querystring: globalSchema,
+                querystring: globalSearchQuery,
                 tags: ['search'],
                 summary: 'Global search',
             },
@@ -43,7 +29,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         '/search/songs',
         {
             schema: {
-                querystring: simpleSchema,
+                querystring: searchQuery,
                 tags: ['search'],
             },
         },
@@ -60,7 +46,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         '/search/albums',
         {
             schema: {
-                querystring: simpleSchema,
+                querystring: searchQuery,
                 tags: ['search'],
             },
         },
@@ -77,7 +63,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         '/search/artists',
         {
             schema: {
-                querystring: simpleSchema,
+                querystring: searchQuery,
                 tags: ['search'],
             },
         },
@@ -94,7 +80,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
         '/search/playlists',
         {
             schema: {
-                querystring: simpleSchema,
+                querystring: searchQuery,
                 tags: ['search'],
             },
         },

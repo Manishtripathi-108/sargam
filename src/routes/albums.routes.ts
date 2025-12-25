@@ -1,25 +1,7 @@
 import { getAlbumById, getAlbumByLink } from '../services/album.service';
+import { idOrLinkWithProvider, idParam, providerQuery } from '../validators/common.validators';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { z } from 'zod';
-
-const byQuerySchema = z
-    .object({
-        id: z.string().optional(),
-        link: z.string().optional(),
-    })
-    .refine((v) => v.id || v.link, {
-        message: 'Either id or link is required',
-        path: ['id'],
-    });
-
-const idParamSchema = z.object({
-    id: z.string().min(1, 'Album ID required'),
-});
-
-const providerQuerySchema = z.object({
-    provider: z.enum(['saavn', 'gaana']).default('saavn'),
-});
 
 const albumsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
@@ -28,7 +10,7 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         '/albums/by',
         {
             schema: {
-                querystring: byQuerySchema.safeExtend(providerQuerySchema.shape),
+                querystring: idOrLinkWithProvider,
                 tags: ['albums'],
                 summary: 'Retrieve album by id or link',
             },
@@ -43,8 +25,8 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         '/albums/:id',
         {
             schema: {
-                params: idParamSchema,
-                querystring: providerQuerySchema,
+                params: idParam('Album'),
+                querystring: providerQuery,
                 tags: ['albums'],
                 summary: 'Retrieve album by id',
             },

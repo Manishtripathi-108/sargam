@@ -1,33 +1,13 @@
 import { getSongById, getSongByLink, getSongsByIds, getSongSuggestions } from '../services/song.service';
+import {
+    idOrLinkWithProvider,
+    idParam,
+    idsQuery,
+    providerQuery,
+    suggestionsQuery,
+} from '../validators/common.validators';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { z } from 'zod';
-
-const byQuerySchema = z
-    .object({
-        id: z.string().optional(),
-        link: z.string().optional(),
-    })
-    .refine((v) => v.id || v.link, {
-        message: 'Either id or link is required',
-        path: ['id'],
-    });
-
-const idParamSchema = z.object({
-    id: z.string().min(1, 'Song ID required'),
-});
-
-const idsQuerySchema = z.object({
-    ids: z.string().min(1, 'Song IDs required'),
-});
-
-const suggestionsQuerySchema = z.object({
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-});
-
-const providerQuerySchema = z.object({
-    provider: z.enum(['saavn', 'gaana']).default('saavn'),
-});
 
 const songsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
@@ -36,7 +16,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs',
         {
             schema: {
-                querystring: idsQuerySchema.safeExtend(providerQuerySchema.shape),
+                querystring: idsQuery.merge(providerQuery),
                 tags: ['songs'],
                 summary: 'Retrieve songs by ids',
             },
@@ -48,7 +28,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs/by',
         {
             schema: {
-                querystring: byQuerySchema.safeExtend(providerQuerySchema.shape),
+                querystring: idOrLinkWithProvider,
                 tags: ['songs'],
             },
         },
@@ -62,8 +42,8 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs/:id',
         {
             schema: {
-                params: idParamSchema,
-                querystring: providerQuerySchema,
+                params: idParam('Song'),
+                querystring: providerQuery,
                 tags: ['songs'],
             },
         },
@@ -74,8 +54,8 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs/:id/suggestions',
         {
             schema: {
-                params: idParamSchema,
-                querystring: suggestionsQuerySchema.safeExtend(providerQuerySchema.shape),
+                params: idParam('Song'),
+                querystring: suggestionsQuery.merge(providerQuery),
                 tags: ['songs'],
             },
         },
