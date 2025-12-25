@@ -15,9 +15,21 @@ import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod
 dotenv.config();
 
 const app = fastify({
-    logger: {
-        level: process.env.LOG_LEVEL ?? (isDev ? 'debug' : 'info'),
-    },
+    logger: isDev
+        ? {
+              level: process.env.LOG_LEVEL ?? 'debug',
+              transport: {
+                  target: 'pino-pretty',
+                  options: {
+                      colorize: true,
+                      translateTime: 'HH:MM:ss',
+                      ignore: 'pid,hostname',
+                  },
+              },
+          }
+        : {
+              level: process.env.LOG_LEVEL ?? 'info',
+          },
 }).withTypeProvider<ZodTypeProvider>();
 
 // Register plugins

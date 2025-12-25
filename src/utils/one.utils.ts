@@ -1,4 +1,4 @@
-import { AppError } from '../../utils/error.utils';
+import { AppError } from './error.utils';
 
 type Provider = 'saavn' | 'gaana';
 type Entity = 'song' | 'album' | 'artist' | 'playlist';
@@ -30,7 +30,7 @@ export const extractSeoToken = (link: string, provider: Provider, entity: Entity
     const token = link.match(PATTERNS[provider][entity])?.[1];
 
     if (!token) {
-        throw new AppError(`Invalid ${provider} ${entity} link`, 400);
+        throw new AppError(`Link does not match ${provider} ${entity} format`, 400);
     }
 
     return token;

@@ -17,6 +17,10 @@ const idParamSchema = z.object({
     id: z.string().min(1, 'Album ID required'),
 });
 
+const providerQuerySchema = z.object({
+    provider: z.enum(['saavn', 'gaana']).default('saavn'),
+});
+
 const albumsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
 
@@ -24,14 +28,14 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         '/albums/by',
         {
             schema: {
-                querystring: byQuerySchema,
+                querystring: byQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['albums'],
                 summary: 'Retrieve album by id or link',
             },
         },
         async (req) => {
-            const { id, link } = req.query;
-            return link ? getAlbumByLink(link) : getAlbumById(id!);
+            const { id, link, provider } = req.query;
+            return link ? getAlbumByLink(link, { provider }) : getAlbumById(id!, { provider });
         }
     );
 
@@ -40,11 +44,12 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
+                querystring: providerQuerySchema,
                 tags: ['albums'],
                 summary: 'Retrieve album by id',
             },
         },
-        async (req) => getAlbumById(req.params.id)
+        async (req) => getAlbumById(req.params.id, { provider: req.query.provider })
     );
 };
 

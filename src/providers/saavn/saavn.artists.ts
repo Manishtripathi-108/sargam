@@ -10,10 +10,10 @@ import type {
 import { assertData } from '../../utils/error.utils';
 import { createPagination } from '../../utils/helper.utils';
 import { normalizePagination } from '../../utils/main.utils';
+import { extractSeoToken } from '../../utils/one.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-import { extractSeoToken } from './saavn.utils';
 
 export async function getById(id: string): Promise<Artist> {
     const res = await saavnClient.get<SaavnArtistResponse>('/', {
