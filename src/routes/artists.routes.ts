@@ -1,4 +1,4 @@
-import { getArtistById, getArtistByLink, getArtistSongs, getArtistAlbums } from '../services/artist.service';
+import { getArtistAlbums, getArtistById, getArtistByLink, getArtistSongs } from '../services/artist.service';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -17,6 +17,10 @@ const idParamSchema = z.object({
     id: z.string().min(1, 'Artist id required'),
 });
 
+const providerQuerySchema = z.object({
+    provider: z.enum(['saavn', 'gaana']).default('saavn'),
+});
+
 const listQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(10),
     offset: z.coerce.number().int().min(0).default(0),
@@ -31,14 +35,14 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         '/artists/by',
         {
             schema: {
-                querystring: byQuerySchema,
+                querystring: byQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['artists'],
                 summary: 'Retrieve artist by id or link',
             },
         },
         async (req) => {
-            const { id, link } = req.query;
-            return link ? getArtistByLink(link) : getArtistById(id!);
+            const { id, link, provider } = req.query;
+            return link ? getArtistByLink(link, { provider }) : getArtistById(id!, { provider });
         }
     );
 
@@ -47,11 +51,12 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
+                querystring: providerQuerySchema,
                 tags: ['artists'],
                 summary: 'Retrieve artist by id',
             },
         },
-        async (req) => getArtistById(req.params.id)
+        async (req) => getArtistById(req.params.id, { provider: req.query.provider })
     );
 
     api.get(
@@ -59,7 +64,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
-                querystring: listQuerySchema,
+                querystring: listQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['artists'],
                 summary: 'Retrieve artist songs',
             },
@@ -68,6 +73,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
             getArtistSongs({
                 id: req.params.id,
                 ...req.query,
+                opts: { provider: req.query.provider },
             })
     );
 
@@ -76,7 +82,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
-                querystring: listQuerySchema,
+                querystring: listQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['artists'],
                 summary: 'Retrieve artist albums',
             },
@@ -85,6 +91,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
             getArtistAlbums({
                 id: req.params.id,
                 ...req.query,
+                opts: { provider: req.query.provider },
             })
     );
 };

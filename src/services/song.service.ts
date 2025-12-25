@@ -23,21 +23,21 @@ export async function getSongsByIds(ids: string, opts?: ServiceOptions): Promise
     }
 }
 
-export async function getSongByLink(link: string): Promise<Song> {
+export async function getSongByLink(link: string, opts?: ServiceOptions): Promise<Song> {
     if (!link) {
         throw new AppError('Link is required', 400);
     }
 
     try {
-        return await getProvider().songs.getByLink(link);
+        return await getProvider(opts).songs.getByLink(link);
     } catch (err) {
         return wrapError(err, 'Failed to fetch song', 500);
     }
 }
 
-export async function getSongSuggestions(id: string, limit = 10): Promise<Song[]> {
+export async function getSongSuggestions(id: string, limit = 10, opts?: ServiceOptions): Promise<Song[]> {
     try {
-        return await await getProvider().songs.getSuggestions(id, limit);
+        return await await getProvider(opts).songs.getSuggestions(id, limit);
     } catch (err) {
         return wrapError(err, 'Failed to fetch suggestions', 500);
     }

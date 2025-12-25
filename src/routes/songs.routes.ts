@@ -1,4 +1,4 @@
-import { getSongById, getSongsByIds, getSongByLink, getSongSuggestions } from '../services/song.service';
+import { getSongById, getSongByLink, getSongsByIds, getSongSuggestions } from '../services/song.service';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
@@ -25,6 +25,10 @@ const suggestionsQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
+const providerQuerySchema = z.object({
+    provider: z.enum(['saavn', 'gaana']).default('saavn'),
+});
+
 const songsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
 
@@ -32,23 +36,26 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs',
         {
             schema: {
-                querystring: idsQuerySchema,
+                querystring: idsQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['songs'],
                 summary: 'Retrieve songs by ids',
             },
         },
-        async (req) => getSongsByIds(req.query.ids)
+        async (req) => getSongsByIds(req.query.ids, { provider: req.query.provider })
     );
 
     api.get(
         '/songs/by',
         {
             schema: {
-                querystring: byQuerySchema,
+                querystring: byQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['songs'],
             },
         },
-        async (req) => (req.query.link ? getSongByLink(req.query.link) : getSongById(req.query.id!))
+        async (req) => {
+            const { id, link, provider } = req.query;
+            return link ? getSongByLink(link, { provider }) : getSongById(id!, { provider });
+        }
     );
 
     api.get(
@@ -56,10 +63,11 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
+                querystring: providerQuerySchema,
                 tags: ['songs'],
             },
         },
-        async (req) => getSongById(req.params.id)
+        async (req) => getSongById(req.params.id, { provider: req.query.provider })
     );
 
     api.get(
@@ -67,11 +75,11 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParamSchema,
-                querystring: suggestionsQuerySchema,
+                querystring: suggestionsQuerySchema.safeExtend(providerQuerySchema.shape),
                 tags: ['songs'],
             },
         },
-        async (req) => getSongSuggestions(req.params.id, req.query.limit)
+        async (req) => getSongSuggestions(req.params.id, req.query.limit, { provider: req.query.provider })
     );
 };
 
