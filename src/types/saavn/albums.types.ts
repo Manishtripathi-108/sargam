@@ -1,8 +1,8 @@
-import type { SaavnArtistBaseAPIResponse } from './artists.type';
+import type { SaavnArtistBaseResponse } from './artists.type';
 import type { SaavnEntityBase } from './global.types';
-import type { SaavnSongAPIResponse } from './song.types';
+import type { SaavnSongResponse } from './song.types';
 
-export type SaavnSearchAlbumAPIResponse = {
+export type SaavnSearchAlbumResponse = {
     total: number;
     start: number;
     results: {
@@ -19,31 +19,31 @@ export type SaavnSearchAlbumAPIResponse = {
         explicit_content: string;
         list_count: string;
         list_type: string;
-        list: SaavnSongAPIResponse[];
+        list: SaavnSongResponse[];
         more_info: {
             query: string;
             text: string;
             music: string;
             song_count: string;
             artistMap: {
-                primary_artists: SaavnArtistBaseAPIResponse[];
-                featured_artists: SaavnArtistBaseAPIResponse[];
-                artists: SaavnArtistBaseAPIResponse[];
+                primary_artists: SaavnArtistBaseResponse[];
+                featured_artists: SaavnArtistBaseResponse[];
+                artists: SaavnArtistBaseResponse[];
             };
         };
     }[];
 };
 
-export type SaavnAlbumAPIResponse = SaavnEntityBase & {
+export type SaavnAlbumResponse = SaavnEntityBase & {
     header_desc: string;
     play_count: string;
     list_count: string;
     list_type: string;
     year: string;
     language: string;
-    list: SaavnSongAPIResponse[];
+    list: SaavnSongResponse[];
     more_info: {
-        artistMap: SaavnSongAPIResponse['more_info']['artistMap'];
+        artistMap: SaavnSongResponse['more_info']['artistMap'];
         song_count: string;
         copyright_text: string;
         is_dolby_content: boolean;

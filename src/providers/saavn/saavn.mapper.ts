@@ -10,16 +10,16 @@ import type {
     SearchSong,
 } from '../../types/core/search.model';
 import type { Song, SongAudio, SongBase } from '../../types/core/song.model';
-import type { SaavnAlbumAPIResponse, SaavnSearchAlbumAPIResponse } from '../../types/saavn/albums.types';
-import type { SaavnArtistAPIResponse, SaavnArtistBaseAPIResponse } from '../../types/saavn/artists.type';
-import type { SaavnPlaylistAPIResponse } from '../../types/saavn/playlist.types';
+import type { SaavnAlbumResponse, SaavnSearchAlbumResponse } from '../../types/saavn/albums.types';
+import type { SaavnArtistBaseResponse, SaavnArtistResponse } from '../../types/saavn/artists.type';
+import type { SaavnPlaylistResponse } from '../../types/saavn/playlist.types';
 import type {
-    SaavnSearchAPIResponse,
-    SaavnSearchArtistAPIResponse,
-    SaavnSearchPlaylistAPIResponse,
-    SaavnSearchSongAPIResponse,
+    SaavnSearchArtistResponse,
+    SaavnSearchPlaylistResponse,
+    SaavnSearchResponse,
+    SaavnSearchSongResponse,
 } from '../../types/saavn/search.types';
-import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
+import type { SaavnSongResponse } from '../../types/saavn/song.types';
 import { AppError } from '../../utils/error.utils';
 import { createPagination, decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
 import crypto from 'node-forge';
@@ -75,13 +75,13 @@ const imgFromSaavn = (link?: string | null): ImageAsset => {
 /*                              entity mappers                                */
 /* -------------------------------------------------------------------------- */
 
-export const mapArtistBase = (a: SaavnArtistBaseAPIResponse): ArtistBase => ({
+export const mapArtistBase = (a: SaavnArtistBaseResponse): ArtistBase => ({
     id: a.id,
     name: a.name,
     type: 'artist',
 });
 
-export const mapSong = (s: SaavnSongAPIResponse): Song => {
+export const mapSong = (s: SaavnSongResponse): Song => {
     // Guard: required fields must be present
     if (!s.id || !s.title || !s.more_info?.encrypted_media_url) {
         throw new AppError(`Saavn provider data corruption: missing fields for song ${s.id ?? 'unknown'}`, 502);
@@ -115,7 +115,7 @@ export const mapSong = (s: SaavnSongAPIResponse): Song => {
     };
 };
 
-export const mapSongBase = (s: SaavnSongAPIResponse): SongBase => ({
+export const mapSongBase = (s: SaavnSongResponse): SongBase => ({
     id: s.id,
     name: decodeHtml(s.title) ?? s.title,
     type: 'song',
@@ -128,7 +128,7 @@ export const mapSongBase = (s: SaavnSongAPIResponse): SongBase => ({
     image: imgFromSaavn(s.image),
 });
 
-export const mapArtist = (a: SaavnArtistAPIResponse): Artist => ({
+export const mapArtist = (a: SaavnArtistResponse): Artist => ({
     id: a.artistId ?? a.id,
     name: a.name,
     type: 'artist',
@@ -143,7 +143,7 @@ export const mapArtist = (a: SaavnArtistAPIResponse): Artist => ({
     image: imgFromSaavn(a.image),
 });
 
-export const mapAlbum = (a: SaavnAlbumAPIResponse): Album => ({
+export const mapAlbum = (a: SaavnAlbumResponse): Album => ({
     id: a.id,
     name: a.title,
     type: 'album',
@@ -157,7 +157,7 @@ export const mapAlbum = (a: SaavnAlbumAPIResponse): Album => ({
     songs: a.list?.map(mapSongBase) ?? null,
 });
 
-export const mapAlbumBase = (a: SaavnAlbumAPIResponse): Omit<Album, 'songs'> => ({
+export const mapAlbumBase = (a: SaavnAlbumResponse): Omit<Album, 'songs'> => ({
     id: a.id,
     name: a.title,
     type: 'album',
@@ -170,7 +170,7 @@ export const mapAlbumBase = (a: SaavnAlbumAPIResponse): Omit<Album, 'songs'> => 
     image: imgFromSaavn(a.image),
 });
 
-export const mapPlaylist = (p: SaavnPlaylistAPIResponse): Playlist => ({
+export const mapPlaylist = (p: SaavnPlaylistResponse): Playlist => ({
     id: p.id,
     name: p.title,
     description: p.header_desc,
@@ -185,7 +185,7 @@ export const mapPlaylist = (p: SaavnPlaylistAPIResponse): Playlist => ({
 /*                              search mappers                                */
 /* -------------------------------------------------------------------------- */
 
-export const mapGlobalSearch = (s: SaavnSearchAPIResponse): GlobalSearchResult => ({
+export const mapGlobalSearch = (s: SaavnSearchResponse): GlobalSearchResult => ({
     topQuery:
         s.topquery?.data.map((i) => ({
             id: i.id,
@@ -227,7 +227,7 @@ export const mapGlobalSearch = (s: SaavnSearchAPIResponse): GlobalSearchResult =
         })) ?? [],
 });
 
-export const mapSearchSong = (s: SaavnSearchSongAPIResponse, limit?: number): SearchSong =>
+export const mapSearchSong = (s: SaavnSearchSongResponse, limit?: number): SearchSong =>
     createPagination({
         items: s.results.map(mapSongBase),
         limit,
@@ -235,7 +235,7 @@ export const mapSearchSong = (s: SaavnSearchSongAPIResponse, limit?: number): Se
         offset: safeOffset(s.start),
     });
 
-export const mapSearchAlbum = (a: SaavnSearchAlbumAPIResponse, limit?: number): SearchAlbum =>
+export const mapSearchAlbum = (a: SaavnSearchAlbumResponse, limit?: number): SearchAlbum =>
     createPagination({
         items: a.results.map((i) => ({
             id: i.id,
@@ -251,7 +251,7 @@ export const mapSearchAlbum = (a: SaavnSearchAlbumAPIResponse, limit?: number): 
         offset: safeOffset(a.start),
     });
 
-export const mapSearchPlaylist = (p: SaavnSearchPlaylistAPIResponse, limit?: number): SearchPlaylist =>
+export const mapSearchPlaylist = (p: SaavnSearchPlaylistResponse, limit?: number): SearchPlaylist =>
     createPagination({
         items: p.results.map((i) => ({
             id: i.id,
@@ -267,7 +267,7 @@ export const mapSearchPlaylist = (p: SaavnSearchPlaylistAPIResponse, limit?: num
         offset: safeOffset(p.start),
     });
 
-export const mapSearchArtist = (a: SaavnSearchArtistAPIResponse, limit?: number): SearchArtist =>
+export const mapSearchArtist = (a: SaavnSearchArtistResponse, limit?: number): SearchArtist =>
     createPagination({
         items: a.results.map((i) => ({
             id: i.id,

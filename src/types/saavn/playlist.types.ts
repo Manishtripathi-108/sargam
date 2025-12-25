@@ -1,6 +1,6 @@
-import type { SaavnSongAPIResponse } from '../../types/saavn/song.types';
+import type { SaavnSongResponse } from '../../types/saavn/song.types';
 
-export type SaavnPlaylistAPIResponse = {
+export type SaavnPlaylistResponse = {
     id: string;
     title: string;
     subtitle: string;
@@ -13,7 +13,7 @@ export type SaavnPlaylistAPIResponse = {
     play_count: string;
     list_count: string;
     list_type: string;
-    list: SaavnSongAPIResponse[];
+    list: SaavnSongResponse[];
     description: string;
     header_desc: string;
     more_info: {

@@ -1,6 +1,6 @@
 import type { SaavnArtistBase } from './artists.type';
-import type { SaavnEntityBase, SaavnSearchAPIResponseSection } from './global.types';
-import type { SaavnSongAPIResponse } from './song.types';
+import type { SaavnEntityBase, SaavnSearchResponseSection } from './global.types';
+import type { SaavnSongResponse } from './song.types';
 
 type SaavnAlbumRaw = SaavnEntityBase & {
     more_info: {
@@ -52,17 +52,17 @@ type SaavnArtistRaw = Omit<SaavnEntityBase, 'explicit_content' | 'perma_url'> & 
     position: number;
 };
 
-export type SaavnSearchAPIResponse = {
-    albums: SaavnSearchAPIResponseSection<SaavnAlbumRaw>;
-    songs: SaavnSearchAPIResponseSection<SaavnSongRaw>;
-    playlists: SaavnSearchAPIResponseSection<SaavnPlaylistRaw>;
-    artists: SaavnSearchAPIResponseSection<SaavnArtistRaw>;
-    topquery: SaavnSearchAPIResponseSection<SaavnSongRaw>;
+export type SaavnSearchResponse = {
+    albums: SaavnSearchResponseSection<SaavnAlbumRaw>;
+    songs: SaavnSearchResponseSection<SaavnSongRaw>;
+    playlists: SaavnSearchResponseSection<SaavnPlaylistRaw>;
+    artists: SaavnSearchResponseSection<SaavnArtistRaw>;
+    topquery: SaavnSearchResponseSection<SaavnSongRaw>;
 };
 
 /* --------------------- Search API Normalized Response --------------------- */
 
-export type SaavnSearchPlaylistAPIResponse = {
+export type SaavnSearchPlaylistResponse = {
     total: number;
     start: number;
     results: Array<
@@ -76,7 +76,7 @@ export type SaavnSearchPlaylistAPIResponse = {
     >;
 };
 
-export type SaavnSearchArtistAPIResponse = {
+export type SaavnSearchArtistResponse = {
     total: number;
     start: number;
     results: {
@@ -100,8 +100,8 @@ export type SaavnSearchArtist = {
     results: SaavnArtistBase[];
 };
 
-export type SaavnSearchSongAPIResponse = {
+export type SaavnSearchSongResponse = {
     total: number;
     start: number;
-    results: SaavnSongAPIResponse[];
+    results: SaavnSongResponse[];
 };

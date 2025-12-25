@@ -5,12 +5,12 @@ import type {
     SearchPlaylist,
     SearchSong,
 } from '../../types/core/search.model';
-import type { SaavnSearchAlbumAPIResponse } from '../../types/saavn/albums.types';
+import type { SaavnSearchAlbumResponse } from '../../types/saavn/albums.types';
 import type {
-    SaavnSearchAPIResponse,
-    SaavnSearchArtistAPIResponse,
-    SaavnSearchPlaylistAPIResponse,
-    SaavnSearchSongAPIResponse,
+    SaavnSearchArtistResponse,
+    SaavnSearchPlaylistResponse,
+    SaavnSearchResponse,
+    SaavnSearchSongResponse,
 } from '../../types/saavn/search.types';
 import type { SearchParams } from '../../types/services.types';
 import { assertData } from '../../utils/error.utils';
@@ -20,7 +20,7 @@ import { mapGlobalSearch, mapSearchAlbum, mapSearchArtist, mapSearchPlaylist, ma
 import SAAVN_ROUTES from './saavn.routes';
 
 export async function all(query: string): Promise<GlobalSearchResult> {
-    const res = await saavnClient.get<SaavnSearchAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnSearchResponse>('/', {
         params: { query, __call: SAAVN_ROUTES.SEARCH.ALL },
     });
 
@@ -30,7 +30,7 @@ export async function all(query: string): Promise<GlobalSearchResult> {
 export async function songs({ query, offset, limit }: SearchParams): Promise<SearchSong> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnSearchSongAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnSearchSongResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -47,7 +47,7 @@ export async function songs({ query, offset, limit }: SearchParams): Promise<Sea
 export async function albums({ query, offset, limit }: SearchParams): Promise<SearchAlbum> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnSearchAlbumAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnSearchAlbumResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -65,7 +65,7 @@ export async function albums({ query, offset, limit }: SearchParams): Promise<Se
 export async function artists({ query, offset, limit }: SearchParams): Promise<SearchArtist> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnSearchArtistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnSearchArtistResponse>('/', {
         params: {
             q: query,
             p: page,
@@ -83,7 +83,7 @@ export async function artists({ query, offset, limit }: SearchParams): Promise<S
 export async function playlists({ query, offset, limit }: SearchParams): Promise<SearchPlaylist> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnSearchPlaylistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnSearchPlaylistResponse>('/', {
         params: {
             q: query,
             p: page,

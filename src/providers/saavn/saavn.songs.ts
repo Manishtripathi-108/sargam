@@ -1,14 +1,14 @@
 import type { Song } from '../../types/core/song.model';
 import type { SaavnLyrics } from '../../types/saavn/global.types';
-import type { SaavnSongAPIResponse, SaavnSongSuggestionAPIResponse } from '../../types/saavn/song.types';
+import type { SaavnSongResponse, SaavnSongSuggestionResponse } from '../../types/saavn/song.types';
 import { AppError, assertData } from '../../utils/error.utils';
 import { saavnClient } from './saavn.client';
 import { mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-import { extractSongToken } from './saavn.utils';
+import { extractSeoToken } from './saavn.utils';
 
 export async function getByIds(ids: string): Promise<Song[]> {
-    const res = await saavnClient.get<{ songs: SaavnSongAPIResponse[] }>('/', {
+    const res = await saavnClient.get<{ songs: SaavnSongResponse[] }>('/', {
         params: {
             pids: ids,
             __call: SAAVN_ROUTES.SONG.ID,
@@ -21,9 +21,9 @@ export async function getByIds(ids: string): Promise<Song[]> {
 }
 
 export async function getByLink(link: string): Promise<Song> {
-    const token = extractSongToken(link);
+    const token = extractSeoToken(link, 'saavn', 'song');
 
-    const res = await saavnClient.get<{ songs: SaavnSongAPIResponse[] }>('/', {
+    const res = await saavnClient.get<{ songs: SaavnSongResponse[] }>('/', {
         params: {
             token,
             type: 'song',
@@ -58,7 +58,7 @@ export async function getStation(songId: string): Promise<string> {
 export async function getSuggestions(id: string, limit: number): Promise<Song[]> {
     const stationId = await getStation(id);
 
-    const res = await saavnClient.get<SaavnSongSuggestionAPIResponse>(SAAVN_ROUTES.SONG.SUGGESTIONS, {
+    const res = await saavnClient.get<SaavnSongSuggestionResponse>(SAAVN_ROUTES.SONG.SUGGESTIONS, {
         params: {
             stationid: stationId,
             k: limit,

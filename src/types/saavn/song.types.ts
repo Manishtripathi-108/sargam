@@ -1,7 +1,7 @@
-import type { SaavnArtistBaseAPIResponse } from './artists.type';
+import type { SaavnArtistBaseResponse } from './artists.type';
 import type { SaavnEntityBase } from './global.types';
 
-export type SaavnSongAPIResponse = SaavnEntityBase & {
+export type SaavnSongResponse = SaavnEntityBase & {
     header_desc: string;
     play_count: string;
     list_count: string;
@@ -41,15 +41,15 @@ export type SaavnSongAPIResponse = SaavnEntityBase & {
             reason: string;
         };
         artistMap: {
-            primary_artists: SaavnArtistBaseAPIResponse[];
-            featured_artists: SaavnArtistBaseAPIResponse[];
-            artists: SaavnArtistBaseAPIResponse[];
+            primary_artists: SaavnArtistBaseResponse[];
+            featured_artists: SaavnArtistBaseResponse[];
+            artists: SaavnArtistBaseResponse[];
         };
     };
 };
 
-type SaavnSongStationAPIResponse = Record<string, { song: SaavnSongAPIResponse }>;
+type SaavnSongStationResponse = Record<string, { song: SaavnSongResponse }>;
 
-export type SaavnSongSuggestionAPIResponse = {
+export type SaavnSongSuggestionResponse = {
     stationid: string;
-} & SaavnSongStationAPIResponse;
+} & SaavnSongStationResponse;

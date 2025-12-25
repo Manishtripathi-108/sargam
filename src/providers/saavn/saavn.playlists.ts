@@ -1,11 +1,11 @@
 import type { Playlist } from '../../types/core/playlist.model';
-import type { SaavnPlaylistAPIResponse } from '../../types/saavn/playlist.types';
+import type { SaavnPlaylistResponse } from '../../types/saavn/playlist.types';
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapPlaylist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-import { extractPlaylistToken } from './saavn.utils';
+import { extractSeoToken } from './saavn.utils';
 
 export async function getPlaylistById({
     id,
@@ -18,7 +18,7 @@ export async function getPlaylistById({
 }): Promise<Playlist> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnPlaylistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnPlaylistResponse>('/', {
         params: {
             listid: id,
             p: page,
@@ -39,10 +39,10 @@ export async function getPlaylistByLink({
     offset: number;
     limit: number;
 }): Promise<Playlist> {
-    const token = extractPlaylistToken(link);
+    const token = extractSeoToken(link, 'saavn', 'playlist');
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnPlaylistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnPlaylistResponse>('/', {
         params: {
             token,
             type: 'playlist',

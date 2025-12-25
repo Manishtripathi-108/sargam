@@ -1,24 +1,37 @@
 import { AppError } from '../../utils/error.utils';
 
-type SaavnEntity = 'song' | 'album' | 'artist' | 'playlist';
+type Provider = 'saavn' | 'gaana';
+type Entity = 'song' | 'album' | 'artist' | 'playlist';
 
-const TOKEN_PATTERNS: Record<SaavnEntity, RegExp> = {
-    song: /jiosaavn\.com\/song\/[^/]+\/([^/]+)$/,
-    album: /jiosaavn\.com\/album\/[^/]+\/([^/]+)$/,
-    artist: /jiosaavn\.com\/artist\/[^/]+\/([^/]+)$/,
-    playlist: /jiosaavn\.com\/playlist\/([^/]+)$/,
+const SAAVN_PATTERNS: Record<Entity, RegExp> = {
+    song: /jiosaavn\.com\/song\/[^/]+\/([^/?#]+)/i,
+    album: /jiosaavn\.com\/album\/[^/]+\/([^/?#]+)/i,
+    artist: /jiosaavn\.com\/artist\/[^/]+\/([^/?#]+)/i,
+    playlist: /jiosaavn\.com\/playlist\/([^/?#]+)/i,
 };
 
-export const extractSaavnToken = (entity: SaavnEntity, link: string): string => {
-    const rx = TOKEN_PATTERNS[entity];
-    const token = link.match(rx)?.[1];
-    if (!token) {
-        throw new AppError(`Invalid ${entity} link`, 400);
+const GAANA_PATTERNS: Record<Entity, RegExp> = {
+    song: /gaana\.com\/song\/([a-zA-Z0-9-]+)/i,
+    album: /gaana\.com\/album\/([a-zA-Z0-9-]+)/i,
+    artist: /gaana\.com\/artist\/([a-zA-Z0-9-]+)/i,
+    playlist: /gaana\.com\/playlist\/([a-zA-Z0-9-]+)/i,
+};
+
+const PATTERNS: Record<Provider, Record<Entity, RegExp>> = {
+    saavn: SAAVN_PATTERNS,
+    gaana: GAANA_PATTERNS,
+};
+
+export const extractSeoToken = (link: string, provider: Provider, entity: Entity): string => {
+    if (!link) {
+        throw new AppError('Link is required', 400);
     }
+
+    const token = link.match(PATTERNS[provider][entity])?.[1];
+
+    if (!token) {
+        throw new AppError(`Invalid ${provider} ${entity} link`, 400);
+    }
+
     return token;
 };
-
-export const extractSongToken = (link: string) => extractSaavnToken('song', link);
-export const extractAlbumToken = (link: string) => extractSaavnToken('album', link);
-export const extractArtistToken = (link: string) => extractSaavnToken('artist', link);
-export const extractPlaylistToken = (link: string) => extractSaavnToken('playlist', link);

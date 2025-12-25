@@ -3,9 +3,9 @@ import type { Artist } from '../../types/core/artist.model';
 import type { Paginated } from '../../types/core/pagination.model';
 import type { Song } from '../../types/core/song.model';
 import type {
-    SaavnArtistAlbumAPIResponse,
-    SaavnArtistAPIResponse,
-    SaavnArtistSongAPIResponse,
+    SaavnArtistAlbumResponse,
+    SaavnArtistResponse,
+    SaavnArtistSongResponse,
 } from '../../types/saavn/artists.type';
 import { assertData } from '../../utils/error.utils';
 import { createPagination } from '../../utils/helper.utils';
@@ -13,10 +13,10 @@ import { normalizePagination } from '../../utils/main.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
-import { extractArtistToken } from './saavn.utils';
+import { extractSeoToken } from './saavn.utils';
 
 export async function getById(id: string): Promise<Artist> {
-    const res = await saavnClient.get<SaavnArtistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistResponse>('/', {
         params: {
             artistId: id,
             __call: SAAVN_ROUTES.ARTIST.DETAILS,
@@ -27,9 +27,9 @@ export async function getById(id: string): Promise<Artist> {
 }
 
 export async function getByLink(link: string): Promise<Artist> {
-    const token = extractArtistToken(link);
+    const token = extractSeoToken(link, 'saavn', 'artist');
 
-    const res = await saavnClient.get<SaavnArtistAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistResponse>('/', {
         params: {
             token,
             type: 'artist',
@@ -55,7 +55,7 @@ export async function getSongs({
 }): Promise<Paginated<Song>> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnArtistSongAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistSongResponse>('/', {
         params: {
             artistId: id,
             page: page - 1,
@@ -90,7 +90,7 @@ export async function getAlbums({
 }): Promise<Paginated<Omit<Album, 'songs'>>> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnArtistAlbumAPIResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistAlbumResponse>('/', {
         params: {
             artistId: id,
             page: page - 1,

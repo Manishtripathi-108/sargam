@@ -3,7 +3,7 @@ export type SaavnSearchSection<T> = {
     position: number;
 };
 
-export type SaavnSearchAPIResponseSection<T> = {
+export type SaavnSearchResponseSection<T> = {
     data: T[];
     position: number;
 };
