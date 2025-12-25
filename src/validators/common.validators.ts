@@ -40,10 +40,7 @@ export const sortByEnum = z.enum(['popularity', 'alphabetical', 'latest']);
  * Generic ID param schema factory
  * @param entity - The entity name for error message (e.g., 'Album', 'Song', 'Artist')
  */
-export const idParam = (entity: string) =>
-    z.object({
-        id: nonEmptyString(`${entity} ID required`),
-    });
+export const idParam = z.object({ id: nonEmptyString('ID required') });
 
 /**
  * Provider query parameter with default

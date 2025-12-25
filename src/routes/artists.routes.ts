@@ -25,7 +25,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         '/artists/:id',
         {
             schema: {
-                params: idParam('Artist'),
+                params: idParam,
                 querystring: providerQuery,
                 tags: ['artists'],
                 summary: 'Retrieve artist by id',
@@ -38,7 +38,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         '/artists/:id/songs',
         {
             schema: {
-                params: idParam('Artist'),
+                params: idParam,
                 querystring: listQuery,
                 tags: ['artists'],
                 summary: 'Retrieve artist songs',
@@ -56,7 +56,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
         '/artists/:id/albums',
         {
             schema: {
-                params: idParam('Artist'),
+                params: idParam,
                 querystring: listQuery,
                 tags: ['artists'],
                 summary: 'Retrieve artist albums',

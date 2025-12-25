@@ -25,7 +25,7 @@ const albumsRoutes: FastifyPluginAsync = async (app) => {
         '/albums/:id',
         {
             schema: {
-                params: idParam('Album'),
+                params: idParam,
                 querystring: providerQuery,
                 tags: ['albums'],
                 summary: 'Retrieve album by id',

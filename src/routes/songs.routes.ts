@@ -16,7 +16,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs',
         {
             schema: {
-                querystring: idsQuery.merge(providerQuery),
+                querystring: idsQuery.extend(providerQuery.shape),
                 tags: ['songs'],
                 summary: 'Retrieve songs by ids',
             },
@@ -42,7 +42,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs/:id',
         {
             schema: {
-                params: idParam('Song'),
+                params: idParam,
                 querystring: providerQuery,
                 tags: ['songs'],
             },
@@ -54,7 +54,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs/:id/suggestions',
         {
             schema: {
-                params: idParam('Song'),
+                params: idParam,
                 querystring: suggestionsQuery.merge(providerQuery),
                 tags: ['songs'],
             },
