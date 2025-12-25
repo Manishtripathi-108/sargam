@@ -1,7 +1,7 @@
 import type { Album } from '../../types/core/album.model';
 import type { SaavnAlbumResponse } from '../../types/saavn/albums.types';
 import { assertData } from '../../utils/error.utils';
-import { extractSeoToken } from '../../utils/one.utils';
+import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbum } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';

@@ -1,5 +1,5 @@
 import { PrismaClient } from '../generated/prisma/client';
-import { isDev } from '../utils/main.utils';
+import { isDev } from '../utils/environment.utils';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
 import type { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';

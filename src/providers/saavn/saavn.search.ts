@@ -14,7 +14,7 @@ import type {
 } from '../../types/saavn/search.types';
 import type { SearchParams } from '../../types/services.types';
 import { assertData } from '../../utils/error.utils';
-import { normalizePagination } from '../../utils/main.utils';
+import { normalizePagination } from '../../utils/pagination.utils';
 import { saavnClient } from './saavn.client';
 import { mapGlobalSearch, mapSearchAlbum, mapSearchArtist, mapSearchPlaylist, mapSearchSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';

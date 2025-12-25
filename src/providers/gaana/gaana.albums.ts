@@ -1,6 +1,6 @@
 import type { GaanaAlbumResponse } from '../../types/gaana';
 import { assertData } from '../../utils/error.utils';
-import { extractSeoToken } from '../../utils/one.utils';
+import { extractSeoToken } from '../../utils/url.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 

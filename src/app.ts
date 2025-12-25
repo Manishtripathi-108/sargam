@@ -5,7 +5,7 @@ import registerErrorHandler from './plugins/error-handler';
 import jwtPlugin from './plugins/jwt';
 import successPlugin from './plugins/success';
 import apiRoutes from './routes/index';
-import { isDev } from './utils/main.utils';
+import { isDev } from './utils/environment.utils';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';

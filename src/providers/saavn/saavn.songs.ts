@@ -2,7 +2,7 @@ import type { Song } from '../../types/core/song.model';
 import type { SaavnLyrics } from '../../types/saavn/global.types';
 import type { SaavnSongResponse, SaavnSongSuggestionResponse } from '../../types/saavn/song.types';
 import { AppError, assertData } from '../../utils/error.utils';
-import { extractSeoToken } from '../../utils/one.utils';
+import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';

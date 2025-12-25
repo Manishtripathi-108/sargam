@@ -8,9 +8,8 @@ import type {
     SaavnArtistSongResponse,
 } from '../../types/saavn/artists.type';
 import { assertData } from '../../utils/error.utils';
-import { createPagination } from '../../utils/helper.utils';
-import { normalizePagination } from '../../utils/main.utils';
-import { extractSeoToken } from '../../utils/one.utils';
+import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
+import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
@@ -67,7 +66,7 @@ export async function getSongs({
 
     const data = assertData(res.data, 'Artist not found');
 
-    return createPagination({
+    return createPaginatedResponse({
         items: data.topSongs?.songs?.map(mapSong),
         offset: (page - 1) * 10,
         total: data.topSongs?.total,
@@ -102,7 +101,7 @@ export async function getAlbums({
 
     const data = assertData(res.data, 'Artist not found');
 
-    return createPagination({
+    return createPaginatedResponse({
         items: data.topAlbums?.albums?.map(mapAlbumBase),
         offset: (page - 1) * 10,
         total: data.topAlbums?.total,

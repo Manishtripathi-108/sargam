@@ -21,7 +21,11 @@ import type {
 } from '../../types/saavn/search.types';
 import type { SaavnSongResponse } from '../../types/saavn/song.types';
 import { AppError } from '../../utils/error.utils';
-import { createPagination, decodeHtml, fallbackImage, safeNumber, toHttps } from '../../utils/helper.utils';
+import { createFallbackImageAsset } from '../../utils/image.utils';
+import { safeParseNumber } from '../../utils/number.utils';
+import { createPaginatedResponse } from '../../utils/pagination.utils';
+import { decodeHtmlEntities } from '../../utils/string.utils';
+import { upgradeToHttps } from '../../utils/url.utils';
 import type { SearchType } from '../../validators/common.validators';
 import crypto from 'node-forge';
 
@@ -57,18 +61,18 @@ const audioFromSaavn = (encrypted?: string): SongAudio | null => {
     const base = decipher.output.getBytes();
 
     return AUDIO_QUALITIES.reduce((acc, q) => {
-        acc[q.key] = toHttps(base.replace('_96', q.id));
+        acc[q.key] = upgradeToHttps(base.replace('_96', q.id));
         return acc;
     }, {} as SongAudio);
 };
 
 const imgFromSaavn = (link?: string | null): ImageAsset => {
-    if (!link || link.includes('default')) return fallbackImage();
+    if (!link || link.includes('default')) return createFallbackImageAsset();
 
     return {
-        low: toHttps(link.replace(IMG_SIZE_RX, '50x50')),
-        medium: toHttps(link.replace(IMG_SIZE_RX, '150x150')),
-        high: toHttps(link.replace(IMG_SIZE_RX, '500x500')),
+        low: upgradeToHttps(link.replace(IMG_SIZE_RX, '50x50')),
+        medium: upgradeToHttps(link.replace(IMG_SIZE_RX, '150x150')),
+        high: upgradeToHttps(link.replace(IMG_SIZE_RX, '500x500')),
     };
 };
 
@@ -95,11 +99,11 @@ export const mapSong = (s: SaavnSongResponse): Song => {
 
     return {
         id: s.id,
-        name: decodeHtml(s.title) ?? s.title,
+        name: decodeHtmlEntities(s.title) ?? s.title,
         type: 'song',
         year: s.year ? Number(s.year) : null,
         release_date: s.more_info?.release_date ?? null,
-        duration_ms: safeNumber(s.more_info?.duration),
+        duration_ms: safeParseNumber(s.more_info?.duration),
         explicit: s.explicit_content === '1',
         language: s.language,
         disc_number: null,
@@ -107,7 +111,7 @@ export const mapSong = (s: SaavnSongResponse): Song => {
         copyright: s.more_info?.copyright_text ?? null,
         album: {
             id: s.more_info?.album_id,
-            name: decodeHtml(s.more_info?.album) ?? 'unknown album',
+            name: decodeHtmlEntities(s.more_info?.album) ?? 'unknown album',
             type: 'album',
         },
         artists: s.more_info?.artistMap?.primary_artists?.map(mapArtistBase) ?? [],
@@ -118,13 +122,13 @@ export const mapSong = (s: SaavnSongResponse): Song => {
 
 export const mapSongBase = (s: SaavnSongResponse): SongBase => ({
     id: s.id,
-    name: decodeHtml(s.title) ?? s.title,
+    name: decodeHtmlEntities(s.title) ?? s.title,
     type: 'song',
     year: s.year ? Number(s.year) : null,
-    duration_ms: safeNumber(s.more_info?.duration),
+    duration_ms: safeParseNumber(s.more_info?.duration),
     explicit: s.explicit_content === '1',
     language: s.language,
-    album: decodeHtml(s.more_info?.album) ?? 'unknown album',
+    album: decodeHtmlEntities(s.more_info?.album) ?? 'unknown album',
     artists: s.more_info?.artistMap?.primary_artists?.map((a) => a.name).join(', ') ?? 'unknown artists',
     image: imgFromSaavn(s.image),
 });
@@ -133,7 +137,7 @@ export const mapArtist = (a: SaavnArtistResponse): Artist => ({
     id: a.artistId ?? a.id,
     name: a.name,
     type: 'artist',
-    follower_count: safeNumber(a.follower_count),
+    follower_count: safeParseNumber(a.follower_count),
     bio: (() => {
         try {
             return a.bio ? (JSON.parse(a.bio) as string) : null;
@@ -151,8 +155,8 @@ export const mapAlbum = (a: SaavnAlbumResponse): Album => ({
     release_date: a.year ? `${a.year}-01-01` : null,
     language: a.language,
     explicit: a.explicit_content === '1',
-    total_songs: safeNumber(a.more_info?.song_count),
-    popularity: safeNumber(a.play_count),
+    total_songs: safeParseNumber(a.more_info?.song_count),
+    popularity: safeParseNumber(a.play_count),
     artists: a.more_info?.artistMap?.primary_artists?.map(mapArtistBase) ?? [],
     image: imgFromSaavn(a.image),
     songs: a.list?.map(mapSongBase) ?? null,
@@ -165,8 +169,8 @@ export const mapAlbumBase = (a: SaavnAlbumResponse): Omit<Album, 'songs'> => ({
     release_date: a.year ? `${a.year}-01-01` : null,
     language: a.language,
     explicit: a.explicit_content === '1',
-    total_songs: safeNumber(a.more_info?.song_count),
-    popularity: safeNumber(a.play_count),
+    total_songs: safeParseNumber(a.more_info?.song_count),
+    popularity: safeParseNumber(a.play_count),
     artists: a.more_info?.artistMap?.primary_artists?.map(mapArtistBase) ?? [],
     image: imgFromSaavn(a.image),
 });
@@ -177,7 +181,7 @@ export const mapPlaylist = (p: SaavnPlaylistResponse): Playlist => ({
     description: p.header_desc,
     type: 'playlist',
     explicit: p.explicit_content === '1',
-    total_songs: safeNumber(p.list_count),
+    total_songs: safeParseNumber(p.list_count),
     image: imgFromSaavn(p.image),
     songs: p.list?.map(mapSong) ?? null,
 });
@@ -229,7 +233,7 @@ export const mapGlobalSearch = (s: SaavnSearchResponse): GlobalSearchResult => (
 });
 
 export const mapSearchSong = (s: SaavnSearchSongResponse, limit?: number): SearchSong =>
-    createPagination({
+    createPaginatedResponse({
         items: s.results.map(mapSongBase),
         limit,
         total: s.total,
@@ -237,7 +241,7 @@ export const mapSearchSong = (s: SaavnSearchSongResponse, limit?: number): Searc
     });
 
 export const mapSearchAlbum = (a: SaavnSearchAlbumResponse, limit?: number): SearchAlbum =>
-    createPagination({
+    createPaginatedResponse({
         items: a.results.map((i) => ({
             id: i.id,
             name: i.title,
@@ -253,13 +257,13 @@ export const mapSearchAlbum = (a: SaavnSearchAlbumResponse, limit?: number): Sea
     });
 
 export const mapSearchPlaylist = (p: SaavnSearchPlaylistResponse, limit?: number): SearchPlaylist =>
-    createPagination({
+    createPaginatedResponse({
         items: p.results.map((i) => ({
             id: i.id,
             name: i.title,
             type: 'playlist' as const,
             image: imgFromSaavn(i.image),
-            total_songs: safeNumber(i.more_info?.song_count),
+            total_songs: safeParseNumber(i.more_info?.song_count),
             language: i.more_info?.language,
             explicit: i.explicit_content === '1',
         })),
@@ -269,7 +273,7 @@ export const mapSearchPlaylist = (p: SaavnSearchPlaylistResponse, limit?: number
     });
 
 export const mapSearchArtist = (a: SaavnSearchArtistResponse, limit?: number): SearchArtist =>
-    createPagination({
+    createPaginatedResponse({
         items: a.results.map((i) => ({
             id: i.id,
             name: i.name,

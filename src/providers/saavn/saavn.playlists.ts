@@ -1,8 +1,8 @@
 import type { Playlist } from '../../types/core/playlist.model';
 import type { SaavnPlaylistResponse } from '../../types/saavn/playlist.types';
 import { assertData } from '../../utils/error.utils';
-import { normalizePagination } from '../../utils/main.utils';
-import { extractSeoToken } from '../../utils/one.utils';
+import { normalizePagination } from '../../utils/pagination.utils';
+import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapPlaylist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';

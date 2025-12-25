@@ -1,6 +1,6 @@
 import type { GaanaAlbumResponse, GaanaSearchItem, GaanaSearchResponse, GaanaSongResponse } from '../../types/gaana';
 import { assertData, notFound } from '../../utils/error.utils';
-import { normalizePagination } from '../../utils/main.utils';
+import { normalizePagination } from '../../utils/pagination.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 import type { AxiosResponse } from 'axios';

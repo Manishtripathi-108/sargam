@@ -1,4 +1,4 @@
-import { formatAndSortZodIssues } from '../utils/helper.utils';
+import { formatZodValidationErrors } from '../utils/validation.utils';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import http from 'http';
@@ -26,7 +26,7 @@ const registerErrorHandler = async (app: FastifyInstance) => {
         try {
             if (hasZodFastifySchemaValidationErrors(err)) {
                 const validation = err.validation;
-                const issues = formatAndSortZodIssues(validation);
+                const issues = formatZodValidationErrors(validation);
 
                 req.log.info({ url: req.url, method: req.method, issues }, 'validation_error');
 
