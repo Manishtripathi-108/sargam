@@ -1,34 +1,4 @@
 /**
- * Artist reference in track/album responses
- */
-export type GaanaArtist = {
-    artist_id: string;
-    name: string;
-    seokey: string;
-    atw: string;
-    cached: number;
-    popularity: number;
-    isWebp: number;
-    favorite_count: string;
-};
-
-/**
- * Detailed artist information with role
- */
-export type GaanaArtistDetail = {
-    artist_id: string;
-    name: string;
-    seokey?: string;
-    artwork: string;
-    artwork_175x175: string;
-    atw: string;
-    role: string;
-    cached: number;
-    isWebp: number;
-    popularity: number;
-};
-
-/**
  * Person entity (cast, lyricist, etc.)
  */
 export type GaanaPerson = {
@@ -153,4 +123,9 @@ export type GaanaCustomArtworks = {
     '175x175': string;
     '40x40': string;
     '480x480': string;
+};
+
+export type Role = {
+    id: number;
+    name: string;
 };

@@ -81,3 +81,60 @@ export type GaanaSearchAlbumItem = GaanaSearchItemBase<'Album'> & {
 export type GaanaSearchPlaylistItem = GaanaSearchItemBase<'Playlist'> & {
     alist: string;
 };
+
+
+export interface GlobalSearchResponse {
+    topFacet: string;
+    gr: SearchGroup[];
+    srId: string;
+    algo: string;
+    action: number;
+    q: string;
+    originalQuery: string;
+    abFlag: number;
+    tabs: SearchTab[];
+}
+
+export interface SearchGroup {
+    ty: SearchGroupType;
+    topSc: number;
+    va: string;
+    gd: SearchItem[];
+    stxt: string;
+}
+
+export type SearchGroupType = 'Mix' | 'Artist' | 'Track' | 'Album' | 'Playlist' | 'Show';
+
+export interface SearchItem {
+    iid: string;
+    id: number;
+    ti: string;
+    aw: string;
+    sti: string;
+    lang: string[];
+    seo: string;
+    ty: SearchItemType;
+    language: string;
+    scoreF: number;
+    boostValue: number;
+    langBoostValue?: number;
+
+    isPc?: string;
+    pw?: number;
+    alist?: string;
+    isrc?: string;
+    cat?: string;
+    isDolby?: boolean;
+    hf?: number;
+    isExactMatch?: boolean;
+    tags?: string[];
+}
+
+export type SearchItemType = 'Track' | 'Album' | 'Artist' | 'Playlist' | 'Show';
+
+export interface SearchTab {
+    dispV: string;
+    id: number;
+    paramV: string;
+    shNew: number;
+}

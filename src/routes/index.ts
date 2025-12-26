@@ -1,5 +1,6 @@
 import albumsRoutes from './albums.routes';
 import artistsRoutes from './artists.routes';
+import playlistsRoutes from './playlists.routes';
 import searchRoutes from './search.routes';
 import songsRoutes from './songs.routes';
 import type { FastifyPluginAsync } from 'fastify';
@@ -10,6 +11,7 @@ const apiRoutes: FastifyPluginAsync = async (app) => {
     await app.register(songsRoutes);
     await app.register(albumsRoutes);
     await app.register(artistsRoutes);
+    await app.register(playlistsRoutes);
 };
 
 export default apiRoutes;

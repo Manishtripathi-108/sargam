@@ -7,7 +7,7 @@ import { saavnClient } from './saavn.client';
 import { mapPlaylist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 
-export async function getPlaylistById({
+export async function getById({
     id,
     limit,
     offset,
@@ -30,7 +30,7 @@ export async function getPlaylistById({
     return mapPlaylist(assertData(res.data, 'Playlist not found'));
 }
 
-export async function getPlaylistByLink({
+export async function getByLink({
     link,
     offset,
     limit,

@@ -1,6 +1,5 @@
+import type { GaanaAlbumArtistDetail, GaanaArtist } from './artist.response';
 import type {
-    GaanaArtist,
-    GaanaArtistDetail,
     GaanaBitrateMap,
     GaanaComposer,
     GaanaFaq,
@@ -20,7 +19,7 @@ import type {
  */
 export type GaanaSongResponse = {
     count: number;
-    tracks: GaanaSongDetail[];
+    tracks: GaanaSong[];
     'user-token-status': number;
     user_token_status: number;
     status: number;
@@ -30,7 +29,7 @@ export type GaanaSongResponse = {
 /**
  * Complete track/song details response from Gaana API
  */
-export type GaanaSongDetail = {
+export type GaanaSong = {
     track_id: string;
     seokey: string;
     track_title: string;
@@ -81,7 +80,7 @@ export type GaanaSongDetail = {
     content_source: string;
 
     artist: GaanaArtist[];
-    artist_detail?: GaanaArtistDetail[];
+    artist_detail?: GaanaAlbumArtistDetail[];
 
     cast?: GaanaPerson[];
     lyricist?: GaanaPerson[];
@@ -131,4 +130,14 @@ export type GaanaSongDetail = {
     ppd?: number;
     user_favorite?: number;
     user_rating?: number;
+};
+
+export type GaanaSongLyricsResponse = {
+    flag: boolean;
+    status: number;
+    album_title: string;
+    track_title: string;
+    lyrics_html: string;
+    language: string;
+    user_token_status: string;
 };

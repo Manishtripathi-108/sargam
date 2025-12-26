@@ -1,9 +1,8 @@
-import type { GaanaAlbumResponse, GaanaSearchItem, GaanaSearchResponse, GaanaSongResponse } from '../../types/gaana';
-import { assertData, notFound } from '../../utils/error.utils';
+import type { GaanaSearchResponse, GlobalSearchResponse } from '../../types/gaana';
+import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
-import type { AxiosResponse } from 'axios';
 
 type SearchParams = {
     query: string;
@@ -11,23 +10,24 @@ type SearchParams = {
     offset: number;
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                   helpers                                  */
-/* -------------------------------------------------------------------------- */
+export async function all(p: SearchParams) {
+    const { page, limit } = normalizePagination(p.limit, p.offset);
 
-const extractSeoKeys = (data: GaanaSearchResponse, limit: number): string[] => {
-    const groups = data?.gr;
-    if (!Array.isArray(groups) || !groups[0]?.gd) return [];
+    const res = await gaanaClient.post<GlobalSearchResponse>('/', null, {
+        params: {
+            type: GAANA_ROUTES.SEARCH.ALL,
+            keyword: p.query,
+            page: page - 1,
+        },
+    });
 
-    return groups[0].gd
-        .slice(0, limit)
-        .map((i: GaanaSearchItem) => i?.seo)
-        .filter((seo): seo is string => Boolean(seo));
-};
+    const data = assertData(res.data, 'No results found', (): boolean => {
+        const groups = res.data?.gr;
+        return !Array.isArray(groups) || !groups[0]?.gd;
+    });
 
-/* -------------------------------------------------------------------------- */
-/*                                   service                                  */
-/* -------------------------------------------------------------------------- */
+    return data.gr[0].gd.slice(0, limit);
+}
 
 export async function songs(p: SearchParams) {
     const { page, limit } = normalizePagination(p.limit, p.offset);
@@ -47,29 +47,6 @@ export async function songs(p: SearchParams) {
     });
 
     return data.gr[0].gd.slice(0, limit);
-
-    // const data = assertData(res.data, 'No songs found');
-
-    // const seoKeys = extractSeoKeys(data, limit);
-    // if (!seoKeys.length) {
-    //     throw notFound('No songs found');
-    // }
-
-    // const requests = seoKeys.map((seokey) =>
-    //     gaanaClient.post<GaanaSongResponse>('/', null, {
-    //         params: {
-    //             type: GAANA_ROUTES.SONG.DETAILS,
-    //             seokey,
-    //         },
-    //     })
-    // );
-
-    // const results = await Promise.allSettled(requests);
-
-    // return results
-    //     .filter((r): r is PromiseFulfilledResult<AxiosResponse<GaanaSongResponse>> => r.status === 'fulfilled')
-    //     .map((r) => r.value.data)
-    //     .filter(Boolean);
 }
 
 export async function albums(p: SearchParams) {
@@ -90,29 +67,6 @@ export async function albums(p: SearchParams) {
     });
 
     return data.gr[0].gd.slice(0, limit);
-
-    // const data = assertData(res.data, 'No albums found');
-
-    // const seoKeys = extractSeoKeys(data, limit);
-    // if (!seoKeys.length) {
-    //     throw notFound('No albums found');
-    // }
-
-    // const requests = seoKeys.map((seokey) =>
-    //     gaanaClient.post<GaanaAlbumResponse>('/', null, {
-    //         params: {
-    //             type: GAANA_ROUTES.ALBUM.DETAILS,
-    //             seokey,
-    //         },
-    //     })
-    // );
-
-    // const results = await Promise.allSettled(requests);
-
-    // return results
-    //     .filter((r): r is PromiseFulfilledResult<AxiosResponse<GaanaAlbumResponse>> => r.status === 'fulfilled')
-    //     .map((r) => r.value.data)
-    //     .filter(Boolean);
 }
 
 export async function artists(p: SearchParams) {

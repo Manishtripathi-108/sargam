@@ -16,12 +16,12 @@ export async function getById(id: string) {
 }
 
 export async function getByLink(link: string) {
-    const token = extractSeoToken(link, 'gaana', 'album');
+    const seokey = extractSeoToken(link, 'gaana', 'album');
 
     const res = await gaanaClient.post<GaanaAlbumResponse>('/', null, {
         params: {
             type: GAANA_ROUTES.ALBUM.DETAILS,
-            seokey: token,
+            seokey,
         },
     });
 

@@ -7,6 +7,7 @@ const GAANA_ROUTES = {
     },
 
     SEARCH: {
+        ALL: 'search',
         SONGS: 'search',
         ALBUMS: 'search',
         ARTISTS: 'search',
@@ -15,6 +16,8 @@ const GAANA_ROUTES = {
 
     SONG: {
         DETAILS: 'songDetail',
+        LYRICS: 'songLyrics',
+        SIMILAR: 'songSimilar',
     },
 
     ALBUM: {
@@ -23,7 +26,9 @@ const GAANA_ROUTES = {
 
     ARTIST: {
         DETAILS: 'artistDetail',
-        TOP_TRACKS: 'artistTrackList',
+        TRACKS: 'artistTrackList',
+        ALBUMS: 'artistAlbumList',
+        PLAYLISTS: 'artistPlaylist',
         SIMILAR: '/player/similar-artists',
     },
 

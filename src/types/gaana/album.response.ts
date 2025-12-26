@@ -1,18 +1,12 @@
-import type {
-    GaanaArtist,
-    GaanaArtistDetail,
-    GaanaComposer,
-    GaanaCustomArtworks,
-    GaanaFaq,
-    GaanaGenre,
-} from './common';
-import type { GaanaSongDetail } from './track.response';
+import type { GaanaAlbumArtist, GaanaAlbumArtistDetail } from './artist.response';
+import type { GaanaComposer, GaanaCustomArtworks, GaanaFaq, GaanaGenre } from './common';
+import type { GaanaSong } from './track.response';
 
 /**
  * Complete album details response from Gaana API
  */
 export type GaanaAlbumResponse = {
-    tracks: GaanaSongDetail[];
+    tracks: GaanaSong[];
     count: string;
     status: number;
     custom_artworks: GaanaCustomArtworks;
@@ -20,13 +14,13 @@ export type GaanaAlbumResponse = {
     favorite_count: string;
     'user-token-status': string;
     user_token_status: string;
-    album: GaanaAlbumDetail;
+    album: GaanaAlbum;
     composers?: GaanaComposer[];
     cached: number;
     parental_warning: number;
     /* artwork */
     atw: string;
-    artist_detail: GaanaArtistDetail[];
+    artist_detail: GaanaAlbumArtistDetail[];
     template?: string;
     faq_details_response: GaanaFaq[];
     is_sponsored: number;
@@ -35,14 +29,14 @@ export type GaanaAlbumResponse = {
 /**
  * Album metadata within album details response
  */
-export type GaanaAlbumDetail = {
+export type GaanaAlbum = {
     seokey: string;
     title: string;
     language: string;
     rating: string;
     duration: string;
     artwork: string;
-    artist: GaanaArtist[];
+    artist: GaanaAlbumArtist[];
     mobile: number;
     country: number;
     month: number;
@@ -53,7 +47,7 @@ export type GaanaAlbumDetail = {
     release_date: string;
     trackcount: string;
     recordlevel: string;
-    primaryartist: GaanaArtist[];
+    primaryartist: GaanaAlbumArtist[];
     gener?: GaanaGenre[];
     trackids: string;
     custom_artworks: GaanaCustomArtworks;
