@@ -1,6 +1,5 @@
 import type { Song } from '../../types/core/song.model';
-import type { SaavnLyrics } from '../../types/saavn/global.response';
-import type { SaavnSongResponse, SaavnSongSuggestionResponse } from '../../types/saavn/song.response';
+import type { SaavnLyrics, SaavnSongResponse, SaavnSongSuggestionResponse } from '../../types/saavn';
 import { AppError, assertData } from '../../utils/error.utils';
 import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';

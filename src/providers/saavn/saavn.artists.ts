@@ -2,11 +2,7 @@ import type { Album } from '../../types/core/album.model';
 import type { Artist } from '../../types/core/artist.model';
 import type { Paginated } from '../../types/core/pagination.model';
 import type { Song } from '../../types/core/song.model';
-import type {
-    SaavnArtistAlbumResponse,
-    SaavnArtistResponse,
-    SaavnArtistSongResponse,
-} from '../../types/saavn/artists.response';
+import type { SaavnArtistAlbumsResponse, SaavnArtistResponse, SaavnArtistSongsResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractSeoToken } from '../../utils/url.utils';
@@ -54,7 +50,7 @@ export async function getSongs({
 }): Promise<Paginated<Song>> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnArtistSongResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistSongsResponse>('/', {
         params: {
             artistId: id,
             page: page - 1,
@@ -89,7 +85,7 @@ export async function getAlbums({
 }): Promise<Paginated<Omit<Album, 'songs'>>> {
     const { page } = normalizePagination(limit, offset);
 
-    const res = await saavnClient.get<SaavnArtistAlbumResponse>('/', {
+    const res = await saavnClient.get<SaavnArtistAlbumsResponse>('/', {
         params: {
             artistId: id,
             page: page - 1,

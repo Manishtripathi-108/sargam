@@ -10,17 +10,20 @@ import type {
     SearchSong,
 } from '../../types/core/search.model';
 import type { Song, SongAudio, SongBase } from '../../types/core/song.model';
-import type { SaavnAlbumResponse, SaavnSearchAlbumResponse } from '../../types/saavn/albums.response';
-import type { SaavnArtistResponse } from '../../types/saavn/artists.response';
-import type { SaavnArtistBaseResponse } from '../../types/saavn/common.types';
-import type { SaavnPlaylistResponse } from '../../types/saavn/playlist.response';
+import type {
+    SaavnAlbumResponse,
+    SaavnSearchAlbumResponse,
+    SaavnArtistResponse,
+    SaavnArtistBaseResponse,
+    SaavnPlaylistResponse,
+} from '../../types/saavn';
 import type {
     SaavnSearchArtistResponse,
     SaavnSearchPlaylistResponse,
     SaavnSearchResponse,
     SaavnSearchSongResponse,
-} from '../../types/saavn/search.response';
-import type { SaavnSongResponse } from '../../types/saavn/song.response';
+    SaavnSongResponse,
+} from '../../types/saavn';
 import { AppError } from '../../utils/error.utils';
 import { createFallbackImageAsset } from '../../utils/image.utils';
 import { safeParseNumber } from '../../utils/number.utils';

@@ -1,5 +1,5 @@
 import type { Playlist } from '../../types/core/playlist.model';
-import type { SaavnPlaylistResponse } from '../../types/saavn/playlist.response';
+import type { SaavnPlaylistResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';
 import { extractSeoToken } from '../../utils/url.utils';
