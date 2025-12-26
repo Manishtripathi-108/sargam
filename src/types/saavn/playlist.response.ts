@@ -1,5 +1,23 @@
-import type { SaavnSongResponse } from '../../types/saavn/song.types';
+/**
+ * Saavn Playlist Response Types
+ */
+import type { SaavnSongResponse } from './song.response';
 
+/**
+ * Playlist artist item
+ */
+export type SaavnPlaylistArtistItem = {
+    id: string;
+    name: string;
+    role: string;
+    image: string;
+    type: string;
+    perma_url: string;
+};
+
+/**
+ * Complete playlist details response from Saavn API
+ */
 export type SaavnPlaylistResponse = {
     id: string;
     title: string;
@@ -35,13 +53,6 @@ export type SaavnPlaylistResponse = {
         H2: string | null;
         subheading: string;
         video_count: string;
-        artists: {
-            id: string;
-            name: string;
-            role: string;
-            image: string;
-            type: string;
-            perma_url: string;
-        }[];
+        artists: SaavnPlaylistArtistItem[];
     };
 };

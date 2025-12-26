@@ -1,7 +1,7 @@
 /**
  * Gaana Playlist Response Types
  */
-import type { GaanaSongItem } from './track.response';
+import type { GaanaSongItem } from './song.response';
 
 /**
  * Playlist detail response from Gaana API

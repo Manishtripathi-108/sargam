@@ -6,7 +6,7 @@ import type {
     SaavnArtistAlbumResponse,
     SaavnArtistResponse,
     SaavnArtistSongResponse,
-} from '../../types/saavn/artists.type';
+} from '../../types/saavn/artists.response';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractSeoToken } from '../../utils/url.utils';

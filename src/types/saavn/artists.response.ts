@@ -1,22 +1,14 @@
-import type { SaavnAlbumResponse } from './albums.types';
-import type { SaavnSongResponse } from './song.types';
+/**
+ * Saavn Artist Response Types
+ */
+import type { SaavnAlbumResponse } from './albums.response';
+import type { SaavnArtistBaseResponse, SaavnArtistUrls, SaavnSocialLinks } from './common.types';
+import type { SaavnSongResponse } from './song.response';
 
-type SaavnSocialLinks = {
-    dob: string | null;
-    fb: string | null;
-    twitter: string | null;
-    wiki: string | null;
-};
-
-type SaavnArtistURLs = {
-    albums: string;
-    bio: string;
-    comments: string;
-    songs: string;
-    overview: string;
-};
-
-type SaavnArtistPlaylist = SaavnArtistBaseResponse & {
+/**
+ * Artist playlist item
+ */
+export type SaavnArtistPlaylistItem = SaavnArtistBaseResponse & {
     title: string;
     subtitle: string;
     explicit_content: string;
@@ -38,7 +30,10 @@ type SaavnArtistPlaylist = SaavnArtistBaseResponse & {
     };
 };
 
-type SaavnSimilarArtist = Omit<SaavnArtistBaseResponse, 'role'> &
+/**
+ * Similar artist reference
+ */
+export type SaavnArtistSimilarItem = Omit<SaavnArtistBaseResponse, 'role'> &
     SaavnSocialLinks & {
         languages: string | null;
         isRadioPresent: boolean;
@@ -48,18 +43,9 @@ type SaavnSimilarArtist = Omit<SaavnArtistBaseResponse, 'role'> &
         similar: string | null;
     };
 
-export type SaavnArtistBase = {
-    id: string;
-    name: string;
-    role?: string;
-    type: string;
-};
-
-export type SaavnArtistBaseResponse = SaavnArtistBase & {
-    image: string;
-    perma_url: string;
-};
-
+/**
+ * Complete artist details response from Saavn API
+ */
 export type SaavnArtistResponse = SaavnArtistBaseResponse &
     SaavnSocialLinks & {
         artistId: string;
@@ -71,19 +57,22 @@ export type SaavnArtistResponse = SaavnArtistBaseResponse &
         topSongs: SaavnSongResponse[];
         topAlbums: SaavnAlbumResponse[];
         singles: SaavnSongResponse[];
-        dedicated_artist_playlist: SaavnArtistPlaylist[];
-        featured_artist_playlist: SaavnArtistPlaylist[];
-        similarArtists: SaavnSimilarArtist[];
+        dedicated_artist_playlist: SaavnArtistPlaylistItem[];
+        featured_artist_playlist: SaavnArtistPlaylistItem[];
+        similarArtists: SaavnArtistSimilarItem[];
         isRadioPresent: boolean;
         bio: string;
-        urls: SaavnArtistURLs;
+        urls: SaavnArtistUrls;
         availableLanguages: string[];
         fan_count: string;
         topEpisodes: string[];
         is_followed: boolean;
     };
 
-export type SaavnArtistSongResponse = {
+/**
+ * Artist songs response with pagination
+ */
+export type SaavnArtistSongsResponse = {
     artistId: string;
     name: string;
     subtitle: string;
@@ -100,7 +89,10 @@ export type SaavnArtistSongResponse = {
     };
 };
 
-export type SaavnArtistAlbumResponse = {
+/**
+ * Artist albums response with pagination
+ */
+export type SaavnArtistAlbumsResponse = {
     artistId: string;
     name: string;
     subtitle: string;

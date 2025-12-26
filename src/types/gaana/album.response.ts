@@ -2,7 +2,7 @@
  * Gaana Album Response Types
  */
 import type { GaanaArtistBase, GaanaComposer, GaanaCustomArtworks, GaanaFaq, GaanaGenre } from './common.types';
-import type { GaanaSongArtistDetail, GaanaSongItem } from './track.response';
+import type { GaanaSongArtistDetail, GaanaSongItem } from './song.response';
 
 /**
  * Complete album details response from Gaana API

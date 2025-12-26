@@ -5,13 +5,13 @@ import type {
     SearchPlaylist,
     SearchSong,
 } from '../../types/core/search.model';
-import type { SaavnSearchAlbumResponse } from '../../types/saavn/albums.types';
+import type { SaavnSearchAlbumResponse } from '../../types/saavn/albums.response';
 import type {
     SaavnSearchArtistResponse,
     SaavnSearchPlaylistResponse,
     SaavnSearchResponse,
     SaavnSearchSongResponse,
-} from '../../types/saavn/search.types';
+} from '../../types/saavn/search.response';
 import type { SearchParams } from '../../types/services.types';
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';

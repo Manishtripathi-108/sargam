@@ -1,8 +1,15 @@
-import type { SaavnArtistBase } from './artists.type';
-import type { SaavnEntityBase, SaavnSearchResponseSection } from './global.types';
-import type { SaavnSongResponse } from './song.types';
+/**
+ * Saavn Search Response Types
+ */
+import type { SaavnArtistBase, SaavnEntityBase, SaavnSearchResponseSection } from './common.types';
+import type { SaavnSongResponse } from './song.response';
 
-type SaavnAlbumRaw = SaavnEntityBase & {
+/* ========================= Raw Search Response ========================= */
+
+/**
+ * Album item in raw search response
+ */
+type SaavnSearchAlbumRaw = SaavnEntityBase & {
     more_info: {
         music: string;
         ctr: number;
@@ -13,7 +20,10 @@ type SaavnAlbumRaw = SaavnEntityBase & {
     };
 };
 
-type SaavnSongRaw = SaavnEntityBase & {
+/**
+ * Track item in raw search response
+ */
+type SaavnSearchSongRaw = SaavnEntityBase & {
     more_info: {
         album: string;
         ctr: number;
@@ -28,7 +38,10 @@ type SaavnSongRaw = SaavnEntityBase & {
     };
 };
 
-type SaavnPlaylistRaw = SaavnEntityBase & {
+/**
+ * Playlist item in raw search response
+ */
+type SaavnSearchPlaylistRaw = SaavnEntityBase & {
     more_info: {
         firstname: string;
         artist_name: string[];
@@ -43,7 +56,10 @@ type SaavnPlaylistRaw = SaavnEntityBase & {
     };
 };
 
-type SaavnArtistRaw = Omit<SaavnEntityBase, 'explicit_content' | 'perma_url'> & {
+/**
+ * Artist item in raw search response
+ */
+type SaavnSearchArtistRaw = Omit<SaavnEntityBase, 'explicit_content' | 'perma_url'> & {
     extra: string;
     name: string;
     isRadioPresent: boolean;
@@ -52,22 +68,28 @@ type SaavnArtistRaw = Omit<SaavnEntityBase, 'explicit_content' | 'perma_url'> & 
     position: number;
 };
 
+/**
+ * Main search response with raw data
+ */
 export type SaavnSearchResponse = {
-    albums: SaavnSearchResponseSection<SaavnAlbumRaw>;
-    songs: SaavnSearchResponseSection<SaavnSongRaw>;
-    playlists: SaavnSearchResponseSection<SaavnPlaylistRaw>;
-    artists: SaavnSearchResponseSection<SaavnArtistRaw>;
-    topquery: SaavnSearchResponseSection<SaavnSongRaw>;
+    albums: SaavnSearchResponseSection<SaavnSearchAlbumRaw>;
+    songs: SaavnSearchResponseSection<SaavnSearchSongRaw>;
+    playlists: SaavnSearchResponseSection<SaavnSearchPlaylistRaw>;
+    artists: SaavnSearchResponseSection<SaavnSearchArtistRaw>;
+    topquery: SaavnSearchResponseSection<SaavnSearchSongRaw>;
 };
 
-/* --------------------- Search API Normalized Response --------------------- */
+/* ========================= Normalized Search Responses ========================= */
 
+/**
+ * Playlist search response with pagination
+ */
 export type SaavnSearchPlaylistResponse = {
     total: number;
     start: number;
     results: Array<
-        SaavnPlaylistRaw & {
-            more_info: SaavnPlaylistRaw['more_info'] & {
+        SaavnSearchPlaylistRaw & {
+            more_info: SaavnSearchPlaylistRaw['more_info'] & {
                 uid: string;
                 song_count: string;
             };
@@ -76,6 +98,9 @@ export type SaavnSearchPlaylistResponse = {
     >;
 };
 
+/**
+ * Artist search response with pagination
+ */
 export type SaavnSearchArtistResponse = {
     total: number;
     start: number;
@@ -94,12 +119,18 @@ export type SaavnSearchArtistResponse = {
     }[];
 };
 
-export type SaavnSearchArtist = {
+/**
+ * Artist search results
+ */
+export type SaavnSearchArtistItem = {
     total: number;
     start: number;
     results: SaavnArtistBase[];
 };
 
+/**
+ * Track search response with pagination
+ */
 export type SaavnSearchSongResponse = {
     total: number;
     start: number;

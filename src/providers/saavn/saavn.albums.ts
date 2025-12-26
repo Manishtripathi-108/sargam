@@ -1,5 +1,5 @@
 import type { Album } from '../../types/core/album.model';
-import type { SaavnAlbumResponse } from '../../types/saavn/albums.types';
+import type { SaavnAlbumResponse } from '../../types/saavn/albums.response';
 import { assertData } from '../../utils/error.utils';
 import { extractSeoToken } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';

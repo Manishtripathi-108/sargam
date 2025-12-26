@@ -1,6 +1,11 @@
-import type { SaavnArtistBaseResponse } from './artists.type';
-import type { SaavnEntityBase } from './global.types';
+/**
+ * Saavn Track/Song Response Types
+ */
+import type { SaavnArtistBaseResponse, SaavnEntityBase, SaavnRights } from './common.types';
 
+/**
+ * Complete track/song details from Saavn API
+ */
 export type SaavnSongResponse = SaavnEntityBase & {
     header_desc: string;
     play_count: string;
@@ -34,12 +39,7 @@ export type SaavnSongResponse = SaavnEntityBase & {
         request_jiotune_flag: boolean;
         webp: string;
         lyrics_id: string;
-        rights: {
-            code: string;
-            cacheable: string;
-            delete_cached_object: string;
-            reason: string;
-        };
+        rights: SaavnRights;
         artistMap: {
             primary_artists: SaavnArtistBaseResponse[];
             featured_artists: SaavnArtistBaseResponse[];
@@ -48,8 +48,14 @@ export type SaavnSongResponse = SaavnEntityBase & {
     };
 };
 
+/**
+ * Station response containing track
+ */
 type SaavnSongStationResponse = Record<string, { song: SaavnSongResponse }>;
 
+/**
+ * Song suggestion response
+ */
 export type SaavnSongSuggestionResponse = {
     stationid: string;
 } & SaavnSongStationResponse;
