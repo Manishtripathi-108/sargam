@@ -1,26 +1,27 @@
-import type { GaanaAlbumArtist, GaanaAlbumArtistDetail } from './artist.response';
-import type { GaanaComposer, GaanaCustomArtworks, GaanaFaq, GaanaGenre } from './common';
-import type { GaanaSong } from './track.response';
+/**
+ * Gaana Album Response Types
+ */
+import type { GaanaArtistBase, GaanaComposer, GaanaCustomArtworks, GaanaFaq, GaanaGenre } from './common.types';
+import type { GaanaSongArtistDetail, GaanaSongItem } from './track.response';
 
 /**
  * Complete album details response from Gaana API
  */
 export type GaanaAlbumResponse = {
-    tracks: GaanaSong[];
+    tracks: GaanaSongItem[];
     count: string;
     status: number;
     custom_artworks: GaanaCustomArtworks;
     release_year: string;
     favorite_count: string;
-    'user-token-status': string;
-    user_token_status: string;
-    album: GaanaAlbum;
+    'user-token-status'?: string;
+    user_token_status?: string;
+    album: GaanaAlbumItem;
     composers?: GaanaComposer[];
     cached: number;
     parental_warning: number;
-    /* artwork */
     atw: string;
-    artist_detail: GaanaAlbumArtistDetail[];
+    artist_detail: GaanaSongArtistDetail[];
     template?: string;
     faq_details_response: GaanaFaq[];
     is_sponsored: number;
@@ -29,7 +30,7 @@ export type GaanaAlbumResponse = {
 /**
  * Album metadata within album details response
  */
-export type GaanaAlbum = {
+export type GaanaAlbumItem = {
     seokey: string;
     title: string;
     language: string;
@@ -66,4 +67,15 @@ export type GaanaAlbum = {
     vendor_name: string;
     parent_vendor_seoKey: string;
     parent_vendor_name: string;
+};
+
+/**
+ * Album artist reference
+ */
+export type GaanaAlbumArtist = GaanaArtistBase & {
+    atw: string;
+    cached: number;
+    popularity: number;
+    isWebp: number;
+    favorite_count: string;
 };

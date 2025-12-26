@@ -1,9 +1,14 @@
 /**
- * Root search response
+ * Gaana Search Response Types
+ */
+
+/* ========================= Main Search Response ========================= */
+
+/**
+ * Root search response from Gaana Search API
  */
 export type GaanaSearchResponse = {
     topFacet: 'Mix' | 'Track';
-    /* Search result groups */
     gr: GaanaSearchGroup[];
     srId: string;
     algo: 'NEWSEARCH';
@@ -14,7 +19,7 @@ export type GaanaSearchResponse = {
 };
 
 /**
- * Search result groups
+ * Search result group - discriminated union by type
  */
 export type GaanaSearchGroup =
     | GaanaSearchTrackGroup
@@ -22,22 +27,38 @@ export type GaanaSearchGroup =
     | GaanaSearchAlbumGroup
     | GaanaSearchPlaylistGroup;
 
-type GaanaSearchGroupBase<TType, TText> = {
+type GaanaSearchGroupBase<TType extends string, TText extends string> = {
     ty: TType;
     topSc: number;
     va: string;
-    /* Search items */
     gd: GaanaSearchItem[];
     stxt: TText;
 };
 
+/**
+ * Track search group
+ */
 export type GaanaSearchTrackGroup = GaanaSearchGroupBase<'Track', 'Songs'>;
-export type GaanaSearchArtistGroup = GaanaSearchGroupBase<'Artist', 'Artists'>;
-export type GaanaSearchAlbumGroup = GaanaSearchGroupBase<'Album', 'Albums'>;
-export type GaanaSearchPlaylistGroup = GaanaSearchGroupBase<'Playlist', 'Playlists'>;
 
 /**
- * Search items
+ * Artist search group
+ */
+export type GaanaSearchArtistGroup = GaanaSearchGroupBase<'Artist', 'Artists'>;
+
+/**
+ * Album search group
+ */
+export type GaanaSearchAlbumGroup = GaanaSearchGroupBase<'Album', 'Albums'>;
+
+/**
+ * Playlist search group
+ */
+export type GaanaSearchPlaylistGroup = GaanaSearchGroupBase<'Playlist', 'Playlists'>;
+
+/* ========================= Search Items ========================= */
+
+/**
+ * Search item - discriminated union by type
  */
 export type GaanaSearchItem =
     | GaanaSearchTrackItem
@@ -45,8 +66,7 @@ export type GaanaSearchItem =
     | GaanaSearchAlbumItem
     | GaanaSearchPlaylistItem;
 
-/* ---------------------------- Base search item ---------------------------- */
-type GaanaSearchItemBase<TType> = {
+type GaanaSearchItemBase<TType extends string> = {
     iid: string;
     id: number;
     ti: string;
@@ -58,54 +78,75 @@ type GaanaSearchItemBase<TType> = {
     language: string;
     scoreF: number;
     boostValue: number;
-    isPc: string;
-    pw: number;
+    isPc?: string;
+    pw?: number;
     hf?: number;
     langBoostValue?: number;
     tags?: string[];
 };
 
-/* ------------------------------ Item variants ----------------------------- */
+/**
+ * Track search item
+ */
 export type GaanaSearchTrackItem = GaanaSearchItemBase<'Track'> & {
     alist: string;
     isrc: string;
 };
 
+/**
+ * Artist search item
+ */
 export type GaanaSearchArtistItem = GaanaSearchItemBase<'Artist'>;
 
+/**
+ * Album search item
+ */
 export type GaanaSearchAlbumItem = GaanaSearchItemBase<'Album'> & {
     cat: string;
     alist: string;
 };
 
+/**
+ * Playlist search item
+ */
 export type GaanaSearchPlaylistItem = GaanaSearchItemBase<'Playlist'> & {
     alist: string;
 };
 
+/* ========================= Global Search Response ========================= */
 
-export interface GlobalSearchResponse {
+/**
+ * Global search response from different endpoint
+ */
+export type GlobalSearchResponse = {
     topFacet: string;
-    gr: SearchGroup[];
+    gr: GlobalSearchGroup[];
     srId: string;
     algo: string;
     action: number;
     q: string;
     originalQuery: string;
     abFlag: number;
-    tabs: SearchTab[];
-}
+    tabs: GlobalSearchTab[];
+};
 
-export interface SearchGroup {
-    ty: SearchGroupType;
+/**
+ * Global search group
+ */
+export type GlobalSearchGroup = {
+    ty: GlobalSearchGroupType;
     topSc: number;
     va: string;
-    gd: SearchItem[];
+    gd: GlobalSearchItem[];
     stxt: string;
-}
+};
 
-export type SearchGroupType = 'Mix' | 'Artist' | 'Track' | 'Album' | 'Playlist' | 'Show';
+export type GlobalSearchGroupType = 'Mix' | 'Artist' | 'Track' | 'Album' | 'Playlist' | 'Show';
 
-export interface SearchItem {
+/**
+ * Global search item
+ */
+export type GlobalSearchItem = {
     iid: string;
     id: number;
     ti: string;
@@ -113,12 +154,11 @@ export interface SearchItem {
     sti: string;
     lang: string[];
     seo: string;
-    ty: SearchItemType;
+    ty: GlobalSearchItemType;
     language: string;
     scoreF: number;
     boostValue: number;
     langBoostValue?: number;
-
     isPc?: string;
     pw?: number;
     alist?: string;
@@ -128,13 +168,16 @@ export interface SearchItem {
     hf?: number;
     isExactMatch?: boolean;
     tags?: string[];
-}
+};
 
-export type SearchItemType = 'Track' | 'Album' | 'Artist' | 'Playlist' | 'Show';
+export type GlobalSearchItemType = 'Track' | 'Album' | 'Artist' | 'Playlist' | 'Show';
 
-export interface SearchTab {
+/**
+ * Global search tab
+ */
+export type GlobalSearchTab = {
     dispV: string;
     id: number;
     paramV: string;
     shNew: number;
-}
+};

@@ -1,9 +1,10 @@
-import type { Language } from './artist.response';
-import type { GaanaSongResponse } from './track.response';
+/**
+ * Gaana Playlist Response Types
+ */
+import type { GaanaSongItem } from './track.response';
 
 /**
  * Playlist detail response from Gaana API
- * Structure to be defined based on actual API usage
  */
 export type GaanaPlaylistResponse = {
     tags: string[];
@@ -11,22 +12,22 @@ export type GaanaPlaylistResponse = {
     modified_on: Date;
     count: string;
     created_on: Date;
-    'user-token-status': string;
+    'user-token-status'?: string;
     favorite_count: string;
-    tracks: GaanaSongResponse[];
-    user_token_status: string;
+    tracks: GaanaSongItem[];
+    user_token_status?: string;
     status: number;
     error: string;
     ad_code: string;
-    playlist: Playlist;
+    playlist: GaanaPlaylistItem;
     sapid: string;
     detailed_description: string;
-    'notify_status flag': number;
+    'notify_status flag'?: number;
     is_mini_playlist: number;
     delete_mode: number;
     parental_warning: number;
     error_code: null;
-    top_artists: TopArtist[];
+    top_artists: GaanaPlaylistTopArtist[];
     top_languages: string[];
     sum_of_tracks: null;
     is_sponsored: number;
@@ -34,9 +35,12 @@ export type GaanaPlaylistResponse = {
     vid_list: string[];
 };
 
-export type Playlist = {
+/**
+ * Playlist metadata within playlist details response
+ */
+export type GaanaPlaylistItem = {
     atw: string;
-    language: Language;
+    language: string;
     playlist_id: string;
     seokey: string;
     status: string;
@@ -72,7 +76,10 @@ export type Playlist = {
     pl_play_ct: string;
 };
 
-export type TopArtist = {
+/**
+ * Top artist in playlist
+ */
+export type GaanaPlaylistTopArtist = {
     isWebp: number;
     popularity: number;
     artist_id: string;

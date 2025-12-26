@@ -1,22 +1,24 @@
-import type { Role } from './common';
+/**
+ * Gaana Artist Response Types
+ */
+import type { GaanaArtistBase, GaanaLoudness, GaanaRole } from './common.types';
 
 /**
  * Artist detail response from Gaana API
- * Structure to be defined based on actual API usage
  */
 export type GaanaArtistResponse = {
-    artist: GaanaArtist[];
+    artist: GaanaArtistItem[];
     count: string;
     status: number;
-    response_time: number;
+    response_time?: number;
 };
 
-export type GaanaArtist = {
+/**
+ * Complete artist details
+ */
+export type GaanaArtistItem = GaanaArtistBase & {
     isWebp: number;
     popularity: number;
-    artist_id: string;
-    seokey: string;
-    name: string;
     rating: string;
     songs: string;
     albums: string;
@@ -35,70 +37,52 @@ export type GaanaArtist = {
     atw: string;
     favorite_count: string;
     artwork_bio: string;
-    roles: Role[];
+    roles: GaanaRole[];
 };
 
 /**
- * Artist reference in track/album responses
+ * Artist tracks/songs response
  */
-export type GaanaAlbumArtist = {
-    artist_id: string;
-    name: string;
-    seokey: string;
-    atw: string;
-    cached: number;
-    popularity: number;
-    isWebp: number;
-    favorite_count: string;
-};
-
-/**
- * Detailed artist information with role in album response
- */
-export type GaanaAlbumArtistDetail = {
-    artist_id: string;
-    name: string;
-    seokey?: string;
-    artwork: string;
-    artwork_175x175: string;
-    atw: string;
-    role: string;
-    cached: number;
-    isWebp: number;
-    popularity: number;
-};
-
 export type GaanaArtistTrackResponse = {
     count: string;
     status: number;
     eof: number;
-    entities: Entity[];
+    entities: GaanaArtistEntity[];
     user_token_status: string;
 };
 
-export type Entity = {
-    language: Language;
+/**
+ * Entity in artist tracks/albums response
+ */
+export type GaanaArtistEntity = {
+    language: string;
     seokey: string;
     name: string;
     artwork: string;
     atw: string;
     atwj: string;
     entity_id: string;
-    entity_type: EntityType;
+    entity_type: 'TR' | 'AL' | string;
     artwork_medium: string;
     favorite_count: number;
     premium_content: string;
     user_favorite: number;
-    entity_info: EntityInfo[];
-    loudness: Loudness;
+    entity_info: GaanaArtistEntityInfo[];
+    loudness: GaanaLoudness;
 };
 
-export type EntityInfo = {
+/**
+ * Entity metadata
+ */
+export type GaanaArtistEntityInfo = {
     key: string;
-    value?: ValueElement[] | PurpleValue | number | string;
+    value?: GaanaArtistEntityInfoValue[] | GaanaArtistEntityStreamInfo | number | string;
 };
 
-export type ValueElement = {
+/**
+ * Entity info value element (artist, album, tag, etc.)
+ */
+export type GaanaArtistEntityInfoValue = {
     artist_id?: string;
     name?: string;
     seokey?: string;
@@ -112,32 +96,22 @@ export type ValueElement = {
     tag_name?: string;
 };
 
-export type PurpleValue = {
-    medium?: Auto;
-    high?: Auto;
-    auto?: Auto;
+/**
+ * Stream info with quality levels
+ */
+export type GaanaArtistEntityStreamInfo = {
+    medium?: GaanaStreamQualityInfo;
+    high?: GaanaStreamQualityInfo;
+    auto?: GaanaStreamQualityInfo;
     message?: string;
     expiryTime?: number;
 };
 
-export type Auto = {
+/**
+ * Individual stream quality info
+ */
+export type GaanaStreamQualityInfo = {
     message: string;
     bitRate: string;
     expiryTime: number;
-};
-
-export enum EntityType {
-    Tr = 'TR',
-}
-
-export enum Language {
-    Bengali = 'Bengali',
-    Hindi = 'Hindi',
-}
-
-export type Loudness = {
-    integrated: string;
-    truePeak: string;
-    lra: string;
-    threshold: string;
 };

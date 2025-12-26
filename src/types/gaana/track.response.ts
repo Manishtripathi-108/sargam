@@ -1,6 +1,8 @@
-import type { GaanaAlbumArtistDetail, GaanaArtist } from './artist.response';
+/**
+ * Gaana Track/Song Response Types
+ */
 import type {
-    GaanaBitrateMap,
+    GaanaArtistBase,
     GaanaComposer,
     GaanaFaq,
     GaanaGenre,
@@ -8,10 +10,10 @@ import type {
     GaanaOperator,
     GaanaPerson,
     GaanaPreviewUrl,
+    GaanaSongFormat,
     GaanaStreamUrls,
     GaanaTag,
-    GaanaTrackFormat,
-} from './common';
+} from './common.types';
 
 /**
  * Song detail bucket response
@@ -19,17 +21,17 @@ import type {
  */
 export type GaanaSongResponse = {
     count: number;
-    tracks: GaanaSong[];
-    'user-token-status': number;
-    user_token_status: number;
+    tracks: GaanaSongItem[];
+    'user-token-status'?: number;
+    user_token_status?: number;
     status: number;
-    status_code: number;
+    status_code?: number;
 };
 
 /**
- * Complete track/song details response from Gaana API
+ * Complete track/song details
  */
-export type GaanaSong = {
+export type GaanaSongItem = {
     track_id: string;
     seokey: string;
     track_title: string;
@@ -39,9 +41,9 @@ export type GaanaSong = {
     album_title: string;
     albumseokey: string;
 
-    language: string;
+    language?: string;
     secondary_language?: string;
-    language_id: string;
+    language_id?: string;
 
     duration: string;
     isrc: string;
@@ -79,8 +81,8 @@ export type GaanaSong = {
     stream_type: string;
     content_source: string;
 
-    artist: GaanaArtist[];
-    artist_detail?: GaanaAlbumArtistDetail[];
+    artist: GaanaArtistBase[];
+    artist_detail?: GaanaSongArtistDetail[];
 
     cast?: GaanaPerson[];
     lyricist?: GaanaPerson[];
@@ -92,7 +94,7 @@ export type GaanaSong = {
     urls: GaanaStreamUrls;
     preview_url?: GaanaPreviewUrl;
 
-    track_format: GaanaTrackFormat | { [key: string]: GaanaBitrateMap };
+    track_format: GaanaSongFormat;
 
     faq_details_response?: GaanaFaq[];
     loudness?: GaanaLoudness;
@@ -114,7 +116,6 @@ export type GaanaSong = {
     vert_priority: number;
     modified_on_solr: string;
 
-    // Additional fields found in album track listings
     rtmp?: string;
     http?: string;
     https?: string;
@@ -132,6 +133,25 @@ export type GaanaSong = {
     user_rating?: number;
 };
 
+/**
+ * Detailed artist information with role in track/album response
+ */
+export type GaanaSongArtistDetail = {
+    artist_id: string;
+    name: string;
+    seokey?: string;
+    artwork: string;
+    artwork_175x175: string;
+    atw: string;
+    role?: string;
+    cached: number;
+    isWebp: number;
+    popularity: number;
+};
+
+/**
+ * Lyrics response
+ */
 export type GaanaSongLyricsResponse = {
     flag: boolean;
     status: number;
