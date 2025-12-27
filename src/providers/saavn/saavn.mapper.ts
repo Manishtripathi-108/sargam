@@ -9,7 +9,7 @@ import type {
     SearchPlaylist,
     SearchSong,
 } from '../../types/core/search.model';
-import type { Song, SongAudio, SongBase } from '../../types/core/song.model';
+import type { Song, SongBase } from '../../types/core/song.model';
 import type {
     SaavnAlbumResponse,
     SaavnSearchAlbumResponse,
@@ -24,6 +24,7 @@ import type {
     SaavnSearchSongResponse,
     SaavnSongResponse,
 } from '../../types/saavn';
+import { decryptAudio } from '../../utils/decrypt.utils';
 import { AppError } from '../../utils/error.utils';
 import { createFallbackImageAsset } from '../../utils/image.utils';
 import { safeParseNumber } from '../../utils/number.utils';
@@ -31,44 +32,11 @@ import { createPaginatedResponse } from '../../utils/pagination.utils';
 import { decodeHtmlEntities } from '../../utils/string.utils';
 import { upgradeToHttps } from '../../utils/url.utils';
 import type { SearchType } from '../../validators/common.validators';
-import crypto from 'node-forge';
 
 /* -------------------------------------------------------------------------- */
 /*                                   helpers                                  */
 /* -------------------------------------------------------------------------- */
-
 const IMG_SIZE_RX = /150x150|50x50/;
-const DES_KEY = '38346591';
-const DES_IV = '00000000';
-
-const AUDIO_QUALITIES = [
-    { id: '_96', key: 'low' },
-    { id: '_160', key: 'medium' },
-    { id: '_320', key: 'high' },
-] as const;
-const safeOffset = (offset?: number) => Math.max(0, (offset ?? 0) - 1);
-
-/* -------------------------------------------------------------------------- */
-/*                              low level mappers                             */
-/* -------------------------------------------------------------------------- */
-
-const audioFromSaavn = (encrypted?: string): SongAudio | null => {
-    if (!encrypted) return null;
-
-    const decoded = crypto.util.decode64(encrypted);
-    const decipher = crypto.cipher.createDecipher('DES-ECB', crypto.util.createBuffer(DES_KEY));
-
-    decipher.start({ iv: crypto.util.createBuffer(DES_IV) });
-    decipher.update(crypto.util.createBuffer(decoded));
-    decipher.finish();
-
-    const base = decipher.output.getBytes();
-
-    return AUDIO_QUALITIES.reduce((acc, q) => {
-        acc[q.key] = upgradeToHttps(base.replace('_96', q.id));
-        return acc;
-    }, {} as SongAudio);
-};
 
 const imgFromSaavn = (link?: string | null): ImageAsset => {
     if (!link || link.includes('default')) return createFallbackImageAsset();
@@ -79,6 +47,12 @@ const imgFromSaavn = (link?: string | null): ImageAsset => {
         high: upgradeToHttps(link.replace(IMG_SIZE_RX, '500x500')),
     };
 };
+
+const safeOffset = (offset?: number) => Math.max(0, (offset ?? 0) - 1);
+
+/* -------------------------------------------------------------------------- */
+/*                              low level mappers                             */
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /*                              entity mappers                                */
@@ -96,7 +70,7 @@ export const mapSong = (s: SaavnSongResponse): Song => {
         throw new AppError(`Saavn provider data corruption: missing fields for song ${s.id ?? 'unknown'}`, 502);
     }
 
-    const audio = audioFromSaavn(s.more_info.encrypted_media_url);
+    const audio = decryptAudio('saavn', s.more_info.encrypted_media_url);
     if (!audio) {
         throw new AppError(`Saavn provider data corruption: audio missing for song ${s.id}`, 502);
     }

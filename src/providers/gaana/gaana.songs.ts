@@ -12,7 +12,7 @@ export async function getByIds(seokey: string) {
         },
     });
 
-    return assertData(res.data, 'Song not found');
+    return [assertData(res.data, 'Song not found')];
 }
 
 export async function getByLink(link: string) {

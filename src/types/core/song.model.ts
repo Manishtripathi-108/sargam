@@ -3,9 +3,10 @@ import type { AlbumBase } from './album.model';
 import type { ArtistBase } from './artist.model';
 import type { ImageAsset } from './image.model';
 
-export type SongAudioQuality = 'low' | 'medium' | 'high' | 'lossless';
+export type SongAudioQuality = 'very_low' | 'low' | 'medium' | 'high' | 'lossless';
 
 export type SongAudio = {
+    very_low?: string;
     low: string;
     medium: string;
     high: string;
