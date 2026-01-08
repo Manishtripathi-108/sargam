@@ -1,4 +1,5 @@
 import { formatZodValidationErrors } from '../utils/validation.utils';
+import { isAxiosError } from 'axios';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import http from 'http';
@@ -11,6 +12,9 @@ type HttpLikeError = {
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
+const getMessage = (value: unknown, fallback: string) =>
+    typeof value === 'string' && value.length > 0 ? value : fallback;
+
 const registerErrorHandler = async (app: FastifyInstance) => {
     app.setErrorHandler(async (err: unknown, req: FastifyRequest, reply: FastifyReply) => {
         // ensure the success flag is false for any error
@@ -18,15 +22,13 @@ const registerErrorHandler = async (app: FastifyInstance) => {
 
         // if headers already sent, do nothing
         if (reply.sent) {
-            req.log.warn({ url: req.url, method: req.method }, 'headers already sent in error handler');
+            req.log.warn({ url: req.url, method: req.method }, 'headers_already_sent');
             return;
         }
-
         // handle zod validation errors only
-        try {
-            if (hasZodFastifySchemaValidationErrors(err)) {
-                const validation = err.validation;
-                const issues = formatZodValidationErrors(validation);
+        if (hasZodFastifySchemaValidationErrors(err)) {
+            try {
+                const issues = formatZodValidationErrors(err.validation);
 
                 req.log.info({ url: req.url, method: req.method, issues }, 'validation_error');
 
@@ -37,9 +39,25 @@ const registerErrorHandler = async (app: FastifyInstance) => {
                     issues,
                     success: false,
                 });
+            } catch (zErr) {
+                req.log.error({ err: zErr, origErr: err }, 'zod_format_failure');
             }
-        } catch (zErr) {
-            req.log.error({ err: zErr, origErr: err }, 'error_formatting_zod_issues');
+        }
+
+        if (isAxiosError(err)) {
+            const statusCode = err.response?.status ?? 502;
+            const statusMessage = http.STATUS_CODES[statusCode] ?? 'Bad Gateway';
+
+            const message = getMessage(err.response?.data?.message ?? err.message, statusMessage);
+
+            req.log.error({ err, url: req.url, method: req.method }, 'axios_error');
+
+            return reply.status(statusCode).send({
+                statusCode,
+                error: statusMessage,
+                message,
+                success: false,
+            });
         }
 
         try {
@@ -52,26 +70,25 @@ const registerErrorHandler = async (app: FastifyInstance) => {
                       ? httpErr.status
                       : 500;
 
-            const safeStatusCode = statusCode || 500;
-            const statusMessage = http.STATUS_CODES[safeStatusCode] ?? 'Internal Server Error';
+            const safeCode = statusCode || 500;
+            const statusMessage = http.STATUS_CODES[safeCode] ?? 'Internal Server Error';
 
-            const message =
-                typeof httpErr?.message === 'string' && httpErr.message.length > 0 ? httpErr.message : statusMessage;
+            const message = getMessage(httpErr?.message, statusMessage);
 
-            if (safeStatusCode >= 500) {
+            if (safeCode >= 500) {
                 req.log.error({ err, url: req.url, method: req.method }, 'unhandled_error');
             } else {
                 req.log.info({ err, url: req.url, method: req.method }, 'http_error');
             }
 
-            return reply.status(safeStatusCode).send({
-                statusCode: safeStatusCode,
+            return reply.status(safeCode).send({
+                statusCode: safeCode,
                 error: statusMessage,
                 message,
                 success: false,
             });
-        } catch (finalErr: unknown) {
-            req.log.error({ err: finalErr, origErr: err }, 'fatal_error_in_error_handler');
+        } catch (fatalErr) {
+            req.log.error({ err: fatalErr, origErr: err }, 'fatal_error_handler_failure');
 
             return reply.status(500).send({
                 statusCode: 500,
