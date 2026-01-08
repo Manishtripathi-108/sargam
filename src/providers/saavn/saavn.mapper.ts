@@ -33,9 +33,6 @@ import { decodeHtmlEntities } from '../../utils/string.utils';
 import { upgradeToHttps } from '../../utils/url.utils';
 import type { SearchType } from '../../validators/common.validators';
 
-/* -------------------------------------------------------------------------- */
-/*                                   helpers                                  */
-/* -------------------------------------------------------------------------- */
 const IMG_SIZE_RX = /150x150|50x50/;
 
 const imgFromSaavn = (link?: string | null): ImageAsset => {
@@ -49,14 +46,6 @@ const imgFromSaavn = (link?: string | null): ImageAsset => {
 };
 
 const safeOffset = (offset?: number) => Math.max(0, (offset ?? 0) - 1);
-
-/* -------------------------------------------------------------------------- */
-/*                              low level mappers                             */
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-/*                              entity mappers                                */
-/* -------------------------------------------------------------------------- */
 
 export const mapArtistBase = (a: SaavnArtistBaseResponse): ArtistBase => ({
     id: a.id,
