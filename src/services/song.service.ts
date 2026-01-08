@@ -8,8 +8,7 @@ export async function getSongById(id: string, opts: ServiceOptions): Promise<Son
     }
 
     try {
-        const list = await resolveProvider(opts).songs.getByIds(id);
-        return list[0];
+        return await resolveProvider(opts).songs.getById(id);
     } catch (err) {
         return wrapError(err, 'Failed to fetch song', 500);
     }

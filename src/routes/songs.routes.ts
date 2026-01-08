@@ -1,11 +1,5 @@
 import { getSongById, getSongByLink, getSongsByIds, getSongSuggestions } from '../services/song.service';
-import {
-    idOrLinkWithProvider,
-    idParam,
-    idsQuery,
-    providerQuery,
-    suggestionsQuery,
-} from '../validators/common.validators';
+import { idOrLinkWithProvider, idParam, providerQuery, suggestionsQuery } from '../validators/common.validators';
 import type { FastifyPluginAsync } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 
@@ -16,25 +10,19 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         '/songs',
         {
             schema: {
-                querystring: idsQuery.extend(providerQuery.shape),
-                tags: ['songs'],
-                summary: 'Retrieve songs by ids',
-            },
-        },
-        async (req) => getSongsByIds(req.query.ids, { provider: req.query.provider })
-    );
-
-    api.get(
-        '/songs/by',
-        {
-            schema: {
                 querystring: idOrLinkWithProvider,
                 tags: ['songs'],
             },
         },
         async (req) => {
-            const { id, link, provider } = req.query;
-            return link ? getSongByLink(link, { provider }) : getSongById(id!, { provider });
+            const { id, ids, link, provider } = req.query;
+            if (ids) {
+                return getSongsByIds(ids, { provider });
+            } else if (link) {
+                return getSongByLink(link, { provider });
+            } else {
+                return getSongById(id!, { provider });
+            }
         }
     );
 
@@ -55,7 +43,7 @@ const songsRoutes: FastifyPluginAsync = async (app) => {
         {
             schema: {
                 params: idParam,
-                querystring: suggestionsQuery.merge(providerQuery),
+                querystring: suggestionsQuery.extend(providerQuery.shape),
                 tags: ['songs'],
             },
         },

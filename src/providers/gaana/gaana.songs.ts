@@ -1,10 +1,11 @@
 import type { GaanaSongResponse } from '../../types/gaana';
+import { decryptAudio } from '../../utils/decrypt.utils';
 import { assertData } from '../../utils/error.utils';
 import { extractSeoToken } from '../../utils/url.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 
-export async function getByIds(seokey: string) {
+export async function getById(seokey: string) {
     const res = await gaanaClient.post<GaanaSongResponse>('/', null, {
         params: {
             seokey,
@@ -12,7 +13,23 @@ export async function getByIds(seokey: string) {
         },
     });
 
-    return [assertData(res.data, 'Song not found')];
+    return assertData(res.data, 'Song not found');
+}
+
+export async function getByIds(seokeys: string) {
+    const res = await gaanaClient.post<GaanaSongResponse>('/', null, {
+        params: {
+            seokey: seokeys,
+            type: GAANA_ROUTES.SONG.DETAILS,
+        },
+    });
+
+    // const data = assertData(res.data, 'Song not found');
+    // const links = decryptAudio('gaana', data.tracks[0].urls.medium?.message);
+    // console.log('🪵 > gaana.songs.ts:18 > getByIds > links:', links);
+    // data.links = links;
+
+    return assertData(res.data, 'Song not found');
 }
 
 export async function getByLink(link: string) {

@@ -6,6 +6,19 @@ import { saavnClient } from './saavn.client';
 import { mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
 
+export async function getById(id: string): Promise<Song> {
+    const res = await saavnClient.get<{ songs: SaavnSongResponse[] }>('/', {
+        params: {
+            pids: id,
+            __call: SAAVN_ROUTES.SONG.ID,
+        },
+    });
+
+    return assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0).map(
+        mapSong
+    )[0];
+}
+
 export async function getByIds(ids: string): Promise<Song[]> {
     const res = await saavnClient.get<{ songs: SaavnSongResponse[] }>('/', {
         params: {

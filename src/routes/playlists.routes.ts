@@ -7,7 +7,7 @@ const playlistsRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
 
     api.get(
-        '/playlists/by',
+        '/playlists',
         {
             schema: {
                 querystring: idOrLinkWithProvider,

@@ -13,6 +13,17 @@ const HTTP_PROTOCOL_REGEX = /^http:\/\//;
  */
 export const upgradeToHttps = (url: string): string => url.replace(HTTP_PROTOCOL_REGEX, 'https://');
 
+/**
+ * Checks if a given string is a link (starts with http:// or https://).
+ * @param value - The string to check.
+ * @returns True if the string is a link, false otherwise.
+ * @example
+ * isLink("http://example.com") => true
+ * isLink("https://example.com") => true
+ * isLink("example.com") => false
+ */
+export const isLink = (value: string): boolean => /^https?:\/\//i.test(value);
+
 type MusicEntity = 'song' | 'album' | 'artist' | 'playlist';
 
 const SAAVN_URL_PATTERNS: Record<MusicEntity, RegExp> = {

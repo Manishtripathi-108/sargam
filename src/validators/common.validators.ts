@@ -82,9 +82,10 @@ export const idOrLinkQuery = z
     .object({
         id: z.string().optional(),
         link: z.string().optional(),
+        ids: z.string().optional(),
     })
-    .refine((v) => v.id || v.link, {
-        message: 'Either id or link is required',
+    .refine((v) => v.id || v.link || v.ids, {
+        message: 'Either id, link, or ids is required',
         path: ['id'],
     });
 
@@ -101,13 +102,6 @@ export const listQuery = z.object({
  * ID or link query with provider
  */
 export const idOrLinkWithProvider = idOrLinkQuery.safeExtend(providerQuery.shape);
-
-/**
- * Simple IDs query (comma-separated string)
- */
-export const idsQuery = z.object({
-    ids: nonEmptyString('IDs required'),
-});
 
 /**
  * Suggestions query (limit only)

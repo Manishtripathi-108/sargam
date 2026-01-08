@@ -7,7 +7,7 @@ const artistRoutes: FastifyPluginAsync = async (app) => {
     const api = app.withTypeProvider<ZodTypeProvider>();
 
     api.get(
-        '/artists/by',
+        '/artists',
         {
             schema: {
                 querystring: idOrLinkWithProvider,
