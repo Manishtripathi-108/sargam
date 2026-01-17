@@ -68,3 +68,53 @@ export const extractSeoToken = (link: string, provider: Provider, entity: MusicE
 
     return token;
 };
+
+// Qobuz URL patterns
+// Supports: https://www.qobuz.com/us-en/album/title/albumid, https://play.qobuz.com/track/123456
+// Track IDs are numeric, Album IDs are alphanumeric
+type QobuzEntity = 'track' | 'album' | 'artist' | 'playlist';
+
+const QOBUZ_URL_PATTERNS: Record<QobuzEntity, RegExp> = {
+    track: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?track\/(\d+)/i,
+    album: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?album\/[^/]+\/([a-z0-9]+)/i,
+    artist: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?interpreter\/[^/]+\/(\d+)/i,
+    playlist: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?playlist\/(\d+)/i,
+};
+
+// Alternative patterns for play.qobuz.com
+const QOBUZ_PLAY_URL_PATTERNS: Record<QobuzEntity, RegExp> = {
+    track: /play\.qobuz\.com\/track\/(\d+)/i,
+    album: /play\.qobuz\.com\/album\/([a-z0-9]+)/i,
+    artist: /play\.qobuz\.com\/artist\/(\d+)/i,
+    playlist: /play\.qobuz\.com\/playlist\/(\d+)/i,
+};
+
+/**
+ * Extracts the Qobuz ID from a Qobuz URL.
+ * @param link - The Qobuz URL to extract the ID from.
+ * @param entity - The type of entity (track, album, artist, or playlist).
+ * @returns The extracted Qobuz ID.
+ * @throws {AppError} If the link is empty or doesn't match the expected format.
+ * @example
+ * extractQobuzId("https://www.qobuz.com/us-en/track/123456", "track") => "123456"
+ * extractQobuzId("https://play.qobuz.com/album/abc123xyz", "album") => "abc123xyz"
+ */
+export const extractQobuzId = (link: string, entity: QobuzEntity): string => {
+    if (!link) {
+        throw new AppError('Link is required', 400);
+    }
+
+    // Try main www.qobuz.com pattern first
+    let id = link.match(QOBUZ_URL_PATTERNS[entity])?.[1];
+
+    // Try play.qobuz.com pattern as fallback
+    if (!id) {
+        id = link.match(QOBUZ_PLAY_URL_PATTERNS[entity])?.[1];
+    }
+
+    if (!id) {
+        throw new AppError(`Link does not match Qobuz ${entity} format`, 400);
+    }
+
+    return id;
+};
