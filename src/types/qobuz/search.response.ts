@@ -17,3 +17,35 @@ export type QobuzCatalogSearchResponse = {
     tracks?: QobuzPaginatedList<QobuzSearchTrack>;
     playlists?: QobuzPaginatedList<QobuzSearchPlaylist>;
 };
+
+/**
+ * Album search response
+ */
+export type QobuzAlbumSearchResponse = {
+    query: string;
+    albums: QobuzPaginatedList<QobuzSearchAlbum>;
+};
+
+/**
+ * Track search response
+ */
+export type QobuzTrackSearchResponse = {
+    query: string;
+    tracks: QobuzPaginatedList<QobuzSearchTrack>;
+};
+
+/**
+ * Artist search response
+ */
+export type QobuzArtistSearchResponse = {
+    query: string;
+    artists: QobuzPaginatedList<QobuzSearchArtist>;
+};
+
+/**
+ * Playlist search response
+ */
+export type QobuzPlaylistSearchResponse = {
+    query: string;
+    playlists: QobuzPaginatedList<QobuzSearchPlaylist>;
+};

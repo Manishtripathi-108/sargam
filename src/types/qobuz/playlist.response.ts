@@ -78,11 +78,3 @@ export type QobuzSearchPlaylist = {
     images150: string[];
     images300: string[];
 };
-
-/**
- * Playlist search response
- */
-export type QobuzPlaylistSearchResponse = {
-    query: string;
-    playlists: QobuzPaginatedList<QobuzSearchPlaylist>;
-};

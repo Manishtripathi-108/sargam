@@ -18,11 +18,3 @@ export type QobuzSearchArtist = QobuzArtistBase & {
     picture?: string;
     image: QobuzArtistImage;
 };
-
-/**
- * Artist search response
- */
-export type QobuzArtistSearchResponse = {
-    query: string;
-    artists: QobuzPaginatedList<QobuzSearchArtist>;
-};

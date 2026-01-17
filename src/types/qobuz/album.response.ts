@@ -8,7 +8,6 @@ import type {
     QobuzGenre,
     QobuzImage,
     QobuzLabel,
-    QobuzPaginatedList,
     QobuzPerformer,
     QobuzReleaseDates,
 } from './common.types';
@@ -100,12 +99,4 @@ export type QobuzArtistAlbum = {
     hires: boolean;
     hires_streamable: boolean;
     image: QobuzImage;
-};
-
-/**
- * Album search response
- */
-export type QobuzAlbumSearchResponse = {
-    query: string;
-    albums: QobuzPaginatedList<QobuzSearchAlbum>;
 };

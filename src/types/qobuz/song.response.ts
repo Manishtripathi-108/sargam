@@ -6,7 +6,6 @@ import type {
     QobuzAudioInfo,
     QobuzAudioQuality,
     QobuzAvailability,
-    QobuzPaginatedList,
     QobuzPerformer,
     QobuzReleaseDates,
 } from './common.types';
@@ -50,11 +49,3 @@ export type QobuzSearchTrack = QobuzAudioQuality &
         composer: QobuzPerformer;
         album: QobuzSearchTrackAlbum;
     };
-
-/**
- * Track search response
- */
-export type QobuzTrackSearchResponse = {
-    query: string;
-    tracks: QobuzPaginatedList<QobuzSearchTrack>;
-};
