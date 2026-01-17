@@ -24,27 +24,20 @@ export async function getByLink(link: string) {
 export async function getAlbums({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    // Qobuz returns albums in the artist response
-    const artist = await getById(id);
-
-    if (!artist.albums) {
-        return createPaginatedResponse({
-            items: [],
-            total: 0,
-            offset: safeOffset,
+    const res = await client.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.GET, {
+        params: {
+            artist_id: id,
             limit: safeLimit,
-            hasNext: false,
-        });
-    }
+            offset: safeOffset,
+        },
+    });
 
-    // Apply pagination to albums
-    const paginatedAlbums = artist.albums.items.slice(safeOffset, safeOffset + safeLimit);
+    const artist = assertData(res.data, 'Artist Albums not found', () => res.data?.albums?.items?.length > 0);
 
     return createPaginatedResponse({
-        items: paginatedAlbums,
+        items: artist.albums.items,
         total: artist.albums.total,
         offset: safeOffset,
         limit: safeLimit,
-        hasNext: safeOffset + paginatedAlbums.length < artist.albums.total,
     });
 }

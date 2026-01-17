@@ -1,4 +1,3 @@
-
 /**
  * Image/artwork with multiple sizes
  */
@@ -78,14 +77,6 @@ export type QobuzGenreTag = {
 export type QobuzOwner = {
     id: number;
     name: string;
-};
-
-/**
- * Artist biography
- */
-export type QobuzBiography = {
-    summary?: string;
-    content?: string;
 };
 
 /**

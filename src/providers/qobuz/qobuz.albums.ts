@@ -25,26 +25,21 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
     // Qobuz returns tracks in the album response
-    const album = await getById(id);
-
-    if (!album.tracks) {
-        return createPaginatedResponse({
-            items: [],
-            total: 0,
-            offset: safeOffset,
+    const res = await client.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
+        params: {
+            album_id: id,
             limit: safeLimit,
-            hasNext: false,
-        });
-    }
+            offset: safeOffset,
+        },
+    });
+
+    const album = assertData(res.data, 'Album Songs not found', () => res.data?.tracks?.items?.length > 0);
 
     // Apply pagination to tracks
-    const paginatedTracks = album.tracks.items.slice(safeOffset, safeOffset + safeLimit);
-
     return createPaginatedResponse({
-        items: paginatedTracks,
+        items: album.tracks.items,
         total: album.tracks.total,
         offset: safeOffset,
         limit: safeLimit,
-        hasNext: safeOffset + paginatedTracks.length < album.tracks.total,
     });
 }
