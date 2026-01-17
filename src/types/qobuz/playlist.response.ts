@@ -1,6 +1,4 @@
-/**
- * Qobuz Playlist Response Types
- */
+
 import type { QobuzSearchArtist } from './artist.response';
 import type { QobuzGenre, QobuzImage, QobuzOwner, QobuzPaginatedList, QobuzPerformer, QobuzTag } from './common.types';
 

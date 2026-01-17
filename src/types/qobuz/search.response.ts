@@ -1,6 +1,4 @@
-/**
- * Qobuz Search Response Types
- */
+
 import type { QobuzSearchAlbum } from './album.response';
 import type { QobuzSearchArtist } from './artist.response';
 import type { QobuzPaginatedList } from './common.types';

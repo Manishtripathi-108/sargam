@@ -1,6 +1,4 @@
-/**
- * Qobuz Artist Response Types
- */
+
 import type { QobuzArtistAlbum } from './album.response';
 import type { QobuzArtistBase, QobuzArtistImage, QobuzBiography, QobuzPaginatedList } from './common.types';
 

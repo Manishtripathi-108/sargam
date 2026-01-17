@@ -5,20 +5,20 @@ import { extractQobuzId } from '../../utils/url.utils';
 import { getQobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
-export async function getById(id: string) {
+export async function getById(album_id: string) {
     const client = getQobuzClient();
 
     const res = await client.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
-        params: { album_id: id },
+        params: { album_id },
     });
 
     return assertData(res.data, 'Album not found');
 }
 
 export async function getByLink(link: string) {
-    const id = extractQobuzId(link, 'album');
+    const album_id = extractQobuzId(link, 'album');
 
-    return getById(id);
+    return getById(album_id);
 }
 
 export async function getTracks({ id, limit, offset }: { id: string; limit: number; offset: number }) {

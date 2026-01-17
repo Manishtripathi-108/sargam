@@ -1,7 +1,3 @@
-/**
- * Qobuz API Common Types
- * Shared shapes and reusable fragments across all Qobuz responses
- */
 
 /**
  * Image/artwork with multiple sizes

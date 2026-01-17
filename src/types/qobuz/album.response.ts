@@ -1,6 +1,3 @@
-/**
- * Qobuz Album Response Types
- */
 import type {
     QobuzArtistBase,
     QobuzAudioQuality,
@@ -8,28 +5,16 @@ import type {
     QobuzGenre,
     QobuzImage,
     QobuzLabel,
-    QobuzPerformer,
+    QobuzPaginatedList,
     QobuzReleaseDates,
 } from './common.types';
-
-/**
- * Track in album context (simplified)
- */
-export type QobuzAlbumTrack = QobuzAudioQuality & {
-    id: number;
-    title: string;
-    version?: string;
-    duration: number;
-    track_number: number;
-    media_number: number;
-    isrc: string;
-    performer: QobuzPerformer;
-};
+import type { QobuzSearchTrack } from './song.response';
 
 /**
  * Full album response
  */
 export type QobuzAlbum = QobuzAudioQuality &
+    QobuzAlbumAdditionalDetails &
     QobuzAvailability &
     QobuzReleaseDates & {
         id: string;
@@ -52,9 +37,31 @@ export type QobuzAlbum = QobuzAudioQuality &
         label: QobuzLabel;
         genre: QobuzGenre;
         parental_warning: boolean;
-        // tracks?: QobuzPaginatedList<QobuzAlbumTrack>;
+        tracks: QobuzPaginatedList<Omit<QobuzSearchTrack, 'album'>>;
         released_at: number;
+        genres_list?: string[];
     };
+
+type QobuzAlbumAdditionalDetails = {
+    description?: string;
+    description_language?: string;
+    catchline?: string;
+    composer: QobuzArtistBase;
+    created_at: number;
+    genres_list: string[];
+    is_official: boolean;
+    maximum_technical_specifications: string;
+    product_sales_factors_monthly: number;
+    product_sales_factors_weekly: number;
+    product_sales_factors_yearly: number;
+    product_type: string;
+    product_url: string;
+    recording_information: string;
+    relative_url: string;
+    release_tags: string[];
+    release_type: string;
+    subtitle: string;
+};
 
 export type QobuzSearchAlbum = QobuzAudioQuality &
     QobuzAvailability &
@@ -88,26 +95,7 @@ export type QobuzSearchAlbum = QobuzAudioQuality &
  */
 export type QobuzSearchTrackAlbum = Omit<QobuzAlbum, 'tracks' | 'artists'>;
 
-export type QobuzTrackAlbum = Omit<QobuzAlbum, 'tracks' | 'artists'> & {
-    description: string;
-    description_language: string;
-    catchline: string;
-    composer: QobuzArtistBase;
-    created_at: number;
-    genres_list: string[];
-    is_official: boolean;
-    maximum_technical_specifications: string;
-    product_sales_factors_monthly: number;
-    product_sales_factors_weekly: number;
-    product_sales_factors_yearly: number;
-    product_type: string;
-    product_url: string;
-    recording_information: string;
-    relative_url: string;
-    release_tags: string[];
-    release_type: string;
-    subtitle: string;
-};
+export type QobuzTrackAlbum = Omit<QobuzAlbum, 'tracks' | 'artists' | keyof QobuzAlbumAdditionalDetails>;
 
 /**
  * Album in artist context (simplified)

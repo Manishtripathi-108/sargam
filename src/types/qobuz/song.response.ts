@@ -1,6 +1,3 @@
-/**
- * Qobuz Song/Track Response Types
- */
 import type { QobuzSearchTrackAlbum, QobuzTrackAlbum } from './album.response';
 import type {
     QobuzAudioInfo,
