@@ -1,124 +1,47 @@
+import type {
+    QobuzAlbumSearchResponse,
+    QobuzArtistSearchResponse,
+    QobuzCatalogSearchResponse,
+    QobuzPlaylistSearchResponse,
+    QobuzTrackSearchResponse,
+} from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { getQobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
-interface QobuzArtist {
-    id: number;
-    name: string;
-    picture?: string;
-    albums_count?: number;
-}
-
-interface QobuzAlbum {
-    id: string;
-    title: string;
-    duration: number;
-    tracks_count: number;
-    release_date_original?: string;
-    hires: boolean;
-    image: {
-        small: string;
-        thumbnail: string;
-        large: string;
-    };
-    artist: QobuzArtist;
-}
-
-interface QobuzTrack {
-    id: number;
-    title: string;
-    version?: string;
-    duration: number;
-    track_number: number;
-    isrc: string;
-    maximum_bit_depth: number;
-    maximum_sampling_rate: number;
-    hires: boolean;
-    hires_streamable: boolean;
-    performer: {
-        id: number;
-        name: string;
-    };
-    album: {
-        id: string;
-        title: string;
-        image: {
-            small: string;
-            thumbnail: string;
-            large: string;
-        };
-        artist: QobuzArtist;
-    };
-}
-
-interface QobuzPlaylist {
-    id: number;
-    name: string;
-    description?: string;
-    duration: number;
-    tracks_count: number;
-    is_public: boolean;
-    owner: {
-        id: number;
-        name: string;
-    };
-}
-
-interface QobuzCatalogSearchResponse {
+type SearchParams = {
     query: string;
-    albums?: {
-        items: QobuzAlbum[];
-        limit: number;
-        offset: number;
-        total: number;
-    };
-    artists?: {
-        items: QobuzArtist[];
-        limit: number;
-        offset: number;
-        total: number;
-    };
-    tracks?: {
-        items: QobuzTrack[];
-        limit: number;
-        offset: number;
-        total: number;
-    };
-    playlists?: {
-        items: QobuzPlaylist[];
-        limit: number;
-        offset: number;
-        total: number;
-    };
-}
+    limit: number;
+    offset: number;
+};
 
-export async function all({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+export async function all(p: SearchParams) {
+    const { limit, offset } = normalizePagination(p.limit, p.offset);
 
     const client = getQobuzClient();
 
     const res = await client.get<QobuzCatalogSearchResponse>(QOBUZ_ROUTES.SEARCH.CATALOG, {
         params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
+            query: p.query,
+            limit,
+            offset,
         },
     });
 
     return assertData(res.data, 'Search failed');
 }
 
-export async function songs({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+export async function songs(p: SearchParams) {
+    const { limit, offset } = normalizePagination(p.limit, p.offset);
 
     const client = getQobuzClient();
 
-    const res = await client.get<{ query: string; tracks: { items: QobuzTrack[]; limit: number; offset: number; total: number } }>(QOBUZ_ROUTES.TRACK.SEARCH, {
+    const res = await client.get<QobuzTrackSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
         params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
+            query: p.query,
+            limit,
+            offset,
         },
     });
 
@@ -127,22 +50,21 @@ export async function songs({ query, limit, offset }: { query: string; limit: nu
     return createPaginatedResponse({
         items: data.tracks.items,
         total: data.tracks.total,
-        offset: safeOffset,
-        limit: safeLimit,
-        hasNext: safeOffset + data.tracks.items.length < data.tracks.total,
+        offset,
+        limit,
     });
 }
 
-export async function albums({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+export async function albums(p: SearchParams) {
+    const { limit, offset } = normalizePagination(p.limit, p.offset);
 
     const client = getQobuzClient();
 
-    const res = await client.get<{ query: string; albums: { items: QobuzAlbum[]; limit: number; offset: number; total: number } }>(QOBUZ_ROUTES.ALBUM.SEARCH, {
+    const res = await client.get<QobuzAlbumSearchResponse>(QOBUZ_ROUTES.ALBUM.SEARCH, {
         params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
+            query: p.query,
+            limit,
+            offset,
         },
     });
 
@@ -151,22 +73,21 @@ export async function albums({ query, limit, offset }: { query: string; limit: n
     return createPaginatedResponse({
         items: data.albums.items,
         total: data.albums.total,
-        offset: safeOffset,
-        limit: safeLimit,
-        hasNext: safeOffset + data.albums.items.length < data.albums.total,
+        offset,
+        limit,
     });
 }
 
-export async function artists({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+export async function artists(p: SearchParams) {
+    const { limit, offset } = normalizePagination(p.limit, p.offset);
 
     const client = getQobuzClient();
 
-    const res = await client.get<{ query: string; artists: { items: QobuzArtist[]; limit: number; offset: number; total: number } }>(QOBUZ_ROUTES.ARTIST.SEARCH, {
+    const res = await client.get<QobuzArtistSearchResponse>(QOBUZ_ROUTES.ARTIST.SEARCH, {
         params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
+            query: p.query,
+            limit,
+            offset,
         },
     });
 
@@ -175,22 +96,21 @@ export async function artists({ query, limit, offset }: { query: string; limit: 
     return createPaginatedResponse({
         items: data.artists.items,
         total: data.artists.total,
-        offset: safeOffset,
-        limit: safeLimit,
-        hasNext: safeOffset + data.artists.items.length < data.artists.total,
+        offset,
+        limit,
     });
 }
 
-export async function playlists({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+export async function playlists(p: SearchParams) {
+    const { limit, offset } = normalizePagination(p.limit, p.offset);
 
     const client = getQobuzClient();
 
-    const res = await client.get<{ query: string; playlists: { items: QobuzPlaylist[]; limit: number; offset: number; total: number } }>(QOBUZ_ROUTES.PLAYLIST.SEARCH, {
+    const res = await client.get<QobuzPlaylistSearchResponse>(QOBUZ_ROUTES.PLAYLIST.SEARCH, {
         params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
+            query: p.query,
+            limit,
+            offset,
         },
     });
 
@@ -199,25 +119,7 @@ export async function playlists({ query, limit, offset }: { query: string; limit
     return createPaginatedResponse({
         items: data.playlists.items,
         total: data.playlists.total,
-        offset: safeOffset,
-        limit: safeLimit,
-        hasNext: safeOffset + data.playlists.items.length < data.playlists.total,
+        offset,
+        limit,
     });
-}
-
-/**
- * Search by ISRC to find a track
- */
-export async function byIsrc({ isrc }: { isrc: string }) {
-    const result = await songs({ query: isrc, limit: 10, offset: 0 });
-
-    // Find exact ISRC match
-    const exactMatch = result.items.find((track) => track.isrc === isrc);
-
-    if (exactMatch) {
-        return exactMatch;
-    }
-
-    // Return first result if no exact match
-    return result.items.length > 0 ? result.items[0] : null;
 }

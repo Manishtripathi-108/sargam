@@ -11,6 +11,7 @@ type SearchParams = {
 };
 
 export async function all(p: SearchParams) {
+    console.log('🪵 > gaana.search.ts:14 > all > p:', p)
     const { page, limit } = normalizePagination(p.limit, p.offset);
 
     const res = await gaanaClient.post<GlobalSearchResponse>('/', null, {

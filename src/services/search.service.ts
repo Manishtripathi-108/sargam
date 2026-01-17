@@ -32,7 +32,7 @@ export async function globalSearch(p: {
         if (p.type === 'album') return search.albums(p);
         if (p.type === 'artist') return search.artists(p);
         if (p.type === 'playlist') return search.playlists(p);
-        return search.all(p.query);
+        return search.all(p);
     } catch (err) {
         return wrapError(err, 'Search failed', 500);
     }

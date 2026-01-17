@@ -1,4 +1,5 @@
 import { GaanaProvider } from '../providers/gaana/gaana.provider';
+import { QobuzProvider } from '../providers/qobuz/qobuz.provider';
 import { SaavnProvider } from '../providers/saavn/saavn.provider';
 import type { Provider } from '../validators/common.validators';
 import { AppError } from './error.utils';
@@ -8,6 +9,7 @@ export type ServiceOptions = {
 };
 
 const providerRegistry = {
+    qobuz: QobuzProvider,
     saavn: SaavnProvider,
     gaana: GaanaProvider,
 };

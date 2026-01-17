@@ -1,61 +1,8 @@
+import type { QobuzTrack, QobuzTrackSearchResponse } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
-import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractQobuzId } from '../../utils/url.utils';
 import { getQobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
-
-interface QobuzPerformer {
-    id: number;
-    name: string;
-}
-
-interface QobuzAlbumImage {
-    small: string;
-    thumbnail: string;
-    large: string;
-}
-
-interface QobuzAlbumInfo {
-    id: string;
-    title: string;
-    image: QobuzAlbumImage;
-    artist: {
-        id: number;
-        name: string;
-    };
-    label?: {
-        id: number;
-        name: string;
-    };
-}
-
-interface QobuzTrack {
-    id: number;
-    title: string;
-    version?: string;
-    duration: number;
-    track_number: number;
-    media_number: number;
-    isrc: string;
-    copyright?: string;
-    maximum_bit_depth: number;
-    maximum_sampling_rate: number;
-    hires: boolean;
-    hires_streamable: boolean;
-    release_date_original?: string;
-    performer: QobuzPerformer;
-    album: QobuzAlbumInfo;
-}
-
-interface QobuzSearchResponse {
-    query: string;
-    tracks: {
-        items: QobuzTrack[];
-        limit: number;
-        offset: number;
-        total: number;
-    };
-}
 
 export async function getById(id: string) {
     const client = getQobuzClient();
@@ -76,7 +23,7 @@ export async function getByLink(link: string) {
 export async function getByIsrc(isrc: string) {
     const client = getQobuzClient();
 
-    const res = await client.get<QobuzSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
+    const res = await client.get<QobuzTrackSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
         params: {
             query: isrc,
             limit: 10,
@@ -99,30 +46,6 @@ export async function getByIsrc(isrc: string) {
     }
 
     return null;
-}
-
-export async function search({ query, limit, offset }: { query: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
-
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
-        params: {
-            query,
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
-
-    const data = assertData(res.data, 'Search failed');
-
-    return createPaginatedResponse({
-        items: data.tracks.items,
-        total: data.tracks.total,
-        offset: safeOffset,
-        limit: safeLimit,
-        hasNext: safeOffset + data.tracks.items.length < data.tracks.total,
-    });
 }
 
 /**

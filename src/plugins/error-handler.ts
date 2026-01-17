@@ -1,3 +1,4 @@
+import { isDev } from '../utils/environment.utils';
 import { formatZodValidationErrors } from '../utils/validation.utils';
 import { isAxiosError } from 'axios';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
@@ -25,6 +26,7 @@ const registerErrorHandler = async (app: FastifyInstance) => {
             req.log.warn({ url: req.url, method: req.method }, 'headers_already_sent');
             return;
         }
+
         // handle zod validation errors only
         if (hasZodFastifySchemaValidationErrors(err)) {
             try {
@@ -44,6 +46,7 @@ const registerErrorHandler = async (app: FastifyInstance) => {
             }
         }
 
+        // handle axios errors
         if (isAxiosError(err)) {
             const statusCode = err.response?.status ?? 502;
             const statusMessage = http.STATUS_CODES[statusCode] ?? 'Bad Gateway';
@@ -54,12 +57,13 @@ const registerErrorHandler = async (app: FastifyInstance) => {
 
             return reply.status(statusCode).send({
                 statusCode,
-                error: statusMessage,
+                error: isDev ? `Axios Error: ${statusMessage}` : statusMessage,
                 message,
                 success: false,
             });
         }
 
+        // generic error handling
         try {
             const httpErr: HttpLikeError | null = isObject(err) ? err : null;
 

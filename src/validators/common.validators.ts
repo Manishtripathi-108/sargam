@@ -19,7 +19,7 @@ export const positiveInt = (min = 1, max?: number) => {
 /**
  * Provider enum - saavn or gaana
  */
-export const providerEnum = z.enum(['saavn', 'gaana']);
+export const providerEnum = z.enum(['saavn', 'gaana', 'qobuz']);
 
 /**
  * Search type enum
