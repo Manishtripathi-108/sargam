@@ -18,6 +18,14 @@ const GAANA_ROUTES = {
         DETAILS: 'songDetail',
         LYRICS: 'songLyrics',
         SIMILAR: 'songSimilar',
+        /**
+         * @description This endpoint is used to get the stream URL for a song.
+         * @param track_id - The unique identifier for the track.
+         * @param quality - The quality of the stream. Possible values are 'low', 'medium', 'high'.
+         * @example
+         * POST https://gaana.com/api/stream-url?track_id=57285949&quality=high
+         */
+        STREAM: 'https://gaana.com/api/stream-url',
     },
 
     ALBUM: {

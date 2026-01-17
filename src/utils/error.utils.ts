@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios';
+
 export class AppError extends Error {
     statusCode: number;
     safeMessage: string;
@@ -19,7 +21,7 @@ export const assertData = <T>(data: T | null | undefined, message: string, cn?: 
 };
 
 export const wrapError = (err: unknown, message: string, statusCode: number = 500): never => {
-    if (err instanceof AppError) throw err;
+    if (err instanceof AppError || isAxiosError(err)) throw err;
     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     throw new AppError(`${message}: ${errorMessage}`, statusCode);
 };
