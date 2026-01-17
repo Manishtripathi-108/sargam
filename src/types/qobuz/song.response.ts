@@ -1,7 +1,7 @@
 /**
  * Qobuz Song/Track Response Types
  */
-import type { QobuzSearchTrackAlbum } from './album.response';
+import type { QobuzSearchTrackAlbum, QobuzTrackAlbum } from './album.response';
 import type {
     QobuzAudioInfo,
     QobuzAudioQuality,
@@ -9,23 +9,6 @@ import type {
     QobuzPerformer,
     QobuzReleaseDates,
 } from './common.types';
-
-/**
- * Full track response
- */
-export type QobuzTrack = QobuzAudioQuality & {
-    id: number;
-    title: string;
-    version?: string;
-    duration: number;
-    track_number: number;
-    media_number: number;
-    isrc: string;
-    copyright?: string;
-    release_date_original?: string;
-    performer: QobuzPerformer;
-    album: QobuzSearchTrackAlbum;
-};
 
 /**
  * Track in search context (includes nested album artist)
@@ -48,4 +31,26 @@ export type QobuzSearchTrack = QobuzAudioQuality &
         performers: string;
         composer: QobuzPerformer;
         album: QobuzSearchTrackAlbum;
+    };
+
+export type QobuzTrack = QobuzAudioQuality &
+    QobuzAvailability &
+    QobuzReleaseDates & {
+        album: QobuzTrackAlbum;
+        created_at: number;
+        indexed_at: number;
+        id: number;
+        isrc: string;
+        parental_warning: boolean;
+        track_number: number;
+        media_number: number;
+        duration: number;
+        title: string;
+        performers: string;
+        version?: string;
+        copyright: string;
+        work?: string;
+        audio_info: QobuzAudioInfo;
+        performer: QobuzPerformer;
+        composer: QobuzPerformer;
     };
