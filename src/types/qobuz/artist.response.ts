@@ -1,3 +1,4 @@
+import type { QobuzAlbumArtist } from './album.response';
 import type {
     QobuzArtistBase,
     QobuzArtistImage,
@@ -5,6 +6,7 @@ import type {
     QobuzGenre,
     QobuzImage,
     QobuzLabel,
+    QobuzRights,
 } from './common.types';
 
 /* -------------------------------------------------------------------------- */
@@ -79,16 +81,6 @@ export type QobuzPageComposer = {
 
 export type QobuzPageAudioInfo = Omit<QobuzAudioQuality, 'hires' | 'hires_streamable'>;
 
-export type QobuzRights = {
-    streamable: boolean;
-    hires_streamable: boolean;
-    hires_purchasable: boolean;
-    purchasable: boolean;
-    downloadable: boolean;
-    previewable: boolean;
-    sampleable: boolean;
-};
-
 export type QobuzPhysicalSupport = {
     media_number: number;
     track_number: number;
@@ -118,12 +110,6 @@ export type QobuzTopTrack = {
     rights: QobuzRights;
     physical_support: QobuzPhysicalSupport;
     album: QobuzPageTrackAlbum;
-};
-
-export type QobuzAlbumArtist = {
-    id: number;
-    name: string;
-    roles: string[];
 };
 
 export type QobuzPageDates = {

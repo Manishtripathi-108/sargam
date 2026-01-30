@@ -1,16 +1,16 @@
 import type {
     QobuzArtistBase,
     QobuzAudioQuality,
-    QobuzAvailability,
     QobuzGenre,
     QobuzImage,
     QobuzLabel,
     QobuzPaginatedList,
     QobuzReleaseDates,
+    QobuzRights,
 } from './common.types';
 import type { QobuzSearchTrack } from './song.response';
 
-type QobuzAlbumArtists = {
+export type QobuzAlbumArtist = {
     id: number;
     name: string;
     roles: string[];
@@ -38,7 +38,7 @@ type QobuzAlbumAdditionalDetails = {
 };
 
 type QobuzAlbumBase = QobuzAudioQuality &
-    QobuzAvailability &
+    QobuzRights &
     QobuzReleaseDates & {
         id: string;
         qobuz_id: number;
@@ -60,13 +60,13 @@ type QobuzAlbumBase = QobuzAudioQuality &
 
 export type QobuzAlbum = QobuzAlbumBase &
     QobuzAlbumAdditionalDetails & {
-        artists: QobuzAlbumArtists;
+        artists: QobuzAlbumArtist;
         tracks: QobuzPaginatedList<Omit<QobuzSearchTrack, 'album'>>;
         genres_list?: string[];
     };
 
 export type QobuzSearchAlbum = QobuzAlbumBase & {
-    artists: QobuzAlbumArtists;
+    artists: QobuzAlbumArtist;
     popularity: number;
 };
 

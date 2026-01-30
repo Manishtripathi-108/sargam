@@ -1,14 +1,8 @@
 import type { QobuzSearchTrackAlbum, QobuzTrackAlbum } from './album.response';
-import type {
-    QobuzAudioInfo,
-    QobuzAudioQuality,
-    QobuzAvailability,
-    QobuzPerformer,
-    QobuzReleaseDates,
-} from './common.types';
+import type { QobuzAudioInfo, QobuzAudioQuality, QobuzPerformer, QobuzReleaseDates, QobuzRights } from './common.types';
 
 type QobuzTrackBase = QobuzAudioQuality &
-    QobuzAvailability &
+    QobuzRights &
     QobuzReleaseDates & {
         id: number;
         title: string;

@@ -79,14 +79,19 @@ export type QobuzAudioInfo = {
     replaygain_track_gain: number;
 };
 
-/** 5=MP3 320, 6=FLAC 16-bit, 7=FLAC 24-bit/96kHz, 27=FLAC 24-bit/192kHz */
+/**
+ * 5 = MP3 320kbps
+ * 6 = FLAC 16-bit/44.1kHz (CD quality)
+ * 7 = FLAC 24-bit up to 96kHz
+ * 27 = FLAC 24-bit up to 192kHz (Hi-Res)
+ */
 export type QobuzQuality = '5' | '6' | '7' | '27';
 
 /* -------------------------------------------------------------------------- */
 /*                             AVAILABILITY TYPES                             */
 /* -------------------------------------------------------------------------- */
 
-export type QobuzAvailability = {
+export type QobuzRights = {
     purchasable: boolean;
     streamable: boolean;
     previewable: boolean;
@@ -134,17 +139,26 @@ export type QobuzRestriction = {
     code: string;
 };
 
+/**
+ * Full file URL response from Qobuz API (/track/getFileUrl)
+ * Returns either full stream (authenticated) or preview (unauthenticated)
+ */
 export type QobuzFileUrlResponse = {
     file_type: string;
     track_id: number;
     format_id: number;
+    /** Duration in seconds (30 for preview, full for authenticated) */
     duration: number;
+    /** Stream URL */
     url: string;
     mime_type: string;
     sampling_rate: number;
     bits_depth: number;
     n_channels: number;
+    /** Preview URLs in different formats (only for unauthenticated) */
     preview?: QobuzPreviewFormat[];
+    /** Restrictions explaining why full stream is not available */
     restrictions?: QobuzRestriction[];
+    /** Blob for authenticated streams */
     blob?: string;
 };
