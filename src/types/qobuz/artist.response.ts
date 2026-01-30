@@ -7,9 +7,17 @@ import type {
     QobuzLabel,
 } from './common.types';
 
-/**
- * Full artist response (from /artist/get)
- */
+/* -------------------------------------------------------------------------- */
+/*                             ARTIST GET TYPES                               */
+/* -------------------------------------------------------------------------- */
+
+type QobuzArtistBiography = {
+    summary: string;
+    content: string;
+    source: string;
+    language: string;
+};
+
 export type QobuzArtist = QobuzArtistBase & {
     albums_as_primary_artist_count: number;
     albums_as_primary_composer_count: number;
@@ -25,85 +33,52 @@ export type QobuzSearchArtist = QobuzArtistBase & {
     image: QobuzArtistImage;
 };
 
-type QobuzArtistBiography = {
-    summary: string;
-    content: string;
-    source: string;
-    language: string;
-};
+/* -------------------------------------------------------------------------- */
+/*                            ARTIST PAGE TYPES                               */
+/* -------------------------------------------------------------------------- */
 
-/**
- * Display name wrapper used in artist page response
- */
 export type QobuzDisplayName = {
     display: string;
 };
 
-/**
- * Portrait image hash info
- */
 export type QobuzPortraitImage = {
     hash: string;
     format: string;
 };
 
-/**
- * Artist images in page response
- */
 export type QobuzArtistImages = {
     portrait?: QobuzPortraitImage;
 };
 
-/**
- * Biography in artist page response
- */
 export type QobuzArtistPageBiography = {
     content: string;
     source: string | null;
     language: string;
 };
 
-/**
- * Similar artist in artist page response
- */
 export type QobuzSimilarArtist = {
     id: number;
     name: QobuzDisplayName;
     images: QobuzArtistImages;
 };
 
-/**
- * Similar artists section
- */
 export type QobuzSimilarArtists = {
     has_more: boolean;
     items: QobuzSimilarArtist[];
 };
 
-/**
- * Artist reference in page response (uses display name format)
- */
 export type QobuzPageArtist = {
     id: number;
     name: QobuzDisplayName;
 };
 
-/**
- * Composer reference in page response
- */
 export type QobuzPageComposer = {
     id: number;
     name: QobuzDisplayName;
 };
 
-/**
- * Audio quality info (simplified for page response)
- */
 export type QobuzPageAudioInfo = Omit<QobuzAudioQuality, 'hires' | 'hires_streamable'>;
 
-/**
- * Rights/availability flags
- */
 export type QobuzRights = {
     streamable: boolean;
     hires_streamable: boolean;
@@ -114,17 +89,11 @@ export type QobuzRights = {
     sampleable: boolean;
 };
 
-/**
- * Physical support info (disc and track number)
- */
 export type QobuzPhysicalSupport = {
     media_number: number;
     track_number: number;
 };
 
-/**
- * Album reference in track context (page response)
- */
 export type QobuzPageTrackAlbum = {
     id: string;
     title: string;
@@ -134,9 +103,6 @@ export type QobuzPageTrackAlbum = {
     genre: Omit<QobuzGenre, 'slug' | 'color'>;
 };
 
-/**
- * Top track in artist page response
- */
 export type QobuzTopTrack = {
     id: number;
     isrc: string;
@@ -154,27 +120,18 @@ export type QobuzTopTrack = {
     album: QobuzPageTrackAlbum;
 };
 
-/**
- * Artist reference with roles (for album artists)
- */
 export type QobuzAlbumArtist = {
     id: number;
     name: string;
     roles: string[];
 };
 
-/**
- * Release dates in page response
- */
 export type QobuzPageDates = {
     download: string;
     original: string;
     stream: string;
 };
 
-/**
- * Simplified rights for releases
- */
 export type QobuzReleaseRights = {
     purchasable: boolean;
     streamable: boolean;
@@ -183,9 +140,6 @@ export type QobuzReleaseRights = {
     hires_purchasable: boolean;
 };
 
-/**
- * Release item (album) in artist page response
- */
 export type QobuzReleaseItem = {
     id: string;
     title: string;
@@ -206,18 +160,12 @@ export type QobuzReleaseItem = {
     awards: unknown[];
 };
 
-/**
- * Release group (by type: album, single, etc.)
- */
 export type QobuzRelease = {
     type: string;
     has_more: boolean;
     items: QobuzReleaseItem[];
 };
 
-/**
- * Track the artist appears on
- */
 export type QobuzTracksAppearsOn = {
     id: number;
     isrc: string;
@@ -235,17 +183,11 @@ export type QobuzTracksAppearsOn = {
     album: QobuzPageTrackAlbum;
 };
 
-/**
- * Playlists section in artist page
- */
 export type QobuzArtistPlaylists = {
     has_more: boolean;
     items: unknown[];
 };
 
-/**
- * Full artist page response (from /artist/page)
- */
 export type QobuzArtistPage = {
     id: number;
     name: QobuzDisplayName;

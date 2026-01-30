@@ -1,10 +1,6 @@
-
 import type { QobuzSearchArtist } from './artist.response';
 import type { QobuzGenre, QobuzImage, QobuzOwner, QobuzPaginatedList, QobuzPerformer, QobuzTag } from './common.types';
 
-/**
- * Track in playlist context
- */
 export type QobuzPlaylistTrack = {
     id: number;
     title: string;
@@ -22,9 +18,6 @@ export type QobuzPlaylistTrack = {
     };
 };
 
-/**
- * Full playlist response
- */
 export type QobuzPlaylist = {
     id: number;
     name: string;
@@ -43,9 +36,6 @@ export type QobuzPlaylist = {
     tracks?: QobuzPaginatedList<QobuzPlaylistTrack>;
 };
 
-/**
- * Playlist in search context (simplified)
- */
 export type QobuzSearchPlaylist = {
     id: number;
     name: string;
