@@ -1,6 +1,6 @@
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 
@@ -20,7 +20,7 @@ export async function getById(id: string) {
 }
 
 export async function getByLink(link: string) {
-    const seokey = extractSeoToken(link, 'gaana', 'playlist');
+    const seokey = extractId(link, 'gaana', 'playlist');
     // const { page } = normalizePagination(limit, offset);
 
     const res = await gaanaClient.post('/', null, {

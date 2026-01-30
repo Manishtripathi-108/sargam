@@ -5,7 +5,7 @@ import type { Song } from '../../types/core/song.model';
 import type { SaavnArtistAlbumsResponse, SaavnArtistResponse, SaavnArtistSongsResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
@@ -22,7 +22,7 @@ export async function getById(id: string): Promise<Artist> {
 }
 
 export async function getByLink(link: string): Promise<Artist> {
-    const token = extractSeoToken(link, 'saavn', 'artist');
+    const token = extractId(link, 'saavn', 'artist');
 
     const res = await saavnClient.get<SaavnArtistResponse>('/', {
         params: {

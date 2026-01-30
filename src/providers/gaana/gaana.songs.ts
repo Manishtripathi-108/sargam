@@ -1,7 +1,7 @@
 import type { GaanaSongResponse } from '../../types/gaana';
 import { decryptAudio } from '../../utils/decrypt.utils';
 import { assertData } from '../../utils/error.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 
@@ -33,7 +33,7 @@ export async function getByIds(seokeys: string) {
 }
 
 export async function getByLink(link: string) {
-    const seokey = extractSeoToken(link, 'gaana', 'song');
+    const seokey = extractId(link, 'gaana', 'song');
 
     const res = await gaanaClient.post<GaanaSongResponse>('/', null, {
         params: {

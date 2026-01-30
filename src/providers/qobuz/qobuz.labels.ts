@@ -4,7 +4,7 @@
 import type { QobuzLabelAlbumsResponse, QobuzLabelFull, QobuzLabelSearchResponse } from '../../types/qobuz';
 import type { QobuzAlbum } from '../../types/qobuz/album.response';
 import { assertData } from '../../utils/error.utils';
-import { extractQobuzId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
@@ -17,7 +17,7 @@ export async function getById(labelId: string): Promise<QobuzLabelFull> {
 }
 
 /** Get label by link */
-export const getByLink = async (link: string): Promise<QobuzLabelFull> => getById(extractQobuzId(link, 'label'));
+export const getByLink = async (link: string): Promise<QobuzLabelFull> => getById(extractId(link, 'qobuz', 'label'));
 
 /** Get albums by label */
 export async function getAlbums(

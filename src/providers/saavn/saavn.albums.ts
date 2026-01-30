@@ -1,7 +1,7 @@
 import type { Album } from '../../types/core/album.model';
 import type { SaavnAlbumResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbum } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
@@ -18,7 +18,7 @@ export async function getById(id: string): Promise<Album> {
 }
 
 export async function getByLink(link: string): Promise<Album> {
-    const token = extractSeoToken(link, 'saavn', 'album');
+    const token = extractId(link, 'saavn', 'album');
 
     const res = await saavnClient.get<SaavnAlbumResponse>('/', {
         params: {

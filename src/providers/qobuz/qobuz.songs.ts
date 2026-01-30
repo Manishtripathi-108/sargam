@@ -1,6 +1,6 @@
 import type { QobuzFileUrlResponse, QobuzQuality, QobuzStreamResponse, QobuzTrack } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
-import { extractQobuzId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
@@ -15,7 +15,7 @@ export async function getById(track_id: string) {
 }
 
 export async function getByLink(link: string) {
-    const id = extractQobuzId(link, 'track');
+    const id = extractId(link, 'qobuz', 'song');
 
     return getById(id);
 }

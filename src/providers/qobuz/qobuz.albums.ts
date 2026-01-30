@@ -1,7 +1,7 @@
 import type { QobuzAlbum, QobuzPaginatedList } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractQobuzId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
@@ -14,7 +14,7 @@ export async function getById(album_id: string) {
 }
 
 export async function getByLink(link: string) {
-    const album_id = extractQobuzId(link, 'album');
+    const album_id = extractId(link, 'qobuz', 'album');
 
     return getById(album_id);
 }
