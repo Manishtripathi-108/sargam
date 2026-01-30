@@ -1,8 +1,3 @@
-/**
- * Qobuz API Types
- * Public exports for type safety across the codebase
- */
-
 export type * from './album.response';
 export type * from './artist.response';
 export type * from './common.types';

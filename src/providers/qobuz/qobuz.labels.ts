@@ -1,14 +1,9 @@
-/**
- * Qobuz Labels Module - Label-related endpoints
- */
-import type { QobuzLabelAlbumsResponse, QobuzLabelFull, QobuzLabelSearchResponse } from '../../types/qobuz';
-import type { QobuzAlbum } from '../../types/qobuz/album.response';
+import type { QobuzAlbum, QobuzLabelAlbumsResponse, QobuzLabelFull, QobuzLabelSearchResponse } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
 import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
-/** Get label by ID */
 export async function getById(labelId: string): Promise<QobuzLabelFull> {
     const res = await qobuzClient.get<QobuzLabelFull>(QOBUZ_ROUTES.LABEL.GET, {
         params: { label_id: labelId },
@@ -16,10 +11,8 @@ export async function getById(labelId: string): Promise<QobuzLabelFull> {
     return assertData(res.data, 'Label not found');
 }
 
-/** Get label by link */
 export const getByLink = async (link: string): Promise<QobuzLabelFull> => getById(extractId(link, 'qobuz', 'label'));
 
-/** Get albums by label */
 export async function getAlbums(
     labelId: string,
     options: { limit?: number; offset?: number; sort?: 'release_date' | 'relevance' | 'title' } = {}
@@ -31,7 +24,6 @@ export async function getAlbums(
     return assertData(res.data, 'Failed to get label albums');
 }
 
-/** Search labels by query */
 export async function search(query: string, limit = 25, offset = 0): Promise<QobuzLabelSearchResponse> {
     const res = await qobuzClient.get<QobuzLabelSearchResponse>(QOBUZ_ROUTES.LABEL.SEARCH, {
         params: { query, limit, offset },
@@ -39,7 +31,6 @@ export async function search(query: string, limit = 25, offset = 0): Promise<Qob
     return assertData(res.data, 'Label search failed');
 }
 
-/** Get all albums from a label with auto-pagination */
 export async function getAllAlbums(labelId: string, maxAlbums = 500): Promise<QobuzAlbum[]> {
     const albums: QobuzAlbum[] = [];
     let offset = 0;

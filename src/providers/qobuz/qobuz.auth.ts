@@ -1,14 +1,3 @@
-/**
- * Qobuz Authentication Module
- *
- * Handles user authentication and session management.
- *
- * Environment variables:
- * - QOBUZ_EMAIL: User email for login
- * - QOBUZ_PASSWORD: User password for login
- * - QOBUZ_USER_AUTH_TOKEN: Pre-existing auth token (alternative to email/password)
- * - QOBUZ_USER_ID: User ID (used with auth token)
- */
 import type { QobuzLoginResponse, QobuzUserCredentials } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { getAppSecret, qobuzClient } from './qobuz.client';
@@ -34,19 +23,13 @@ let userSession: UserSession = {
     isAuthenticated: false,
 };
 
-/** Get current user session state */
 export const getUserSession = (): UserSession => ({ ...userSession });
 
-/** Check if user is authenticated */
 export const isAuthenticated = (): boolean => userSession.isAuthenticated && !!userSession.userAuthToken;
 
-/** Get the user auth token for API requests */
 export const getUserAuthToken = (): string | null => userSession.userAuthToken;
 
-/**
- * Initialize authentication from environment variables.
- * Checks for pre-existing auth token or email/password.
- */
+/** Initialize authentication from environment variables (token or email/password). */
 export async function initFromEnv(): Promise<boolean> {
     const envToken = process.env.QOBUZ_USER_AUTH_TOKEN;
     const envUserId = process.env.QOBUZ_USER_ID;
@@ -79,10 +62,7 @@ export async function initFromEnv(): Promise<boolean> {
     return false;
 }
 
-/**
- * Login with email and password.
- * Password is hashed with MD5 as per Qobuz requirement.
- */
+/** Login with email and password. Password is hashed with MD5 as per Qobuz API. */
 export async function login(credentials: QobuzUserCredentials): Promise<QobuzLoginResponse> {
     const passwordHash = crypto.createHash('md5').update(credentials.password).digest('hex');
 
@@ -107,7 +87,6 @@ export async function login(credentials: QobuzUserCredentials): Promise<QobuzLog
     return data;
 }
 
-/** Logout and clear session */
 export function logout(): void {
     userSession = {
         userId: null,
@@ -119,7 +98,6 @@ export function logout(): void {
     };
 }
 
-/** Get current user info (requires authentication) */
 export async function getCurrentUser() {
     if (!isAuthenticated()) {
         throw new Error('User not authenticated');
@@ -133,7 +111,6 @@ export async function getCurrentUser() {
     return assertData(res.data, 'Failed to get user info');
 }
 
-/** Get authenticated headers for API requests */
 export function getAuthHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
 
@@ -146,9 +123,7 @@ export function getAuthHeaders(): Record<string, string> {
 
 /**
  * Generate request signature for authenticated endpoints.
- * Used for file URL and other protected endpoints.
- *
- * Formula: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
+ * Signature: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
  */
 export function generateRequestSignature(trackId: string, formatId: string, timestamp: number): string {
     const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${getAppSecret()}`;

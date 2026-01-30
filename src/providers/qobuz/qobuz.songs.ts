@@ -1,7 +1,8 @@
 import type { QobuzFileUrlResponse, QobuzQuality, QobuzStreamResponse, QobuzTrack } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
-import { qobuzClient } from './qobuz.client';
+import { generateRequestSignature } from './qobuz.auth';
+import { getAppSecret, qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
 import crypto from 'crypto';
@@ -20,39 +21,14 @@ export async function getByLink(link: string) {
     return getById(id);
 }
 
-/**
- * Generate the request signature for Qobuz file URL endpoint
- *
- * The signature is: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
- *
- * @param trackId - Track ID
- * @param formatId - Quality format ID
- * @param timestamp - Unix timestamp
- * @param secret - App secret (obtained from bundle.js)
- */
-function generateRequestSignature(trackId: string, formatId: string, timestamp: number, secret: string): string {
-    const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${secret}`;
-    return crypto.createHash('md5').update(rawSignature).digest('hex');
-}
-
-/**
- * Get stream URL directly from Qobuz API
- * Requires QOBUZ_APP_SECRET environment variable for full streams
- * Without authentication, returns 30-second preview
- *
- * @param trackId - Qobuz track ID
- * @param quality - Quality code (5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit 96kHz, 27=FLAC 24-bit 192kHz)
- * @returns File URL response with stream details
- */
+/** Get stream URL directly from Qobuz API (requires QOBUZ_APP_SECRET) */
 export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): Promise<QobuzFileUrlResponse> {
-    const appSecret = process.env.QOBUZ_APP_SECRET;
-
-    if (!appSecret) {
+    if (!getAppSecret()) {
         throw new Error('QOBUZ_APP_SECRET environment variable is required for native stream URLs');
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const requestSig = generateRequestSignature(trackId, quality, timestamp, appSecret);
+    const requestSig = generateRequestSignature(trackId, quality, timestamp);
 
     const res = await qobuzClient.get<QobuzFileUrlResponse>(QOBUZ_ROUTES.TRACK.FILE_URL, {
         params: {
@@ -67,14 +43,7 @@ export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): 
     return assertData(res.data, 'Failed to get file URL');
 }
 
-/**
- * Get preview URL from Qobuz (30 seconds, no auth required)
- * Useful for sampling tracks without authentication
- *
- * @param trackId - Qobuz track ID
- * @param quality - Quality code (5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit)
- * @returns Preview URL and metadata
- */
+/** Get preview URL (30 seconds, no auth required) */
 export async function getPreviewUrl(
     trackId: string,
     quality: QobuzQuality = '6'
@@ -86,11 +55,11 @@ export async function getPreviewUrl(
     bitDepth: number;
     isPreview: boolean;
 }> {
-    // For preview, we don't need the secret - just use a dummy one
-    // The API will return preview data regardless
+    // For preview, use dummy secret - API returns preview regardless
     const timestamp = Math.floor(Date.now() / 1000);
-    const dummySecret = 'preview'; // API returns preview without valid secret
-    const requestSig = generateRequestSignature(trackId, quality, timestamp, dummySecret);
+    const dummySecret = 'preview';
+    const rawSignature = `trackgetFileUrlformat_id${quality}intentstreamtrack_id${trackId}${timestamp}${dummySecret}`;
+    const requestSig = crypto.createHash('md5').update(rawSignature).digest('hex');
 
     const res = await qobuzClient.get<QobuzFileUrlResponse>(QOBUZ_ROUTES.TRACK.FILE_URL, {
         params: {
@@ -114,14 +83,7 @@ export async function getPreviewUrl(
     };
 }
 
-/**
- * Get stream/download URL for a Qobuz track
- * Tries native Qobuz API first (if secret configured), then falls back to external APIs
- *
- * @param trackId - Qobuz track ID
- * @param quality - Quality code (5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit 96kHz, 27=FLAC 24-bit 192kHz)
- * @returns Stream URL object with the download URL
- */
+/** Get stream URL - tries native Qobuz API first, then external fallbacks */
 export async function getStreamUrl(
     trackId: string,
     quality: QobuzQuality = '6'
@@ -129,8 +91,7 @@ export async function getStreamUrl(
     const errors: string[] = [];
 
     // Try native Qobuz API first if secret is configured
-    const appSecret = process.env.QOBUZ_APP_SECRET;
-    if (appSecret) {
+    if (getAppSecret()) {
         try {
             const fileUrl = await getFileUrl(trackId, quality);
             const isPreview = fileUrl.file_type === 'preview' || fileUrl.duration <= 30;

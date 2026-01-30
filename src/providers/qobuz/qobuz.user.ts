@@ -1,25 +1,14 @@
-/**
- * Qobuz User Module - User-specific features (favorites, playlists, purchases)
- */
-import type { QobuzFavoriteAlbumsResponse, QobuzFavoriteArtistsResponse, QobuzFavoriteTracksResponse, QobuzPurchasesResponse, QobuzUserPlaylistsResponse } from '../../types/qobuz';
+import type {
+    QobuzFavoriteAlbumsResponse,
+    QobuzFavoriteArtistsResponse,
+    QobuzFavoriteTracksResponse,
+    QobuzPurchasesResponse,
+    QobuzUserPlaylistsResponse,
+} from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
-import { getUserAuthToken, getUserSession, isAuthenticated } from './qobuz.auth';
+import { getAuthHeaders, getUserSession, isAuthenticated } from './qobuz.auth';
 import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
-
-
-
-
-
-
-
-
-
-const getAuthHeaders = (): Record<string, string> => {
-    const token = getUserAuthToken();
-    if (!token) throw new Error('User authentication required');
-    return { 'X-User-Auth-Token': token };
-};
 
 const requireAuth = () => {
     if (!isAuthenticated()) throw new Error('User authentication required');

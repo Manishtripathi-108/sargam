@@ -1,10 +1,3 @@
-/**
- * Qobuz API Client
- *
- * Configure via environment variables:
- * - QOBUZ_APP_ID: Application ID (required)
- * - QOBUZ_APP_SECRET: Application secret for stream URLs (required for full streams)
- */
 import { getBrowserHeaders } from '../../constants/user-agents.constants';
 import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
@@ -12,13 +5,9 @@ import axios from 'axios';
 const APP_ID = process.env.QOBUZ_APP_ID!;
 const APP_SECRET = process.env.QOBUZ_APP_SECRET!;
 
-/** Get configured app ID */
 export const getAppId = (): string => APP_ID;
-
-/** Get configured app secret */
 export const getAppSecret = (): string => APP_SECRET;
 
-/** Qobuz API axios client */
 export const qobuzClient = axios.create({
     baseURL: QOBUZ_ROUTES.BASE,
     headers: {
@@ -32,7 +21,6 @@ export const qobuzClient = axios.create({
     },
 });
 
-// Request interceptor for browser headers
 qobuzClient.interceptors.request.use((config) => {
     const browserHeaders = getBrowserHeaders({ include: config.headers });
 

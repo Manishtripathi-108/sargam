@@ -19,9 +19,6 @@ export async function getByLink(link: string) {
     return getById(id);
 }
 
-/**
- * Get artist page with all details (albums, top tracks, etc.)
- */
 export async function getPage(id: string) {
     const res = await qobuzClient.get<QobuzArtistPage>(QOBUZ_ROUTES.ARTIST.PAGE, {
         params: { artist_id: id },
@@ -30,9 +27,6 @@ export async function getPage(id: string) {
     return assertData(res.data, 'Artist page not found');
 }
 
-/**
- * Get artist's top tracks
- */
 export async function getTopTracks({
     id,
     limit,
@@ -60,9 +54,6 @@ export async function getTopTracks({
     });
 }
 
-/**
- * Get artist's albums (releases)
- */
 export async function getAlbums({
     id,
     limit,
