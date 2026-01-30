@@ -43,7 +43,7 @@ const decryptSaavn = (encrypted: string): SongAudio => {
     decipher.update(forge.util.createBuffer(forge.util.decode64(encrypted)));
     if (!decipher.finish()) {
         throw new AppError('Failed to decrypt Saavn audio URL', 500);
-    };
+    }
 
     const baseUrl = upgradeToHttps(decipher.output.getBytes());
 
@@ -51,7 +51,6 @@ const decryptSaavn = (encrypted: string): SongAudio => {
 };
 
 export const decryptAudio = (provider: Provider, encrypted?: string): SongAudio => {
-    console.log('🪵 > decrypt.utils.ts:54 > decryptAudio > encrypted:', encrypted)
     if (!encrypted) {
         throw new AppError('Encrypted string is required', 400);
     }
