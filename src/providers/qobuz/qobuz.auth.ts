@@ -1,6 +1,7 @@
 import type { QobuzLoginResponse, QobuzUserCredentials } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { qobuzClient } from './qobuz.client';
+import { getAppCredentials, extractAppCredentials } from './qobuz.extractor';
 import QOBUZ_ROUTES from './qobuz.routes';
 import crypto from 'crypto';
 
@@ -23,7 +24,8 @@ let userSession: UserSession = {
     isAuthenticated: false,
 };
 
-const APP_SECRET = process.env.QOBUZ_APP_SECRET!;
+// Cached app secret (lazy loaded)
+let appSecret: string | null = process.env.QOBUZ_APP_SECRET || null;
 
 export const getUserSession = (): UserSession => ({ ...userSession });
 
@@ -127,7 +129,28 @@ export function getAuthHeaders(): Record<string, string> {
  * Generate request signature for authenticated endpoints.
  * Signature: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
  */
-export function generateRequestSignature(trackId: string, formatId: string, timestamp: number): string {
-    const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${APP_SECRET}`;
+export async function generateRequestSignature(
+    trackId: string,
+    formatId: string,
+    timestamp: number
+): Promise<string> {
+    const secret = await getAppSecret();
+    if (!secret) {
+        throw new Error('App secret not available. Cannot generate request signature.');
+    }
+    const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${secret}`;
     return crypto.createHash('md5').update(rawSignature).digest('hex');
 }
+
+/** Get app secret, extracting from Qobuz if not set via env */
+async function getAppSecret(): Promise<string | null> {
+    if (appSecret) return appSecret;
+
+    const credentials = await getAppCredentials();
+    if (credentials) {
+        appSecret = credentials.appSecret;
+    }
+    return appSecret;
+}
+
+export { extractAppCredentials, getAppCredentials };
