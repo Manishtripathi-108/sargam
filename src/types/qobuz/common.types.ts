@@ -131,3 +131,19 @@ export type QobuzPaginatedList<T> = {
     limit: number;
     total: number;
 };
+
+/**
+ * Stream URL response from external APIs
+ */
+export type QobuzStreamResponse = {
+    url: string;
+};
+
+/**
+ * Quality parameter for stream requests
+ * 5 = MP3 320kbps
+ * 6 = FLAC 16-bit/44.1kHz (CD quality)
+ * 7 = FLAC 24-bit up to 96kHz
+ * 27 = FLAC 24-bit up to 192kHz (Hi-Res)
+ */
+export type QobuzQuality = '5' | '6' | '7' | '27';

@@ -23,6 +23,19 @@ const QOBUZ_ROUTES = {
     },
 
     /**
+     * Stream API endpoints (external services)
+     * These are third-party APIs that provide stream URLs for Qobuz tracks
+     */
+    STREAM: {
+        /** Primary stream API */
+        PRIMARY: 'https://dab.yeet.su/api/stream',
+        /** Fallback stream API #1 */
+        FALLBACK_1: 'https://dabmusic.xyz/api/stream',
+        /** Fallback stream API #2 */
+        FALLBACK_2: 'https://qobuz.squid.wtf/api/download-music',
+    },
+
+    /**
      * Album endpoints
      */
     ALBUM: {

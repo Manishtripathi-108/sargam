@@ -19,6 +19,10 @@ export const qobuzClient = axios.create({
     baseURL: QOBUZ_ROUTES.BASE,
     headers: {
         Accept: 'application/json',
+        origin: 'https://play.qobuz.com',
+        referer: 'https://play.qobuz.com/',
+        host: 'qobuz.com',
+        'x-app-id': appId,
     },
     params: {
         app_id: appId,
