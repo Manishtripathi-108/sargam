@@ -3,10 +3,6 @@ import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
 
 const APP_ID = process.env.QOBUZ_APP_ID!;
-const APP_SECRET = process.env.QOBUZ_APP_SECRET!;
-
-export const getAppId = (): string => APP_ID;
-export const getAppSecret = (): string => APP_SECRET;
 
 export const qobuzClient = axios.create({
     baseURL: QOBUZ_ROUTES.BASE,

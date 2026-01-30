@@ -2,10 +2,12 @@ import type { QobuzFileUrlResponse, QobuzQuality, QobuzStreamResponse, QobuzTrac
 import { assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
 import { generateRequestSignature } from './qobuz.auth';
-import { getAppSecret, qobuzClient } from './qobuz.client';
+import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
 import crypto from 'crypto';
+
+const APP_SECRET = process.env.QOBUZ_APP_SECRET!;
 
 export async function getById(track_id: string) {
     const res = await qobuzClient.get<QobuzTrack>(QOBUZ_ROUTES.TRACK.GET, {
@@ -23,7 +25,7 @@ export async function getByLink(link: string) {
 
 /** Get stream URL directly from Qobuz API (requires QOBUZ_APP_SECRET) */
 export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): Promise<QobuzFileUrlResponse> {
-    if (!getAppSecret()) {
+    if (!APP_SECRET) {
         throw new Error('QOBUZ_APP_SECRET environment variable is required for native stream URLs');
     }
 
@@ -91,7 +93,7 @@ export async function getStreamUrl(
     const errors: string[] = [];
 
     // Try native Qobuz API first if secret is configured
-    if (getAppSecret()) {
+    if (APP_SECRET) {
         try {
             const fileUrl = await getFileUrl(trackId, quality);
             const isPreview = fileUrl.file_type === 'preview' || fileUrl.duration <= 30;
