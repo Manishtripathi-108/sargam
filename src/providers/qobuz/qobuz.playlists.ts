@@ -2,13 +2,11 @@ import type { QobuzPlaylist } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractQobuzId } from '../../utils/url.utils';
-import { getQobuzClient } from './qobuz.client';
+import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
 export async function getById(id: string) {
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzPlaylist>(QOBUZ_ROUTES.PLAYLIST.GET, {
+    const res = await qobuzClient.get<QobuzPlaylist>(QOBUZ_ROUTES.PLAYLIST.GET, {
         params: { playlist_id: id },
     });
 

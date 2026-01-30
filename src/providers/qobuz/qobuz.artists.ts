@@ -2,13 +2,11 @@ import type { QobuzArtist } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractQobuzId } from '../../utils/url.utils';
-import { getQobuzClient } from './qobuz.client';
+import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
 export async function getById(id: string) {
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.GET, {
+    const res = await qobuzClient.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.GET, {
         params: { artist_id: id },
     });
 
@@ -24,9 +22,11 @@ export async function getByLink(link: string) {
 export async function getAlbums({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const res = await client.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.GET, {
+    const res = await qobuzClient.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.PAGE, {
         params: {
             artist_id: id,
+            sort: 'release_date',
+            extra: 'track_ids,albumsFromSameArtist',
             limit: safeLimit,
             offset: safeOffset,
         },

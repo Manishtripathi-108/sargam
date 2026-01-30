@@ -30,6 +30,8 @@ const QOBUZ_ROUTES = {
         GET: '/album/get',
         /** GET /album/search?query={q}&limit={n}&offset={o}&app_id={appId} */
         SEARCH: '/album/search',
+        /** GET /album/suggest?album_id={id}&app_id={appId} */
+        SUGGEST: '/album/suggest',
     },
 
     /**
@@ -40,6 +42,8 @@ const QOBUZ_ROUTES = {
         GET: '/artist/get',
         /** GET /artist/search?query={q}&limit={n}&offset={o}&app_id={appId} */
         SEARCH: '/artist/search',
+        /** GET /artist/page?artist_id={id}&sort={sort}&app_id={appId}&extra={extra} */
+        PAGE: '/artist/page',
     },
 
     /**

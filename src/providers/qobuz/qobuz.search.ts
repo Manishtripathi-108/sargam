@@ -7,7 +7,7 @@ import type {
 } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { getQobuzClient } from './qobuz.client';
+import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
 type SearchParams = {
@@ -19,9 +19,7 @@ type SearchParams = {
 export async function all(p: SearchParams) {
     const { limit, offset } = normalizePagination(p.limit, p.offset);
 
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzCatalogSearchResponse>(QOBUZ_ROUTES.SEARCH.CATALOG, {
+    const res = await qobuzClient.get<QobuzCatalogSearchResponse>(QOBUZ_ROUTES.SEARCH.CATALOG, {
         params: {
             query: p.query,
             limit,
@@ -35,9 +33,7 @@ export async function all(p: SearchParams) {
 export async function songs(p: SearchParams) {
     const { limit, offset } = normalizePagination(p.limit, p.offset);
 
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzTrackSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
+    const res = await qobuzClient.get<QobuzTrackSearchResponse>(QOBUZ_ROUTES.TRACK.SEARCH, {
         params: {
             query: p.query,
             limit,
@@ -58,9 +54,7 @@ export async function songs(p: SearchParams) {
 export async function albums(p: SearchParams) {
     const { limit, offset } = normalizePagination(p.limit, p.offset);
 
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzAlbumSearchResponse>(QOBUZ_ROUTES.ALBUM.SEARCH, {
+    const res = await qobuzClient.get<QobuzAlbumSearchResponse>(QOBUZ_ROUTES.ALBUM.SEARCH, {
         params: {
             query: p.query,
             limit,
@@ -81,9 +75,7 @@ export async function albums(p: SearchParams) {
 export async function artists(p: SearchParams) {
     const { limit, offset } = normalizePagination(p.limit, p.offset);
 
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzArtistSearchResponse>(QOBUZ_ROUTES.ARTIST.SEARCH, {
+    const res = await qobuzClient.get<QobuzArtistSearchResponse>(QOBUZ_ROUTES.ARTIST.SEARCH, {
         params: {
             query: p.query,
             limit,
@@ -104,9 +96,7 @@ export async function artists(p: SearchParams) {
 export async function playlists(p: SearchParams) {
     const { limit, offset } = normalizePagination(p.limit, p.offset);
 
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzPlaylistSearchResponse>(QOBUZ_ROUTES.PLAYLIST.SEARCH, {
+    const res = await qobuzClient.get<QobuzPlaylistSearchResponse>(QOBUZ_ROUTES.PLAYLIST.SEARCH, {
         params: {
             query: p.query,
             limit,

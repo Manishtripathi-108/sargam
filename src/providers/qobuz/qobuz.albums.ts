@@ -1,14 +1,12 @@
-import type { QobuzAlbum } from '../../types/qobuz';
+import type { QobuzAlbum, QobuzPaginatedList } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractQobuzId } from '../../utils/url.utils';
-import { getQobuzClient } from './qobuz.client';
+import { qobuzClient } from './qobuz.client';
 import QOBUZ_ROUTES from './qobuz.routes';
 
 export async function getById(album_id: string) {
-    const client = getQobuzClient();
-
-    const res = await client.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
+    const res = await qobuzClient.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
         params: { album_id },
     });
 
@@ -25,7 +23,7 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
     // Qobuz returns tracks in the album response
-    const res = await client.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
+    const res = await qobuzClient.get<QobuzAlbum>(QOBUZ_ROUTES.ALBUM.GET, {
         params: {
             album_id: id,
             limit: safeLimit,
@@ -39,6 +37,24 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
     return createPaginatedResponse({
         items: album.tracks.items,
         total: album.tracks.total,
+        offset: safeOffset,
+        limit: safeLimit,
+    });
+}
+
+export async function getSuggestedAlbums({ id, limit, offset }: { id: string; limit: number; offset: number }) {
+    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+    const res = await qobuzClient.get<{ albums: QobuzPaginatedList<QobuzAlbum> }>(QOBUZ_ROUTES.ALBUM.SUGGEST, {
+        params: {
+            album_id: id,
+            limit: safeLimit,
+            offset: safeOffset,
+        },
+    });
+    const data = assertData(res.data, 'Suggested Albums not found', () => res.data?.albums?.items?.length > 0);
+    return createPaginatedResponse({
+        items: data.albums.items,
+        total: data.albums.total,
         offset: safeOffset,
         limit: safeLimit,
     });

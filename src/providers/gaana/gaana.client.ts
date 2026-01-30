@@ -10,6 +10,9 @@ export const gaanaClient = axios.create({
         Connection: 'keep-alive',
         Host: 'gaana.com',
     },
+    params: {
+        country: 'IN',
+    },
 });
 
 gaanaClient.interceptors.request.use((config) => {
@@ -22,12 +25,6 @@ gaanaClient.interceptors.request.use((config) => {
             }
         }
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    config.params = {
-        country: 'IN',
-        ...config.params,
-    };
 
     return config;
 });
