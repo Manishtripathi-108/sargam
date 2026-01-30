@@ -189,3 +189,338 @@ export type QobuzFileUrlResponse = {
  * 27 = FLAC 24-bit up to 192kHz (Hi-Res)
  */
 export type QobuzQuality = '5' | '6' | '7' | '27';
+
+/* -------------------------------------------------------------------------- */
+/*                            AUTHENTICATION TYPES                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * User credentials for login
+ */
+export type QobuzUserCredentials = {
+    email: string;
+    password: string;
+};
+
+/**
+ * App credentials (app_id and secret)
+ */
+export type QobuzAppCredentials = {
+    appId: string;
+    appSecret: string;
+};
+
+/**
+ * User subscription/credential info
+ */
+export type QobuzUserCredential = {
+    id: number;
+    label: string;
+    description: string;
+    parameters: {
+        lossy_streaming: boolean;
+        lossless_streaming: boolean;
+        hires_streaming: boolean;
+        hires_purchases_streaming: boolean;
+        mobile_streaming: boolean;
+        offline_streaming: boolean;
+        hfp_purchase: boolean;
+        included_format_group_ids: number[];
+        color_scheme: {
+            logo: string;
+        };
+        label: string;
+        short_label: string;
+        source: string;
+    };
+};
+
+/**
+ * User information from login/get response
+ */
+export type QobuzUser = {
+    id: number;
+    publicId: string;
+    email: string;
+    login: string;
+    display_name: string;
+    firstname?: string;
+    lastname?: string;
+    country_code: string;
+    language_code: string;
+    zone: string;
+    store: string;
+    avatar?: string;
+    genre?: string;
+    age?: number;
+    creation_date: string;
+    credential?: QobuzUserCredential;
+    subscription?: {
+        offer: string;
+        end_date: string;
+        is_canceled: boolean;
+        periodicity: string;
+        household_size_actual: number;
+        household_size_max: number;
+    };
+};
+
+/**
+ * Login response
+ */
+export type QobuzLoginResponse = {
+    user_auth_token: string;
+    user: QobuzUser;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                            USER LIBRARY TYPES                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Favorite tracks response
+ */
+export type QobuzFavoriteTracksResponse = {
+    tracks: {
+        items: QobuzFavoriteTrack[];
+        offset: number;
+        limit: number;
+        total: number;
+    };
+};
+
+/**
+ * Favorite track item
+ */
+export type QobuzFavoriteTrack = {
+    id: number;
+    title: string;
+    duration: number;
+    track_number: number;
+    media_number: number;
+    performer: QobuzPerformer;
+    album: {
+        id: string;
+        title: string;
+        image: QobuzImage;
+        artist: QobuzArtistBase;
+    };
+    created_at: number;
+};
+
+/**
+ * Favorite albums response
+ */
+export type QobuzFavoriteAlbumsResponse = {
+    albums: {
+        items: QobuzFavoriteAlbum[];
+        offset: number;
+        limit: number;
+        total: number;
+    };
+};
+
+/**
+ * Favorite album item
+ */
+export type QobuzFavoriteAlbum = {
+    id: string;
+    title: string;
+    artist: QobuzArtistBase;
+    image: QobuzImage;
+    release_date_original: string;
+    hires_streamable: boolean;
+    created_at: number;
+};
+
+/**
+ * Favorite artists response
+ */
+export type QobuzFavoriteArtistsResponse = {
+    artists: {
+        items: QobuzFavoriteArtist[];
+        offset: number;
+        limit: number;
+        total: number;
+    };
+};
+
+/**
+ * Favorite artist item
+ */
+export type QobuzFavoriteArtist = {
+    id: number;
+    name: string;
+    slug: string;
+    image?: QobuzArtistImage;
+    albums_count: number;
+    created_at: number;
+};
+
+/**
+ * User playlists response
+ */
+export type QobuzUserPlaylistsResponse = {
+    playlists: {
+        items: QobuzUserPlaylist[];
+        offset: number;
+        limit: number;
+        total: number;
+    };
+};
+
+/**
+ * User playlist item
+ */
+export type QobuzUserPlaylist = {
+    id: number;
+    name: string;
+    description?: string;
+    is_public: boolean;
+    is_collaborative: boolean;
+    tracks_count: number;
+    duration: number;
+    created_at: number;
+    updated_at: number;
+    owner: QobuzOwner;
+    images?: string[];
+    images300?: string[];
+};
+
+/**
+ * Purchases response
+ */
+export type QobuzPurchasesResponse = {
+    purchases: {
+        items: QobuzPurchase[];
+        offset: number;
+        limit: number;
+        total: number;
+    };
+};
+
+/**
+ * Purchase item
+ */
+export type QobuzPurchase = {
+    id: number;
+    created_at: number;
+    type: 'album' | 'track';
+    album?: {
+        id: string;
+        title: string;
+        artist: QobuzArtistBase;
+        image: QobuzImage;
+    };
+    track?: {
+        id: number;
+        title: string;
+        album: {
+            id: string;
+            title: string;
+            image: QobuzImage;
+        };
+    };
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                LABEL TYPES                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Label with full details
+ */
+export type QobuzLabelFull = QobuzLabel & {
+    description?: string;
+    image?: {
+        small: string;
+        medium: string;
+        large: string;
+    };
+};
+
+/**
+ * Label albums response
+ */
+export type QobuzLabelAlbumsResponse = {
+    albums: QobuzPaginatedList<import('./album.response').QobuzAlbum>;
+};
+
+/**
+ * Label search response
+ */
+export type QobuzLabelSearchResponse = {
+    query: string;
+    labels: QobuzPaginatedList<QobuzLabel>;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                          FEATURED/EDITORIAL TYPES                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Featured item (can be album, playlist, or article)
+ */
+export type QobuzFeaturedItem = {
+    id: string;
+    type: 'album' | 'playlist' | 'article' | 'label';
+    title: string;
+    subtitle?: string;
+    image?: {
+        small: string;
+        large: string;
+    };
+    album?: import('./album.response').QobuzAlbum;
+    playlist?: import('./playlist.response').QobuzPlaylist;
+};
+
+/**
+ * Featured albums response
+ */
+export type QobuzFeaturedAlbumsResponse = {
+    albums: QobuzPaginatedList<import('./album.response').QobuzAlbum>;
+};
+
+/**
+ * Featured playlists response
+ */
+export type QobuzFeaturedPlaylistsResponse = {
+    playlists: QobuzPaginatedList<import('./playlist.response').QobuzPlaylist>;
+};
+
+/**
+ * Genre list response
+ */
+export type QobuzGenreListResponse = {
+    genres: QobuzPaginatedList<QobuzGenreInfo>;
+};
+
+/**
+ * Genre information (extended)
+ */
+export type QobuzGenreInfo = {
+    id: number;
+    name: string;
+    slug: string;
+    path: number[];
+    color?: string;
+    image?: {
+        small: string;
+        large: string;
+    };
+    subgenres?: QobuzGenreInfo[];
+};
+
+/**
+ * Type for album list types (used in featured endpoints)
+ */
+export type QobuzAlbumListType =
+    | 'new-releases'
+    | 'new-releases-full'
+    | 'press-awards'
+    | 'best-sellers'
+    | 'editor-picks'
+    | 'most-streamed'
+    | 'most-featured'
+    | 'ideal-discography'
+    | 'recent-releases';

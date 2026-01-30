@@ -72,13 +72,14 @@ export const extractSeoToken = (link: string, provider: Provider, entity: MusicE
 // Qobuz URL patterns
 // Supports: https://www.qobuz.com/us-en/album/title/albumid, https://play.qobuz.com/track/123456
 // Track IDs are numeric, Album IDs are alphanumeric
-type QobuzEntity = 'track' | 'album' | 'artist' | 'playlist';
+type QobuzEntity = 'track' | 'album' | 'artist' | 'playlist' | 'label';
 
 const QOBUZ_URL_PATTERNS: Record<QobuzEntity, RegExp> = {
     track: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?track\/(\d+)/i,
     album: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?album\/[^/]+\/([a-z0-9]+)/i,
     artist: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?interpreter\/[^/]+\/(\d+)/i,
     playlist: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?playlist\/(\d+)/i,
+    label: /qobuz\.com\/(?:[a-z]{2}-[a-z]{2}\/)?label\/[^/]+\/(\d+)/i,
 };
 
 // Alternative patterns for play.qobuz.com
@@ -87,6 +88,7 @@ const QOBUZ_PLAY_URL_PATTERNS: Record<QobuzEntity, RegExp> = {
     album: /play\.qobuz\.com\/album\/([a-z0-9]+)/i,
     artist: /play\.qobuz\.com\/artist\/(\d+)/i,
     playlist: /play\.qobuz\.com\/playlist\/(\d+)/i,
+    label: /play\.qobuz\.com\/label\/(\d+)/i,
 };
 
 /**
