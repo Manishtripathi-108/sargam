@@ -140,6 +140,48 @@ export type QobuzStreamResponse = {
 };
 
 /**
+ * Preview format in Qobuz file URL response
+ */
+export type QobuzPreviewFormat = {
+    format_id: number;
+    duration: number;
+    url: string;
+    mime_type: string;
+};
+
+/**
+ * Restriction code in Qobuz file URL response
+ */
+export type QobuzRestriction = {
+    code: string;
+};
+
+/**
+ * Full file URL response from Qobuz API (/track/getFileUrl)
+ * Returns either full stream (authenticated) or preview (unauthenticated)
+ */
+export type QobuzFileUrlResponse = {
+    /** 'preview' for unauthenticated, full track for authenticated */
+    file_type: string;
+    track_id: number;
+    format_id: number;
+    /** Duration in seconds (30 for preview, full for authenticated) */
+    duration: number;
+    /** Stream URL */
+    url: string;
+    mime_type: string;
+    sampling_rate: number;
+    bits_depth: number;
+    n_channels: number;
+    /** Preview URLs in different formats (only for unauthenticated) */
+    preview?: QobuzPreviewFormat[];
+    /** Restrictions explaining why full stream is not available */
+    restrictions?: QobuzRestriction[];
+    /** Blob for authenticated streams */
+    blob?: string;
+};
+
+/**
  * Quality parameter for stream requests
  * 5 = MP3 320kbps
  * 6 = FLAC 16-bit/44.1kHz (CD quality)

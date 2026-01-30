@@ -20,6 +20,16 @@ const QOBUZ_ROUTES = {
         GET: '/track/get',
         /** GET /track/search?query={q}&limit={n}&offset={o}&app_id={appId} */
         SEARCH: '/track/search',
+        /**
+         * GET /track/getFileUrl - Get stream URL for a track
+         * Requires authentication and signature:
+         * - track_id: Track ID
+         * - format_id: Quality (5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit 96kHz, 27=FLAC 24-bit 192kHz)
+         * - intent: 'stream'
+         * - request_ts: Unix timestamp
+         * - request_sig: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
+         */
+        FILE_URL: '/track/getFileUrl',
     },
 
     /**
