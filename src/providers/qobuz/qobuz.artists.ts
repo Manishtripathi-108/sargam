@@ -1,4 +1,4 @@
-import type { QobuzArtist } from '../../types/qobuz';
+import type { QobuzArtist, QobuzArtistPage, QobuzReleaseItem, QobuzTopTrack } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractQobuzId } from '../../utils/url.utils';
@@ -19,24 +19,82 @@ export async function getByLink(link: string) {
     return getById(id);
 }
 
-export async function getAlbums({ id, limit, offset }: { id: string; limit: number; offset: number }) {
-    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
-
-    const res = await qobuzClient.get<QobuzArtist>(QOBUZ_ROUTES.ARTIST.PAGE, {
-        params: {
-            artist_id: id,
-            sort: 'release_date',
-            extra: 'track_ids,albumsFromSameArtist',
-            limit: safeLimit,
-            offset: safeOffset,
-        },
+/**
+ * Get artist page with all details (albums, top tracks, etc.)
+ */
+export async function getPage(id: string) {
+    const res = await qobuzClient.get<QobuzArtistPage>(QOBUZ_ROUTES.ARTIST.PAGE, {
+        params: { artist_id: id },
     });
 
-    const artist = assertData(res.data, 'Artist Albums not found', () => res.data?.albums?.items?.length > 0);
+    return assertData(res.data, 'Artist page not found');
+}
+
+/**
+ * Get artist's top tracks
+ */
+export async function getTopTracks({
+    id,
+    limit,
+    offset,
+}: {
+    id: string;
+    limit: number;
+    offset: number;
+}): Promise<ReturnType<typeof createPaginatedResponse<QobuzTopTrack>>> {
+    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+
+    const artistPage = await getPage(id);
+
+    const topTracks = artistPage.top_tracks ?? [];
+    const total = topTracks.length;
+
+    // Apply pagination to top tracks
+    const paginatedTracks = topTracks.slice(safeOffset, safeOffset + safeLimit);
 
     return createPaginatedResponse({
-        items: artist.albums.items,
-        total: artist.albums.total,
+        items: paginatedTracks,
+        total,
+        offset: safeOffset,
+        limit: safeLimit,
+    });
+}
+
+/**
+ * Get artist's albums (releases)
+ */
+export async function getAlbums({
+    id,
+    limit,
+    offset,
+    releaseType,
+}: {
+    id: string;
+    limit: number;
+    offset: number;
+    releaseType?: string;
+}): Promise<ReturnType<typeof createPaginatedResponse<QobuzReleaseItem>>> {
+    const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
+
+    const artistPage = await getPage(id);
+
+    // Flatten all releases or filter by type
+    let allReleases: QobuzReleaseItem[] = [];
+
+    for (const release of artistPage.releases) {
+        if (!releaseType || release.type === releaseType) {
+            allReleases = allReleases.concat(release.items);
+        }
+    }
+
+    const total = allReleases.length;
+
+    // Apply pagination
+    const paginatedReleases = allReleases.slice(safeOffset, safeOffset + safeLimit);
+
+    return createPaginatedResponse({
+        items: paginatedReleases,
+        total,
         offset: safeOffset,
         limit: safeLimit,
     });
