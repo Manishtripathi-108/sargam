@@ -1,7 +1,7 @@
 import type { QobuzLoginResponse, QobuzUserCredentials } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { qobuzClient } from './qobuz.client';
-import { getAppCredentials, extractAppCredentials } from './qobuz.extractor';
+import { extractAppCredentials, getAppCredentials } from './qobuz.extractor';
 import QOBUZ_ROUTES from './qobuz.routes';
 import crypto from 'crypto';
 
@@ -129,11 +129,7 @@ export function getAuthHeaders(): Record<string, string> {
  * Generate request signature for authenticated endpoints.
  * Signature: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
  */
-export async function generateRequestSignature(
-    trackId: string,
-    formatId: string,
-    timestamp: number
-): Promise<string> {
+export async function generateRequestSignature(trackId: string, formatId: string, timestamp: number): Promise<string> {
     const secret = await getAppSecret();
     if (!secret) {
         throw new Error('App secret not available. Cannot generate request signature.');
