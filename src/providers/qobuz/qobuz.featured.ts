@@ -25,7 +25,7 @@ export async function getFeaturedAlbums(
     if (genreId) params.genre_id = genreId;
 
     const res = await qobuzClient.get<QobuzFeaturedAlbumsResponse>(QOBUZ_ROUTES.ALBUM.FEATURED, { params });
-    return assertData(res.data, 'Failed to get featured albums');
+    return assertData(res.data, '[Qobuz] Failed to get featured albums');
 }
 
 export const getNewReleases = (options: FeaturedOptions = {}) => getFeaturedAlbums('new-releases', options);
@@ -46,7 +46,7 @@ export async function getFeaturedPlaylists(
     if (tags?.length) params.tags = tags.join(',');
 
     const res = await qobuzClient.get<QobuzFeaturedPlaylistsResponse>(QOBUZ_ROUTES.PLAYLIST.FEATURED, { params });
-    return assertData(res.data, 'Failed to get featured playlists');
+    return assertData(res.data, '[Qobuz] Failed to get featured playlists');
 }
 
 export async function getGenres(options: Omit<FeaturedOptions, 'genreId'> = {}): Promise<QobuzGenreListResponse> {
@@ -56,7 +56,7 @@ export async function getGenres(options: Omit<FeaturedOptions, 'genreId'> = {}):
         params: { limit, offset },
     });
 
-    return assertData(res.data, 'Failed to get genres');
+    return assertData(res.data, '[Qobuz] Failed to get genres');
 }
 
 export async function getGenreById(genreId: number): Promise<QobuzGenreInfo> {
@@ -64,7 +64,7 @@ export async function getGenreById(genreId: number): Promise<QobuzGenreInfo> {
         params: { genre_id: genreId },
     });
 
-    return assertData(res.data, 'Genre not found');
+    return assertData(res.data, '[Qobuz] Genre not found');
 }
 
 export const getAlbumsByGenre = (

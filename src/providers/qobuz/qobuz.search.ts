@@ -27,7 +27,7 @@ export async function all(p: SearchParams) {
         },
     });
 
-    return assertData(res.data, 'Search failed');
+    return assertData(res.data, '[Qobuz] Search failed');
 }
 
 export async function songs(p: SearchParams) {
@@ -41,7 +41,7 @@ export async function songs(p: SearchParams) {
         },
     });
 
-    const data = assertData(res.data, 'Search failed');
+    const data = assertData(res.data, '[Qobuz] Song search failed');
 
     return createPaginatedResponse({
         items: data.tracks.items,
@@ -62,7 +62,7 @@ export async function albums(p: SearchParams) {
         },
     });
 
-    const data = assertData(res.data, 'Search failed');
+    const data = assertData(res.data, '[Qobuz] Album search failed');
 
     return createPaginatedResponse({
         items: data.albums.items,
@@ -83,7 +83,7 @@ export async function artists(p: SearchParams) {
         },
     });
 
-    const data = assertData(res.data, 'Search failed');
+    const data = assertData(res.data, '[Qobuz] Artist search failed');
 
     return createPaginatedResponse({
         items: data.artists.items,
@@ -104,7 +104,7 @@ export async function playlists(p: SearchParams) {
         },
     });
 
-    const data = assertData(res.data, 'Search failed');
+    const data = assertData(res.data, '[Qobuz] Playlist search failed');
 
     return createPaginatedResponse({
         items: data.playlists.items,

@@ -16,7 +16,7 @@ export async function getById(id: string) {
         },
     });
 
-    return assertData(res.data, 'Playlist not found');
+    return assertData(res.data, '[Gaana] Playlist not found');
 }
 
 export async function getByLink(link: string) {
@@ -32,5 +32,5 @@ export async function getByLink(link: string) {
         },
     });
 
-    return assertData(res.data, 'Playlist not found');
+    return assertData(res.data, '[Gaana] Playlist not found');
 }

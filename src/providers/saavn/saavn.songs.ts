@@ -14,9 +14,11 @@ export async function getById(id: string): Promise<Song> {
         },
     });
 
-    return assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0).map(
-        mapSong
-    )[0];
+    return assertData(
+        res.data?.songs,
+        '[Saavn] Song not found',
+        () => !res.data?.songs || res.data.songs.length === 0
+    ).map(mapSong)[0];
 }
 
 export async function getByIds(ids: string): Promise<Song[]> {
@@ -27,9 +29,11 @@ export async function getByIds(ids: string): Promise<Song[]> {
         },
     });
 
-    return assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0).map(
-        mapSong
-    );
+    return assertData(
+        res.data?.songs,
+        '[Saavn] Song not found',
+        () => !res.data?.songs || res.data.songs.length === 0
+    ).map(mapSong);
 }
 
 export async function getByLink(link: string): Promise<Song> {
@@ -44,7 +48,7 @@ export async function getByLink(link: string): Promise<Song> {
     });
 
     return mapSong(
-        assertData(res.data?.songs, 'Song not found', () => !res.data?.songs || res.data.songs.length === 0)[0]
+        assertData(res.data?.songs, '[Saavn] Song not found', () => !res.data?.songs || res.data.songs.length === 0)[0]
     );
 }
 
@@ -61,7 +65,7 @@ export async function getStation(songId: string): Promise<string> {
 
     const stationId = res.data?.stationid;
     if (!stationId) {
-        throw new AppError('Failed to create song station', 502);
+        throw new AppError('[Saavn] Failed to create song station', 502);
     }
 
     return stationId;
@@ -78,7 +82,7 @@ export async function getSuggestions(id: string, limit: number): Promise<Song[]>
         },
     });
 
-    const data = assertData(res.data, 'No suggestions found');
+    const data = assertData(res.data, '[Saavn] No suggestions found');
 
     return Object.values(data)
         .map((entry) => {
@@ -99,5 +103,5 @@ export async function getLyrics(songId: string): Promise<string> {
         },
     });
 
-    return assertData(res.data.lyrics, 'Lyrics not found');
+    return assertData(res.data.lyrics, '[Saavn] Lyrics not found');
 }

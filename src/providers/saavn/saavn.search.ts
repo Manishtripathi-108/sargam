@@ -24,7 +24,7 @@ export async function all(p: SearchParams): Promise<GlobalSearchResult> {
         params: { query: p.query, __call: SAAVN_ROUTES.SEARCH.ALL },
     });
 
-    return mapGlobalSearch(assertData(res.data, 'No results found'));
+    return mapGlobalSearch(assertData(res.data, '[Saavn] No results found'));
 }
 
 export async function songs(p: SearchParams): Promise<SearchSong> {
@@ -40,7 +40,7 @@ export async function songs(p: SearchParams): Promise<SearchSong> {
     });
 
     return mapSearchSong(
-        assertData(res.data, 'No songs found', () => !res.data.results || res.data.results.length === 0)
+        assertData(res.data, '[Saavn] No songs found', () => !res.data.results || res.data.results.length === 0)
     );
 }
 
@@ -57,7 +57,7 @@ export async function albums(p: SearchParams): Promise<SearchAlbum> {
     });
 
     return mapSearchAlbum(
-        assertData(res.data, 'No albums found', () => !res.data.results || res.data.results.length === 0),
+        assertData(res.data, '[Saavn] No albums found', () => !res.data.results || res.data.results.length === 0),
         p.limit
     );
 }
@@ -75,7 +75,7 @@ export async function artists(p: SearchParams): Promise<SearchArtist> {
     });
 
     return mapSearchArtist(
-        assertData(res.data, 'No artists found', () => !res.data.results || res.data.results.length === 0),
+        assertData(res.data, '[Saavn] No artists found', () => !res.data.results || res.data.results.length === 0),
         p.limit
     );
 }
@@ -93,7 +93,7 @@ export async function playlists(p: SearchParams): Promise<SearchPlaylist> {
     });
 
     return mapSearchPlaylist(
-        assertData(res.data, 'No playlists found', () => !res.data.results || res.data.results.length === 0),
+        assertData(res.data, '[Saavn] No playlists found', () => !res.data.results || res.data.results.length === 0),
         p.limit
     );
 }

@@ -13,7 +13,7 @@ export async function getById(seokey: string) {
         },
     });
 
-    return assertData(res.data, 'Song not found');
+    return assertData(res.data, '[Gaana] Song not found');
 }
 
 export async function getByIds(seokeys: string) {
@@ -29,7 +29,7 @@ export async function getByIds(seokeys: string) {
     // console.log('🪵 > gaana.songs.ts:18 > getByIds > links:', links);
     // data.links = links;
 
-    return assertData(res.data, 'Song not found');
+    return assertData(res.data, '[Gaana] Song not found');
 }
 
 export async function getByLink(link: string) {
@@ -42,7 +42,7 @@ export async function getByLink(link: string) {
         },
     });
 
-    return assertData(res.data, 'Song not found');
+    return assertData(res.data, '[Gaana] Song not found');
 }
 
 export async function getSuggestions(seokey: string, limit: number) {
@@ -54,7 +54,7 @@ export async function getSuggestions(seokey: string, limit: number) {
         },
     });
 
-    const data = assertData(res.data, 'No suggestions found');
+    const data = assertData(res.data, '[Gaana] No suggestions found');
 
     return data;
 }
@@ -67,5 +67,5 @@ export async function getLyrics(seokey: string) {
         },
     });
 
-    const data = assertData(res.data, 'Lyrics not found');
+    const data = assertData(res.data, '[Gaana] Lyrics not found');
 }

@@ -1,7 +1,7 @@
 import type { QobuzFileUrlResponse, QobuzQuality, QobuzStreamResponse, QobuzTrack } from '../../types/qobuz';
-import { assertData } from '../../utils/error.utils';
+import { AppError, assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
-import { generateRequestSignature } from './qobuz.auth';
+import { generateRequestSignature, getAuthHeaders } from './qobuz.auth';
 import { qobuzClient } from './qobuz.client';
 import { getAppCredentials } from './qobuz.extractor';
 import QOBUZ_ROUTES from './qobuz.routes';
@@ -13,7 +13,7 @@ export async function getById(track_id: string) {
         params: { track_id },
     });
 
-    return assertData(res.data, 'Track not found');
+    return assertData(res.data, '[Qobuz] Track not found');
 }
 
 export async function getByLink(link: string) {
@@ -28,11 +28,14 @@ export async function getByLink(link: string) {
 export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): Promise<QobuzFileUrlResponse> {
     const credentials = await getAppCredentials();
     if (!credentials?.appSecret) {
-        throw new Error('Could not obtain Qobuz app secret for native stream URLs');
+        throw new AppError('[Qobuz] Could not obtain app secret for native stream URLs', 503);
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
     const requestSig = await generateRequestSignature(trackId, quality, timestamp, credentials.appSecret);
+
+    // Include user auth token if authenticated for full stream access (not preview)
+    const authHeaders = getAuthHeaders();
 
     const res = await qobuzClient.get<QobuzFileUrlResponse>(QOBUZ_ROUTES.TRACK.FILE_URL, {
         params: {
@@ -42,9 +45,10 @@ export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): 
             request_ts: timestamp,
             request_sig: requestSig,
         },
+        headers: authHeaders,
     });
 
-    return assertData(res.data, 'Failed to get file URL');
+    return assertData(res.data, '[Qobuz] Failed to get file URL');
 }
 
 /** Get preview URL (30 seconds, no auth required) */
@@ -75,7 +79,7 @@ export async function getPreviewUrl(
         },
     });
 
-    const data = assertData(res.data, 'Failed to get preview URL');
+    const data = assertData(res.data, '[Qobuz] Failed to get preview URL');
 
     return {
         url: data.url,
@@ -141,5 +145,5 @@ export async function getStreamUrl(
         }
     }
 
-    throw new Error(`Failed to get stream URL from all APIs. Errors: ${errors.join('; ')}`);
+    throw new AppError(`[Qobuz] Failed to get stream URL from all sources. Errors: ${errors.join('; ')}`, 502);
 }

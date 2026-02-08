@@ -6,7 +6,6 @@ import * as QobuzLabels from './qobuz.labels';
 import * as QobuzPlaylists from './qobuz.playlists';
 import * as QobuzSearch from './qobuz.search';
 import * as QobuzSongs from './qobuz.songs';
-import * as QobuzUser from './qobuz.user';
 
 export const QobuzProvider = {
     // Content modules
@@ -18,9 +17,8 @@ export const QobuzProvider = {
     search: QobuzSearch,
     featured: QobuzFeatured,
 
-    // User/auth modules
+    // Auth module
     auth: QobuzAuth,
-    user: QobuzUser,
 };
 
 export default QobuzProvider;

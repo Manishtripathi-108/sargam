@@ -77,7 +77,7 @@ export async function login(credentials: QobuzUserCredentials): Promise<QobuzLog
         },
     });
 
-    const data = assertData(res.data, 'Login failed');
+    const data = assertData(res.data, '[Qobuz] Login failed');
 
     userSession = {
         userId: data.user.id.toString(),
@@ -104,7 +104,7 @@ export function logout(): void {
 
 export async function getCurrentUser() {
     if (!isAuthenticated()) {
-        throw new AppError('Qobuz user not authenticated', 401);
+        throw new AppError('[Qobuz] User not authenticated', 401);
     }
 
     const res = await qobuzClient.get(QOBUZ_ROUTES.USER.GET, {
@@ -112,7 +112,7 @@ export async function getCurrentUser() {
         headers: { 'X-User-Auth-Token': userSession.userAuthToken },
     });
 
-    return assertData(res.data, 'Failed to get user info');
+    return assertData(res.data, '[Qobuz] Failed to get user info');
 }
 
 export function getAuthHeaders(): Record<string, string> {

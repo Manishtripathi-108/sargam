@@ -22,7 +22,6 @@
     - [Search Module](#search-module)
     - [Featured Module](#featured-module)
     - [Auth Module](#auth-module)
-    - [User Module](#user-module)
 - [API Endpoints](#api-endpoints)
 - [Types Reference](#types-reference)
 - [Quality Codes](#quality-codes)
@@ -41,10 +40,8 @@ The Qobuz provider implements a comprehensive interface to Qobuz's music streami
 
 - **Metadata retrieval** for tracks, albums, artists, playlists, and labels
 - **Search functionality** across all content types
-- **Stream URL generation** with native API + fallback support
-- **User authentication** for personalized features
-- **Favorites management** (tracks, albums, artists)
-- **Playlist management** (create, edit, delete, subscribe)
+- **Stream URL generation** with native API + fallback support (uses user auth token when available for full streams)
+- **User authentication** for full stream access (not previews)
 - **Featured/editorial content** (new releases, best sellers, editor picks)
 - **Automatic app credential extraction** from Qobuz bundle.js
 
@@ -65,8 +62,7 @@ src/providers/qobuz/
 ├── qobuz.playlists.ts     # Playlist operations (get, tracks)
 ├── qobuz.labels.ts        # Label operations (get, albums, search)
 ├── qobuz.search.ts        # Search across all content types
-├── qobuz.featured.ts      # Editorial/featured content
-└── qobuz.user.ts          # User operations (favorites, playlists, purchases)
+└── qobuz.featured.ts      # Editorial/featured content
 
 src/types/qobuz/
 ├── index.ts               # Type exports
@@ -78,8 +74,7 @@ src/types/qobuz/
 ├── playlist.response.ts   # Playlist response types
 ├── label.types.ts         # Label response types
 ├── search.response.ts     # Search response types
-├── featured.types.ts      # Featured/editorial content types
-└── user.types.ts          # User favorites/playlists types
+└── featured.types.ts      # Featured/editorial content types
 ```
 
 ---
@@ -125,7 +120,6 @@ import * as QobuzLabels from './qobuz.labels';
 import * as QobuzPlaylists from './qobuz.playlists';
 import * as QobuzSearch from './qobuz.search';
 import * as QobuzSongs from './qobuz.songs';
-import * as QobuzUser from './qobuz.user';
 
 export const QobuzProvider = {
     // Content modules
@@ -137,9 +131,8 @@ export const QobuzProvider = {
     search: QobuzSearch,
     featured: QobuzFeatured,
 
-    // User/auth modules
+    // Auth module
     auth: QobuzAuth,
-    user: QobuzUser,
 };
 ```
 
@@ -502,107 +495,6 @@ if (credentials) {
     console.log('App ID:', credentials.appId);
     console.log('App Secret:', credentials.appSecret);
 }
-```
-
----
-
-### User Module
-
-**File**: `qobuz.user.ts`
-
-> ⚠️ **All functions require authentication**
-
-#### Favorites
-
-| Function               | Parameters                        | Returns                                 | Description                |
-| ---------------------- | --------------------------------- | --------------------------------------- | -------------------------- |
-| `getFavoriteTracks`    | `limit?: number, offset?: number` | `Promise<QobuzFavoriteTracksResponse>`  | Get favorite tracks        |
-| `getFavoriteAlbums`    | `limit?: number, offset?: number` | `Promise<QobuzFavoriteAlbumsResponse>`  | Get favorite albums        |
-| `getFavoriteArtists`   | `limit?: number, offset?: number` | `Promise<QobuzFavoriteArtistsResponse>` | Get favorite artists       |
-| `getAllFavorites`      | `limit?: number, offset?: number` | `Promise<FavoritesResponse>`            | Get all favorites combined |
-| `addFavoriteTrack`     | `trackIds: string \| string[]`    | `Promise<void>`                         | Add track(s) to favorites  |
-| `addFavoriteAlbum`     | `albumIds: string \| string[]`    | `Promise<void>`                         | Add album(s) to favorites  |
-| `addFavoriteArtist`    | `artistIds: string \| string[]`   | `Promise<void>`                         | Add artist(s) to favorites |
-| `removeFavoriteTrack`  | `trackIds: string \| string[]`    | `Promise<void>`                         | Remove track(s)            |
-| `removeFavoriteAlbum`  | `albumIds: string \| string[]`    | `Promise<void>`                         | Remove album(s)            |
-| `removeFavoriteArtist` | `artistIds: string \| string[]`   | `Promise<void>`                         | Remove artist(s)           |
-
-#### Playlists
-
-| Function                   | Parameters                                                 | Returns                               | Description               |
-| -------------------------- | ---------------------------------------------------------- | ------------------------------------- | ------------------------- |
-| `getUserPlaylists`         | `limit?: number, offset?: number`                          | `Promise<QobuzUserPlaylistsResponse>` | Get user's playlists      |
-| `createPlaylist`           | `name: string, description?: string, isPublic?: boolean`   | `Promise<{ id: string }>`             | Create new playlist       |
-| `deletePlaylist`           | `playlistId: string`                                       | `Promise<void>`                       | Delete playlist           |
-| `updatePlaylist`           | `playlistId: string, name?, description?, isPublic?`       | `Promise<void>`                       | Update playlist details   |
-| `addTracksToPlaylist`      | `playlistId: string, trackIds: string \| string[]`         | `Promise<void>`                       | Add tracks to playlist    |
-| `removeTracksFromPlaylist` | `playlistId: string, playlistTrackIds: string \| string[]` | `Promise<void>`                       | Remove tracks             |
-| `subscribeToPlaylist`      | `playlistId: string`                                       | `Promise<void>`                       | Subscribe to playlist     |
-| `unsubscribeFromPlaylist`  | `playlistId: string`                                       | `Promise<void>`                       | Unsubscribe from playlist |
-
-#### Purchases
-
-| Function       | Parameters                        | Returns                           | Description        |
-| -------------- | --------------------------------- | --------------------------------- | ------------------ |
-| `getPurchases` | `limit?: number, offset?: number` | `Promise<QobuzPurchasesResponse>` | Get user purchases |
-
-**Usage Examples:**
-
-```typescript
-<!-- ----------------------------------------------------------------------- -->
-<!--                                FAVORITES                                -->
-<!-- ----------------------------------------------------------------------- -->
-
-// Get favorites
-const favTracks = await QobuzProvider.user.getFavoriteTracks(50, 0);
-const favAlbums = await QobuzProvider.user.getFavoriteAlbums();
-const favArtists = await QobuzProvider.user.getFavoriteArtists();
-const allFavs = await QobuzProvider.user.getAllFavorites();
-
-// Add to favorites (single or multiple)
-await QobuzProvider.user.addFavoriteTrack('123456');
-await QobuzProvider.user.addFavoriteTrack(['123456', '789012']);
-await QobuzProvider.user.addFavoriteAlbum('abc123');
-await QobuzProvider.user.addFavoriteArtist('789');
-
-// Remove from favorites
-await QobuzProvider.user.removeFavoriteTrack('123456');
-await QobuzProvider.user.removeFavoriteAlbum('abc123');
-await QobuzProvider.user.removeFavoriteArtist('789');
-
-<!-- ----------------------------------------------------------------------- -->
-<!--                                PLAYLISTS                                -->
-<!-- ----------------------------------------------------------------------- -->
-
-// Get user playlists
-const playlists = await QobuzProvider.user.getUserPlaylists();
-
-// Create playlist
-const newPlaylist = await QobuzProvider.user.createPlaylist(
-    'My Awesome Playlist',
-    'A collection of great tracks',
-    true // isPublic
-);
-
-// Update playlist
-await QobuzProvider.user.updatePlaylist(newPlaylist.id, 'New Name', 'New Description', false);
-
-// Add/remove tracks
-await QobuzProvider.user.addTracksToPlaylist(playlistId, ['track1', 'track2', 'track3']);
-await QobuzProvider.user.removeTracksFromPlaylist(playlistId, ['playlistTrackId1']);
-
-// Subscribe to another user's playlist
-await QobuzProvider.user.subscribeToPlaylist('1234567');
-await QobuzProvider.user.unsubscribeFromPlaylist('1234567');
-
-// Delete playlist
-await QobuzProvider.user.deletePlaylist(playlistId);
-
-<!-- ----------------------------------------------------------------------- -->
-<!--                                PURCHASES                                -->
-<!-- ----------------------------------------------------------------------- -->
-
-const purchases = await QobuzProvider.user.getPurchases();
 ```
 
 ---
@@ -1001,7 +893,6 @@ const signature = crypto.createHash('md5').update(rawSignature).digest('hex');
                           └─────────────┘ └─────────────┘
 ```
 
-
 ## Feature Comparison
 
 | Feature                  | SpotiFLAC/spotimeow | streamrip/Qo-DL | **Sargam**              |
@@ -1028,11 +919,7 @@ const signature = crypto.createHash('md5').update(rawSignature).digest('hex');
 | Stream URLs              | ✅ (external)       | ✅ (native)     | ✅ (native + fallbacks) |
 | Preview URLs             | ❌                  | ❌              | ✅ (30-second samples)  |
 | Quality selection        | ✅                  | ✅              | ✅                      |
-| **User Auth**            | ❌                  | ✅              | ✅                      |
-| **User Favorites**       | ❌                  | ✅              | ✅                      |
-| **User Playlists**       | ❌                  | ✅              | ✅                      |
-| Playlist CRUD            | ❌                  | ❌              | ✅                      |
-| **User Purchases**       | ❌                  | ❌              | ✅                      |
+| **User Auth**            | ❌                  | ✅              | ✅ (for full streams)   |
 | **Featured Content**     | ❌                  | ❌              | ✅                      |
 | **Genres**               | ❌                  | ❌              | ✅                      |
 | **Discovery Content**    | ❌                  | ❌              | ✅                      |
@@ -1114,8 +1001,7 @@ QobuzProvider.playlists; // Playlist operations
 QobuzProvider.labels; // Label operations
 QobuzProvider.search; // Search operations
 QobuzProvider.featured; // Featured/editorial content
-QobuzProvider.auth; // Authentication
-QobuzProvider.user; // User operations (requires auth)
+QobuzProvider.auth; // Authentication (for full stream access)
 ```
 
 ### Quality Constants

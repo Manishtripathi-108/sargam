@@ -10,7 +10,7 @@ export async function getById(id: string) {
         params: { artist_id: id },
     });
 
-    return assertData(res.data, 'Artist not found');
+    return assertData(res.data, '[Qobuz] Artist not found');
 }
 
 export async function getByLink(link: string) {
@@ -24,7 +24,7 @@ export async function getPage(id: string) {
         params: { artist_id: id },
     });
 
-    return assertData(res.data, 'Artist page not found');
+    return assertData(res.data, '[Qobuz] Artist page not found');
 }
 
 export async function getTopTracks({

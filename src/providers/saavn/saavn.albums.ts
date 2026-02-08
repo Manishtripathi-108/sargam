@@ -14,7 +14,7 @@ export async function getById(id: string): Promise<Album> {
         },
     });
 
-    return mapAlbum(assertData(res.data, 'Album not found'));
+    return mapAlbum(assertData(res.data, '[Saavn] Album not found'));
 }
 
 export async function getByLink(link: string): Promise<Album> {
@@ -28,5 +28,5 @@ export async function getByLink(link: string): Promise<Album> {
         },
     });
 
-    return mapAlbum(assertData(res.data, 'Album not found'));
+    return mapAlbum(assertData(res.data, '[Saavn] Album not found'));
 }

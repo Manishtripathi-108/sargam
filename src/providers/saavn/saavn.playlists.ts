@@ -19,7 +19,7 @@ export async function getById({ id, limit, offset }: { id: string; limit: number
         },
     });
 
-    return mapPlaylist(assertData(res.data, 'Playlist not found'));
+    return mapPlaylist(assertData(res.data, '[Saavn] Playlist not found'));
 }
 
 export async function getByLink({
@@ -44,5 +44,5 @@ export async function getByLink({
         },
     });
 
-    return mapPlaylist(assertData(res.data, 'Playlist not found'));
+    return mapPlaylist(assertData(res.data, '[Saavn] Playlist not found'));
 }

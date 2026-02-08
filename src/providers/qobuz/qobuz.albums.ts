@@ -10,7 +10,7 @@ export async function getById(album_id: string) {
         params: { album_id },
     });
 
-    return assertData(res.data, 'Album not found');
+    return assertData(res.data, '[Qobuz] Album not found');
 }
 
 export async function getByLink(link: string) {
@@ -31,7 +31,7 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
         },
     });
 
-    const album = assertData(res.data, 'Album Songs not found', () => res.data?.tracks?.items?.length > 0);
+    const album = assertData(res.data, '[Qobuz] Album tracks not found', () => res.data?.tracks?.items?.length > 0);
 
     // Apply pagination to tracks
     return createPaginatedResponse({

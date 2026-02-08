@@ -8,7 +8,7 @@ export async function getById(labelId: string): Promise<QobuzLabelFull> {
     const res = await qobuzClient.get<QobuzLabelFull>(QOBUZ_ROUTES.LABEL.GET, {
         params: { label_id: labelId },
     });
-    return assertData(res.data, 'Label not found');
+    return assertData(res.data, '[Qobuz] Label not found');
 }
 
 export const getByLink = async (link: string): Promise<QobuzLabelFull> => getById(extractId(link, 'qobuz', 'label'));
@@ -21,14 +21,14 @@ export async function getAlbums(
     const res = await qobuzClient.get<QobuzLabelAlbumsResponse>(QOBUZ_ROUTES.LABEL.ALBUMS, {
         params: { label_id: labelId, limit, offset, sort },
     });
-    return assertData(res.data, 'Failed to get label albums');
+    return assertData(res.data, '[Qobuz] Failed to get label albums');
 }
 
 export async function search(query: string, limit = 25, offset = 0): Promise<QobuzLabelSearchResponse> {
     const res = await qobuzClient.get<QobuzLabelSearchResponse>(QOBUZ_ROUTES.LABEL.SEARCH, {
         params: { query, limit, offset },
     });
-    return assertData(res.data, 'Label search failed');
+    return assertData(res.data, '[Qobuz] Label search failed');
 }
 
 export async function getAllAlbums(labelId: string, maxAlbums = 500): Promise<QobuzAlbum[]> {

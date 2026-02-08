@@ -10,7 +10,7 @@ export async function getById(id: string) {
         params: { playlist_id: id },
     });
 
-    return assertData(res.data, 'Playlist not found');
+    return assertData(res.data, '[Qobuz] Playlist not found');
 }
 
 export async function getByLink(link: string) {

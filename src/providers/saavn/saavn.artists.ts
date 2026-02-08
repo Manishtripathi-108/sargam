@@ -18,7 +18,7 @@ export async function getById(id: string): Promise<Artist> {
         },
     });
 
-    return mapArtist(assertData(res.data, 'Artist not found'));
+    return mapArtist(assertData(res.data, '[Saavn] Artist not found'));
 }
 
 export async function getByLink(link: string): Promise<Artist> {
@@ -32,7 +32,7 @@ export async function getByLink(link: string): Promise<Artist> {
         },
     });
 
-    return mapArtist(assertData(res.data, 'Artist not found'));
+    return mapArtist(assertData(res.data, '[Saavn] Artist not found'));
 }
 
 export async function getSongs({
@@ -60,7 +60,7 @@ export async function getSongs({
         },
     });
 
-    const data = assertData(res.data, 'Artist not found');
+    const data = assertData(res.data, '[Saavn] Artist not found');
 
     return createPaginatedResponse({
         items: data.topSongs?.songs?.map(mapSong),
@@ -95,7 +95,7 @@ export async function getAlbums({
         },
     });
 
-    const data = assertData(res.data, 'Artist not found');
+    const data = assertData(res.data, '[Saavn] Artist not found');
 
     return createPaginatedResponse({
         items: data.topAlbums?.albums?.map(mapAlbumBase),
