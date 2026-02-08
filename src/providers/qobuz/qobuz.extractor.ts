@@ -160,7 +160,7 @@ async function validateSecret(appId: string, secret: string): Promise<boolean> {
  * Get cached credentials or extract new ones
  */
 export async function getAppCredentials(): Promise<QobuzAppCredentials | null> {
-    const envAppId = process.env.QOBUZ_APP_ID;
+    const envAppId = process.env.QOBUZ_APP_ID ?? '798273057';
     const envAppSecret = process.env.QOBUZ_APP_SECRET;
 
     // If both are provided via env, use them

@@ -18,11 +18,9 @@ export const gaanaClient = axios.create({
 gaanaClient.interceptors.request.use((config) => {
     const browserHeaders = getBrowserHeaders({ include: config.headers });
 
-    if (config.headers) {
-        for (const [key, value] of Object.entries(browserHeaders)) {
-            if (value !== undefined) {
-                config.headers.set(key, value);
-            }
+    for (const [key, value] of Object.entries(browserHeaders)) {
+        if (value !== undefined) {
+            config.headers.set(key, value);
         }
     }
 
