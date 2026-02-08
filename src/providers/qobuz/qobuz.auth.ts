@@ -1,7 +1,6 @@
 import type { QobuzLoginResponse, QobuzUserCredentials } from '../../types/qobuz';
-import { assertData } from '../../utils/error.utils';
+import { AppError, assertData } from '../../utils/error.utils';
 import { qobuzClient } from './qobuz.client';
-import { extractAppCredentials, getAppCredentials } from './qobuz.extractor';
 import QOBUZ_ROUTES from './qobuz.routes';
 import crypto from 'crypto';
 
@@ -24,16 +23,15 @@ let userSession: UserSession = {
     isAuthenticated: false,
 };
 
-// Cached app secret (lazy loaded)
-let appSecret: string | null = process.env.QOBUZ_APP_SECRET || null;
-
 export const getUserSession = (): UserSession => ({ ...userSession });
 
 export const isAuthenticated = (): boolean => userSession.isAuthenticated && !!userSession.userAuthToken;
 
 export const getUserAuthToken = (): string | null => userSession.userAuthToken;
 
-/** Initialize authentication from environment variables (token or email/password). */
+/**
+ * Initialize authentication from environment variables (token or email/password).
+ */
 export async function initFromEnv(): Promise<boolean> {
     const envToken = process.env.QOBUZ_USER_AUTH_TOKEN;
     const envUserId = process.env.QOBUZ_USER_ID;
@@ -66,7 +64,9 @@ export async function initFromEnv(): Promise<boolean> {
     return false;
 }
 
-/** Login with email and password. Password is hashed with MD5 as per Qobuz API. */
+/**
+ * Login with email and password. Password is hashed with MD5 as per Qobuz API.
+ */
 export async function login(credentials: QobuzUserCredentials): Promise<QobuzLoginResponse> {
     const passwordHash = crypto.createHash('md5').update(credentials.password).digest('hex');
 
@@ -104,7 +104,7 @@ export function logout(): void {
 
 export async function getCurrentUser() {
     if (!isAuthenticated()) {
-        throw new Error('User not authenticated');
+        throw new AppError('Qobuz user not authenticated', 401);
     }
 
     const res = await qobuzClient.get(QOBUZ_ROUTES.USER.GET, {
@@ -129,24 +129,12 @@ export function getAuthHeaders(): Record<string, string> {
  * Generate request signature for authenticated endpoints.
  * Signature: MD5("trackgetFileUrlformat_id{quality}intentstreamtrack_id{track_id}{timestamp}{secret}")
  */
-export async function generateRequestSignature(trackId: string, formatId: string, timestamp: number): Promise<string> {
-    const secret = await getAppSecret();
-    if (!secret) {
-        throw new Error('App secret not available. Cannot generate request signature.');
-    }
-    const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${secret}`;
+export async function generateRequestSignature(
+    trackId: string,
+    formatId: string,
+    timestamp: number,
+    appSecret: string
+): Promise<string> {
+    const rawSignature = `trackgetFileUrlformat_id${formatId}intentstreamtrack_id${trackId}${timestamp}${appSecret}`;
     return crypto.createHash('md5').update(rawSignature).digest('hex');
 }
-
-/** Get app secret, extracting from Qobuz if not set via env */
-async function getAppSecret(): Promise<string | null> {
-    if (appSecret) return appSecret;
-
-    const credentials = await getAppCredentials();
-    if (credentials) {
-        appSecret = credentials.appSecret;
-    }
-    return appSecret;
-}
-
-export { extractAppCredentials, getAppCredentials };

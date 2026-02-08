@@ -1,8 +1,9 @@
 import type { QobuzFileUrlResponse, QobuzQuality, QobuzStreamResponse, QobuzTrack } from '../../types/qobuz';
 import { assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
-import { generateRequestSignature, getAppCredentials } from './qobuz.auth';
+import { generateRequestSignature } from './qobuz.auth';
 import { qobuzClient } from './qobuz.client';
+import { getAppCredentials } from './qobuz.extractor';
 import QOBUZ_ROUTES from './qobuz.routes';
 import axios from 'axios';
 import crypto from 'crypto';
@@ -21,7 +22,9 @@ export async function getByLink(link: string) {
     return getById(id);
 }
 
-/** Get stream URL directly from Qobuz API (requires app secret - extracted if not in env) */
+/**
+ * Get stream URL directly from Qobuz API (requires app secret - extracted if not in env)
+ */
 export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): Promise<QobuzFileUrlResponse> {
     const credentials = await getAppCredentials();
     if (!credentials?.appSecret) {
@@ -29,7 +32,7 @@ export async function getFileUrl(trackId: string, quality: QobuzQuality = '6'): 
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const requestSig = await generateRequestSignature(trackId, quality, timestamp);
+    const requestSig = await generateRequestSignature(trackId, quality, timestamp, credentials.appSecret);
 
     const res = await qobuzClient.get<QobuzFileUrlResponse>(QOBUZ_ROUTES.TRACK.FILE_URL, {
         params: {
@@ -91,7 +94,7 @@ export async function getStreamUrl(
 ): Promise<{ url: string; source: string; isPreview?: boolean }> {
     const errors: string[] = [];
 
-    // Try native Qobuz API first (credentials will be extracted if not in env)
+    // Try native Qobuz API first
     const credentials = await getAppCredentials();
     if (credentials?.appSecret) {
         try {

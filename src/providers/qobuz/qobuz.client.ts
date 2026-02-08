@@ -28,7 +28,10 @@ export async function initializeClient(): Promise<void> {
     const credentials = await getAppCredentials();
     if (credentials) {
         qobuzClient.defaults.headers['x-app-id'] = credentials.appId;
-        qobuzClient.defaults.params = { ...qobuzClient.defaults.params, app_id: credentials.appId };
+        qobuzClient.defaults.params = {
+            ...qobuzClient.defaults.params,
+            app_id: credentials.appId,
+        } as Record<string, unknown>;
     }
     clientInitialized = true;
 }

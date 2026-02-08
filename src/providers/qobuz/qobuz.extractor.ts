@@ -14,7 +14,7 @@ const SEED_TIMEZONE_REGEX = /[a-z]\.initialSeed\("(?<seed>[\w=]+)",window\.utime
  * Extract app credentials (appId and appSecret) from Qobuz's bundle.js.
  * This is used when credentials are not provided via environment variables.
  */
-export async function extractAppCredentials(): Promise<QobuzAppCredentials | null> {
+async function extractAppCredentials(): Promise<QobuzAppCredentials | null> {
     if (cachedCredentials) {
         return cachedCredentials;
     }
@@ -156,7 +156,9 @@ async function validateSecret(appId: string, secret: string): Promise<boolean> {
     }
 }
 
-/** Get cached credentials or extract new ones */
+/**
+ * Get cached credentials or extract new ones
+ */
 export async function getAppCredentials(): Promise<QobuzAppCredentials | null> {
     const envAppId = process.env.QOBUZ_APP_ID;
     const envAppSecret = process.env.QOBUZ_APP_SECRET;
@@ -170,7 +172,9 @@ export async function getAppCredentials(): Promise<QobuzAppCredentials | null> {
     return extractAppCredentials();
 }
 
-/** Clear cached credentials (useful for testing or forced refresh) */
+/**
+ * Clear cached credentials (useful for testing or forced refresh)
+ */
 export function clearCredentialsCache(): void {
     cachedCredentials = null;
 }
