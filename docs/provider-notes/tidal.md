@@ -1,58 +1,186 @@
-# Tidal Provider Implementation Notes
+# Tidal Provider Documentation
 
-## Source Projects Analysis
+> **Provider**: Tidal  
+> **Type**: High-fidelity music streaming service  
+> **Base URL**: `https://api.tidal.com/v1`  
+> **Authentication**: OAuth2 Client Credentials (app-level)
 
-### SpotiFLAC-main / spotimeow-main / SpotiFLAC-Mobile-main (Go)
-**Files**: `backend/tidal.go`, `go_backend/tidal.go`
+---
 
-All three projects implement similar Tidal functionality:
+## Table of Contents
 
-**Authentication:**
-- OAuth2 Client Credentials flow
-- Client ID/Secret (base64 encoded in code)
-- Auth endpoint: `https://auth.tidal.com/v1/oauth2/token`
+- [Overview](#overview)
+- [File Structure](#file-structure)
+- [Configuration](#configuration)
+- [Provider Architecture](#provider-architecture)
+- [API Reference](#api-reference)
+    - [Songs Module](#songs-module)
+    - [Albums Module](#albums-module)
+    - [Artists Module](#artists-module)
+    - [Playlists Module](#playlists-module)
+    - [Search Module](#search-module)
+- [API Endpoints](#api-endpoints)
+- [Types Reference](#types-reference)
+- [Quality Levels](#quality-levels)
+- [URL Patterns](#url-patterns)
+- [Album Art](#album-art)
+- [Known Limitations](#known-limitations)
 
-**API Endpoints Used:**
-- `GET /v1/tracks/{id}` - Track metadata
-- `GET /v1/search/tracks` - Search tracks
-- Third-party APIs for download URLs (base64 encoded domains)
+---
 
-**Features:**
-- Track info by ID
-- Search by artist/track name
-- ISRC matching
-- Album art retrieval
-- Download URL fetching (via external APIs)
-- Quality selection (HiFi, Master/FLAC)
-- Manifest parsing (BTS, DASH/MPD formats)
+## Overview
 
-## Feature Comparison
+The Tidal provider implements metadata access to Tidal's music streaming API:
 
-| Feature | SpotiFLAC/spotimeow | Sargam Implementation |
-|---------|---------------------|----------------------|
-| Track by ID | ✅ | ✅ |
-| Track by ISRC | ✅ (via search) | ✅ |
-| Album by ID | ❌ | ✅ |
-| Album tracks | ❌ | ✅ |
-| Artist by ID | ❌ | ✅ |
-| Artist top tracks | ❌ | ✅ |
-| Artist albums | ❌ | ✅ |
-| Similar artists | ❌ | ✅ |
-| Playlist by ID | ❌ | ✅ |
-| Playlist tracks | ❌ | ✅ |
-| Search all types | ❌ (tracks only) | ✅ |
-| Album art URL | ✅ | ✅ |
-| Download URLs | ✅ (external APIs) | ❌ |
-| Quality selection | ✅ | ❌ |
+- **Metadata retrieval** for tracks, albums, artists, and playlists
+- **Search functionality** across all content types
+- **ISRC/UPC lookup** for cross-platform matching
+- **OAuth2 authentication** with automatic token refresh
+- **Pagination support** for all list endpoints
+
+---
+
+## File Structure
+
+```
+src/providers/tidal/
+├── tidal.provider.ts      # Main provider export (aggregates all modules)
+├── tidal.client.ts        # Axios client with OAuth2 authentication
+├── tidal.routes.ts        # API endpoint constants
+├── tidal.songs.ts         # Track operations (get by ID, ISRC, link)
+├── tidal.albums.ts        # Album operations (get, tracks, UPC lookup)
+├── tidal.artists.ts       # Artist operations (get, top tracks, albums, similar)
+├── tidal.playlists.ts     # Playlist operations (get, tracks, items)
+└── tidal.search.ts        # Search across all content types
+
+src/types/tidal/
+├── index.ts               # Type exports
+├── common.types.ts        # Base types (artist, album, track, playlist, pagination)
+└── search.response.ts     # Search response types
+```
+
+---
 
 ## Configuration
 
-Required environment variables:
+### Environment Variables
+
+```bash
+# Required
+TIDAL_CLIENT_ID=your_client_id        # OAuth client ID
+TIDAL_CLIENT_SECRET=your_client_secret # OAuth client secret
+
+# Optional
+TIDAL_COUNTRY_CODE=US                  # Default country code (default: US)
 ```
-TIDAL_CLIENT_ID=your_client_id
-TIDAL_CLIENT_SECRET=your_client_secret
-TIDAL_COUNTRY_CODE=US  # Optional, defaults to US
+
+---
+
+## Provider Architecture
+
+### Main Provider Export
+
+```typescript
+// src/providers/tidal/tidal.provider.ts
+import * as TidalSongs from './tidal.songs';
+import * as TidalAlbums from './tidal.albums';
+import * as TidalArtists from './tidal.artists';
+import * as TidalPlaylists from './tidal.playlists';
+import * as TidalSearch from './tidal.search';
+import { isTidalConfigured, resetTidalClient, getAlbumArtUrl, getCountryCode } from './tidal.client';
+
+export const TidalProvider = {
+    songs: TidalSongs,
+    albums: TidalAlbums,
+    artists: TidalArtists,
+    playlists: TidalPlaylists,
+    search: TidalSearch,
+
+    // Utility functions
+    isConfigured: isTidalConfigured,
+    resetClient: resetTidalClient,
+    getAlbumArtUrl,
+    getCountryCode,
+};
 ```
+
+### HTTP Client
+
+```typescript
+// src/providers/tidal/tidal.client.ts
+export async function getTidalClient(): Promise<AxiosInstance>;
+export function getCountryCode(): string;
+export function isTidalConfigured(): boolean;
+export function resetTidalClient(): void;
+export function getAlbumArtUrl(coverUuid: string, size?: 'SMALL' | 'MEDIUM' | 'LARGE' | 'XL'): string;
+```
+
+---
+
+## API Reference
+
+### Songs Module
+
+**File**: `tidal.songs.ts`
+
+| Function    | Parameters      | Returns               | Description              |
+| ----------- | --------------- | --------------------- | ------------------------ |
+| `getById`   | `id: string`    | `Promise<TidalTrack>` | Get track by ID          |
+| `getByIds`  | `ids: string[]` | `Promise<TidalTrack[]>` | Get multiple tracks    |
+| `getByLink` | `link: string`  | `Promise<TidalTrack>` | Get track by Tidal URL   |
+| `getByIsrc` | `isrc: string`  | `Promise<TidalTrack \| null>` | Find track by ISRC |
+| `getIsrc`   | `id: string`    | `Promise<string>`     | Get ISRC for track       |
+
+### Albums Module
+
+**File**: `tidal.albums.ts`
+
+| Function    | Parameters                           | Returns                        | Description               |
+| ----------- | ------------------------------------ | ------------------------------ | ------------------------- |
+| `getById`   | `id: string`                         | `Promise<TidalAlbum>`          | Get album by ID           |
+| `getByIds`  | `ids: string[]`                      | `Promise<TidalAlbum[]>`        | Get multiple albums       |
+| `getByLink` | `link: string`                       | `Promise<TidalAlbum>`          | Get album by Tidal URL    |
+| `getTracks` | `{ id, limit, offset }`              | `Promise<PaginatedResponse>`   | Get album tracks          |
+| `getByUpc`  | `upc: string`                        | `Promise<TidalAlbum \| null>`  | Find album by UPC         |
+
+### Artists Module
+
+**File**: `tidal.artists.ts`
+
+| Function            | Parameters              | Returns                       | Description              |
+| ------------------- | ----------------------- | ----------------------------- | ------------------------ |
+| `getById`           | `id: string`            | `Promise<TidalArtist>`        | Get artist by ID         |
+| `getByIds`          | `ids: string[]`         | `Promise<TidalArtist[]>`      | Get multiple artists     |
+| `getByLink`         | `link: string`          | `Promise<TidalArtist>`        | Get artist by Tidal URL  |
+| `getTopTracks`      | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get top tracks           |
+| `getAlbums`         | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get artist albums        |
+| `getSimilarArtists` | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get similar artists      |
+
+### Playlists Module
+
+**File**: `tidal.playlists.ts`
+
+| Function    | Parameters              | Returns                       | Description                    |
+| ----------- | ----------------------- | ----------------------------- | ------------------------------ |
+| `getById`   | `id: string`            | `Promise<TidalPlaylist>`      | Get playlist by UUID           |
+| `getByLink` | `link: string`          | `Promise<TidalPlaylist>`      | Get playlist by Tidal URL      |
+| `getTracks` | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get playlist tracks            |
+| `getItems`  | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get playlist items with cuts   |
+
+### Search Module
+
+**File**: `tidal.search.ts`
+
+| Function    | Parameters                   | Returns                           | Description            |
+| ----------- | ---------------------------- | --------------------------------- | ---------------------- |
+| `all`       | `{ query, limit, offset }`   | `Promise<TidalSearchAllResponse>` | Search all types       |
+| `songs`     | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search tracks          |
+| `albums`    | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search albums          |
+| `artists`   | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search artists         |
+| `playlists` | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search playlists       |
+| `byIsrc`    | `{ isrc: string }`           | `Promise<TidalTrack \| null>`     | Find track by ISRC     |
+
+---
 
 ## API Endpoints
 
@@ -61,83 +189,159 @@ TIDAL_COUNTRY_CODE=US  # Optional, defaults to US
 POST https://auth.tidal.com/v1/oauth2/token
 
 # Tracks
-GET /v1/tracks/{id}?countryCode={code}
+GET /tracks/{id}?countryCode={code}
 
-# Albums  
-GET /v1/albums/{id}?countryCode={code}
-GET /v1/albums/{id}/tracks?countryCode={code}&limit={n}&offset={o}
+# Albums
+GET /albums/{id}?countryCode={code}
+GET /albums/{id}/tracks?countryCode={code}&limit={n}&offset={o}
 
 # Artists
-GET /v1/artists/{id}?countryCode={code}
-GET /v1/artists/{id}/toptracks?countryCode={code}&limit={n}&offset={o}
-GET /v1/artists/{id}/albums?countryCode={code}&limit={n}&offset={o}
-GET /v1/artists/{id}/similar?countryCode={code}&limit={n}&offset={o}
+GET /artists/{id}?countryCode={code}
+GET /artists/{id}/toptracks?countryCode={code}&limit={n}&offset={o}
+GET /artists/{id}/albums?countryCode={code}&limit={n}&offset={o}
+GET /artists/{id}/similar?countryCode={code}&limit={n}&offset={o}
 
 # Playlists
-GET /v1/playlists/{uuid}?countryCode={code}
-GET /v1/playlists/{uuid}/tracks?countryCode={code}&limit={n}&offset={o}
-GET /v1/playlists/{uuid}/items?countryCode={code}&limit={n}&offset={o}
+GET /playlists/{uuid}?countryCode={code}
+GET /playlists/{uuid}/tracks?countryCode={code}&limit={n}&offset={o}
+GET /playlists/{uuid}/items?countryCode={code}&limit={n}&offset={o}
 
 # Search
-GET /v1/search?query={q}&countryCode={code}&limit={n}&offset={o}
-GET /v1/search/tracks?query={q}&countryCode={code}&limit={n}&offset={o}
-GET /v1/search/albums?query={q}&countryCode={code}&limit={n}&offset={o}
-GET /v1/search/artists?query={q}&countryCode={code}&limit={n}&offset={o}
-GET /v1/search/playlists?query={q}&countryCode={code}&limit={n}&offset={o}
+GET /search?query={q}&countryCode={code}&limit={n}&offset={o}
+GET /search/tracks?query={q}&countryCode={code}&limit={n}&offset={o}
+GET /search/albums?query={q}&countryCode={code}&limit={n}&offset={o}
+GET /search/artists?query={q}&countryCode={code}&limit={n}&offset={o}
+GET /search/playlists?query={q}&countryCode={code}&limit={n}&offset={o}
 ```
+
+---
+
+## Types Reference
+
+### Base Types
+
+```typescript
+type TidalAudioQuality = 'LOW' | 'HIGH' | 'LOSSLESS' | 'HI_RES' | 'HI_RES_LOSSLESS';
+type TidalAudioMode = 'STEREO' | 'DOLBY_ATMOS' | 'SONY_360RA';
+
+type TidalArtist = {
+    id: number;
+    name: string;
+    artistTypes?: string[];
+    picture?: string;
+    popularity?: number;
+    url?: string;
+};
+
+type TidalTrack = {
+    id: number;
+    title: string;
+    duration: number;
+    trackNumber: number;
+    volumeNumber: number;
+    isrc: string;
+    explicit: boolean;
+    audioQuality: TidalAudioQuality;
+    copyright?: string;
+    album: TidalAlbumBase;
+    artist: TidalArtist;
+    artists: TidalArtist[];
+    mediaMetadata?: { tags: string[] };
+};
+
+type TidalAlbum = {
+    id: number;
+    title: string;
+    cover: string;
+    releaseDate: string;
+    duration: number;
+    numberOfTracks: number;
+    numberOfVolumes: number;
+    copyright?: string;
+    type: string;
+    explicit: boolean;
+    upc?: string;
+    audioQuality: TidalAudioQuality;
+    audioModes: TidalAudioMode[];
+    artist: TidalArtist;
+    artists: TidalArtist[];
+};
+
+type TidalPlaylist = {
+    uuid: string;
+    title: string;
+    description?: string;
+    duration: number;
+    numberOfTracks: number;
+    lastUpdated: string;
+    created: string;
+    type: string;
+    publicPlaylist: boolean;
+    url?: string;
+    image?: string;
+    squareImage?: string;
+    creator?: TidalUser;
+    popularity?: number;
+};
+```
+
+---
+
+## Quality Levels
+
+Quality levels from `mediaMetadata.tags`:
+
+| Tag               | Description                      |
+| ----------------- | -------------------------------- |
+| `LOSSLESS`        | CD quality (16-bit/44.1kHz FLAC) |
+| `HIRES_LOSSLESS`  | Hi-Res (up to 24-bit/192kHz)     |
+| `MQA`             | Master Quality Authenticated     |
+| `DOLBY_ATMOS`     | Dolby Atmos                      |
+
+---
 
 ## URL Patterns
 
-Tidal URLs:
-- Tracks: `https://listen.tidal.com/track/{id}` or `https://tidal.com/browse/track/{id}`
-- Albums: `https://listen.tidal.com/album/{id}` or `https://tidal.com/browse/album/{id}`
-- Artists: `https://listen.tidal.com/artist/{id}` or `https://tidal.com/browse/artist/{id}`
-- Playlists: `https://listen.tidal.com/playlist/{uuid}` or `https://tidal.com/browse/playlist/{uuid}`
+Supported Tidal URL formats:
 
-Track/Album/Artist IDs are numeric. Playlist IDs are UUIDs (8-4-4-4-12 format).
+- `https://listen.tidal.com/track/{id}`
+- `https://tidal.com/browse/track/{id}`
+- `https://listen.tidal.com/album/{id}`
+- `https://tidal.com/browse/album/{id}`
+- `https://listen.tidal.com/artist/{id}`
+- `https://tidal.com/browse/artist/{id}`
+- `https://listen.tidal.com/playlist/{uuid}`
+- `https://tidal.com/browse/playlist/{uuid}`
+
+Track/Album/Artist IDs are numeric. Playlist IDs are UUIDs.
+
+---
 
 ## Album Art
 
-Album art URLs:
+Album art URL format:
 ```
 https://resources.tidal.com/images/{uuid}/{size}.jpg
 ```
 
-Sizes: 160x160, 320x320, 640x640, 1280x1280
+Available sizes: `160x160`, `320x320`, `640x640`, `1280x1280`
 
-The cover UUID from API uses hyphens, but URLs use slashes:
-- API returns: `ab12cd34-ef56-gh78-ij90-klmnopqrstuv`
-- URL format: `ab12cd34/ef56/gh78/ij90/klmnopqrstuv`
+The cover UUID uses hyphens in API response but slashes in URLs:
+- API: `ab12cd34-ef56-gh78-ij90-klmnopqrstuv`
+- URL: `ab12cd34/ef56/gh78/ij90/klmnopqrstuv`
 
-## Audio Quality Levels
+Use `getAlbumArtUrl(coverUuid, size)` for automatic conversion.
 
-Tidal quality levels (from mediaMetadata.tags):
-- `LOSSLESS` - CD quality (16-bit/44.1kHz FLAC)
-- `HIRES_LOSSLESS` - Hi-Res (up to 24-bit/192kHz FLAC)
-- `MQA` - Master Quality Authenticated
-- `DOLBY_ATMOS` - Dolby Atmos
+---
 
-## Notes
+## Known Limitations
 
-1. **No Public API**: Tidal doesn't have an official public API. The client credentials approach requires registered app credentials.
+1. **No Public API**: Tidal doesn't have an official public API. Requires registered OAuth credentials.
 
-2. **Country Code**: All requests require a `countryCode` parameter. Content availability varies by region.
+2. **Country Code Required**: All requests need a `countryCode` parameter. Content availability varies by region.
 
-3. **Pagination**: Uses `limit` and `offset` parameters. Response includes `totalNumberOfItems`.
+3. **Metadata Only**: This provider focuses on metadata. Stream/download URLs require premium account access and are not implemented.
 
-4. **Download URLs**: The reference implementations use external third-party services (base64 encoded) for getting download URLs. This is not implemented in Sargam as it's a metadata-focused provider.
+4. **No Bulk Endpoints**: Tidal doesn't support bulk fetching. `getByIds` fetches in parallel.
 
-5. **ISRC Matching**: The reference implementations prioritize ISRC matching when searching to ensure the correct track is found.
-
-6. **Token Caching**: Access tokens are cached and refreshed before expiration (5 minute buffer).
-
-## External Services (Not Implemented)
-
-The SpotiFLAC projects use these external APIs for download URLs:
-- DoubleDouble (doubledouble.top)
-- Various QQDL servers
-- Kinopluus
-- Binimum
-- Squid
-
-These are download-focused services, not metadata APIs, and are not part of Sargam's implementation.
+5. **Token Caching**: Access tokens are cached and refreshed automatically with a 5-minute buffer before expiration.
