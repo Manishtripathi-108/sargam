@@ -2,7 +2,7 @@ import type { Playlist } from '../../types/core/playlist.model';
 import type { SaavnPlaylistResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapPlaylist } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
@@ -19,7 +19,7 @@ export async function getById({ id, limit, offset }: { id: string; limit: number
         },
     });
 
-    return mapPlaylist(assertData(res.data, 'Playlist not found'));
+    return mapPlaylist(assertData(res.data, '[Saavn] Playlist not found'));
 }
 
 export async function getByLink({
@@ -31,7 +31,7 @@ export async function getByLink({
     offset: number;
     limit: number;
 }): Promise<Playlist> {
-    const token = extractSeoToken(link, 'saavn', 'playlist');
+    const token = extractId(link, 'saavn', 'playlist');
     const { page } = normalizePagination(limit, offset);
 
     const res = await saavnClient.get<SaavnPlaylistResponse>('/', {
@@ -44,5 +44,5 @@ export async function getByLink({
         },
     });
 
-    return mapPlaylist(assertData(res.data, 'Playlist not found'));
+    return mapPlaylist(assertData(res.data, '[Saavn] Playlist not found'));
 }

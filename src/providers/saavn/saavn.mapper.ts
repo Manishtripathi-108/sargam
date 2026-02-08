@@ -12,12 +12,10 @@ import type {
 import type { Song, SongBase } from '../../types/core/song.model';
 import type {
     SaavnAlbumResponse,
-    SaavnSearchAlbumResponse,
-    SaavnArtistResponse,
     SaavnArtistBaseResponse,
+    SaavnArtistResponse,
     SaavnPlaylistResponse,
-} from '../../types/saavn';
-import type {
+    SaavnSearchAlbumResponse,
     SaavnSearchArtistResponse,
     SaavnSearchPlaylistResponse,
     SaavnSearchResponse,
@@ -56,12 +54,12 @@ export const mapArtistBase = (a: SaavnArtistBaseResponse): ArtistBase => ({
 export const mapSong = (s: SaavnSongResponse): Song => {
     // Guard: required fields must be present
     if (!s.id || !s.title || !s.more_info?.encrypted_media_url) {
-        throw new AppError(`Saavn provider data corruption: missing fields for song ${s.id ?? 'unknown'}`, 502);
+        throw new AppError(`[Saavn] Data corruption: missing fields for song ${s.id ?? 'unknown'}`, 502);
     }
 
     const audio = decryptAudio('saavn', s.more_info.encrypted_media_url);
     if (!audio) {
-        throw new AppError(`Saavn provider data corruption: audio missing for song ${s.id}`, 502);
+        throw new AppError(`[Saavn] Data corruption: audio missing for song ${s.id}`, 502);
     }
 
     return {

@@ -1,6 +1,6 @@
 import { assertData } from '../../utils/error.utils';
 import { normalizePagination } from '../../utils/pagination.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { gaanaClient } from './gaana.client';
 import GAANA_ROUTES from './gaana.routes';
 
@@ -16,11 +16,11 @@ export async function getById(id: string) {
         },
     });
 
-    return assertData(res.data, 'Playlist not found');
+    return assertData(res.data, '[Gaana] Playlist not found');
 }
 
 export async function getByLink(link: string) {
-    const seokey = extractSeoToken(link, 'gaana', 'playlist');
+    const seokey = extractId(link, 'gaana', 'playlist');
     // const { page } = normalizePagination(limit, offset);
 
     const res = await gaanaClient.post('/', null, {
@@ -32,5 +32,5 @@ export async function getByLink(link: string) {
         },
     });
 
-    return assertData(res.data, 'Playlist not found');
+    return assertData(res.data, '[Gaana] Playlist not found');
 }

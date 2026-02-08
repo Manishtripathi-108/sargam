@@ -12,7 +12,7 @@ export async function getById(id: string) {
         },
     });
 
-    return assertData(res.data, 'Album not found');
+    return assertData(res.data, '[Gaana] Album not found');
 }
 
 export async function getByLink(link: string) {
@@ -25,5 +25,5 @@ export async function getByLink(link: string) {
         },
     });
 
-    return assertData(res.data, 'Album not found');
+    return assertData(res.data, '[Gaana] Album not found');
 }

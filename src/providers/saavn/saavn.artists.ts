@@ -5,7 +5,7 @@ import type { Song } from '../../types/core/song.model';
 import type { SaavnArtistAlbumsResponse, SaavnArtistResponse, SaavnArtistSongsResponse } from '../../types/saavn';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractSeoToken } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { saavnClient } from './saavn.client';
 import { mapAlbumBase, mapArtist, mapSong } from './saavn.mapper';
 import SAAVN_ROUTES from './saavn.routes';
@@ -18,11 +18,11 @@ export async function getById(id: string): Promise<Artist> {
         },
     });
 
-    return mapArtist(assertData(res.data, 'Artist not found'));
+    return mapArtist(assertData(res.data, '[Saavn] Artist not found'));
 }
 
 export async function getByLink(link: string): Promise<Artist> {
-    const token = extractSeoToken(link, 'saavn', 'artist');
+    const token = extractId(link, 'saavn', 'artist');
 
     const res = await saavnClient.get<SaavnArtistResponse>('/', {
         params: {
@@ -32,7 +32,7 @@ export async function getByLink(link: string): Promise<Artist> {
         },
     });
 
-    return mapArtist(assertData(res.data, 'Artist not found'));
+    return mapArtist(assertData(res.data, '[Saavn] Artist not found'));
 }
 
 export async function getSongs({
@@ -60,7 +60,7 @@ export async function getSongs({
         },
     });
 
-    const data = assertData(res.data, 'Artist not found');
+    const data = assertData(res.data, '[Saavn] Artist not found');
 
     return createPaginatedResponse({
         items: data.topSongs?.songs?.map(mapSong),
@@ -95,7 +95,7 @@ export async function getAlbums({
         },
     });
 
-    const data = assertData(res.data, 'Artist not found');
+    const data = assertData(res.data, '[Saavn] Artist not found');
 
     return createPaginatedResponse({
         items: data.topAlbums?.albums?.map(mapAlbumBase),
