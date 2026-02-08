@@ -82,12 +82,12 @@ TIDAL_COUNTRY_CODE=US                  # Default country code (default: US)
 
 ```typescript
 // src/providers/tidal/tidal.provider.ts
-import * as TidalSongs from './tidal.songs';
 import * as TidalAlbums from './tidal.albums';
 import * as TidalArtists from './tidal.artists';
+import { isTidalConfigured, resetTidalClient, getAlbumArtUrl, getCountryCode } from './tidal.client';
 import * as TidalPlaylists from './tidal.playlists';
 import * as TidalSearch from './tidal.search';
-import { isTidalConfigured, resetTidalClient, getAlbumArtUrl, getCountryCode } from './tidal.client';
+import * as TidalSongs from './tidal.songs';
 
 export const TidalProvider = {
     songs: TidalSongs,
@@ -123,62 +123,62 @@ export function getAlbumArtUrl(coverUuid: string, size?: 'SMALL' | 'MEDIUM' | 'L
 
 **File**: `tidal.songs.ts`
 
-| Function    | Parameters      | Returns               | Description              |
-| ----------- | --------------- | --------------------- | ------------------------ |
-| `getById`   | `id: string`    | `Promise<TidalTrack>` | Get track by ID          |
-| `getByIds`  | `ids: string[]` | `Promise<TidalTrack[]>` | Get multiple tracks    |
-| `getByLink` | `link: string`  | `Promise<TidalTrack>` | Get track by Tidal URL   |
-| `getByIsrc` | `isrc: string`  | `Promise<TidalTrack \| null>` | Find track by ISRC |
-| `getIsrc`   | `id: string`    | `Promise<string>`     | Get ISRC for track       |
+| Function    | Parameters      | Returns                       | Description            |
+| ----------- | --------------- | ----------------------------- | ---------------------- |
+| `getById`   | `id: string`    | `Promise<TidalTrack>`         | Get track by ID        |
+| `getByIds`  | `ids: string[]` | `Promise<TidalTrack[]>`       | Get multiple tracks    |
+| `getByLink` | `link: string`  | `Promise<TidalTrack>`         | Get track by Tidal URL |
+| `getByIsrc` | `isrc: string`  | `Promise<TidalTrack \| null>` | Find track by ISRC     |
+| `getIsrc`   | `id: string`    | `Promise<string>`             | Get ISRC for track     |
 
 ### Albums Module
 
 **File**: `tidal.albums.ts`
 
-| Function    | Parameters                           | Returns                        | Description               |
-| ----------- | ------------------------------------ | ------------------------------ | ------------------------- |
-| `getById`   | `id: string`                         | `Promise<TidalAlbum>`          | Get album by ID           |
-| `getByIds`  | `ids: string[]`                      | `Promise<TidalAlbum[]>`        | Get multiple albums       |
-| `getByLink` | `link: string`                       | `Promise<TidalAlbum>`          | Get album by Tidal URL    |
-| `getTracks` | `{ id, limit, offset }`              | `Promise<PaginatedResponse>`   | Get album tracks          |
-| `getByUpc`  | `upc: string`                        | `Promise<TidalAlbum \| null>`  | Find album by UPC         |
+| Function    | Parameters              | Returns                       | Description            |
+| ----------- | ----------------------- | ----------------------------- | ---------------------- |
+| `getById`   | `id: string`            | `Promise<TidalAlbum>`         | Get album by ID        |
+| `getByIds`  | `ids: string[]`         | `Promise<TidalAlbum[]>`       | Get multiple albums    |
+| `getByLink` | `link: string`          | `Promise<TidalAlbum>`         | Get album by Tidal URL |
+| `getTracks` | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get album tracks       |
+| `getByUpc`  | `upc: string`           | `Promise<TidalAlbum \| null>` | Find album by UPC      |
 
 ### Artists Module
 
 **File**: `tidal.artists.ts`
 
-| Function            | Parameters              | Returns                       | Description              |
-| ------------------- | ----------------------- | ----------------------------- | ------------------------ |
-| `getById`           | `id: string`            | `Promise<TidalArtist>`        | Get artist by ID         |
-| `getByIds`          | `ids: string[]`         | `Promise<TidalArtist[]>`      | Get multiple artists     |
-| `getByLink`         | `link: string`          | `Promise<TidalArtist>`        | Get artist by Tidal URL  |
-| `getTopTracks`      | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get top tracks           |
-| `getAlbums`         | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get artist albums        |
-| `getSimilarArtists` | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get similar artists      |
+| Function            | Parameters              | Returns                      | Description             |
+| ------------------- | ----------------------- | ---------------------------- | ----------------------- |
+| `getById`           | `id: string`            | `Promise<TidalArtist>`       | Get artist by ID        |
+| `getByIds`          | `ids: string[]`         | `Promise<TidalArtist[]>`     | Get multiple artists    |
+| `getByLink`         | `link: string`          | `Promise<TidalArtist>`       | Get artist by Tidal URL |
+| `getTopTracks`      | `{ id, limit, offset }` | `Promise<PaginatedResponse>` | Get top tracks          |
+| `getAlbums`         | `{ id, limit, offset }` | `Promise<PaginatedResponse>` | Get artist albums       |
+| `getSimilarArtists` | `{ id, limit, offset }` | `Promise<PaginatedResponse>` | Get similar artists     |
 
 ### Playlists Module
 
 **File**: `tidal.playlists.ts`
 
-| Function    | Parameters              | Returns                       | Description                    |
-| ----------- | ----------------------- | ----------------------------- | ------------------------------ |
-| `getById`   | `id: string`            | `Promise<TidalPlaylist>`      | Get playlist by UUID           |
-| `getByLink` | `link: string`          | `Promise<TidalPlaylist>`      | Get playlist by Tidal URL      |
-| `getTracks` | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get playlist tracks            |
-| `getItems`  | `{ id, limit, offset }` | `Promise<PaginatedResponse>`  | Get playlist items with cuts   |
+| Function    | Parameters              | Returns                      | Description                  |
+| ----------- | ----------------------- | ---------------------------- | ---------------------------- |
+| `getById`   | `id: string`            | `Promise<TidalPlaylist>`     | Get playlist by UUID         |
+| `getByLink` | `link: string`          | `Promise<TidalPlaylist>`     | Get playlist by Tidal URL    |
+| `getTracks` | `{ id, limit, offset }` | `Promise<PaginatedResponse>` | Get playlist tracks          |
+| `getItems`  | `{ id, limit, offset }` | `Promise<PaginatedResponse>` | Get playlist items with cuts |
 
 ### Search Module
 
 **File**: `tidal.search.ts`
 
-| Function    | Parameters                   | Returns                           | Description            |
-| ----------- | ---------------------------- | --------------------------------- | ---------------------- |
-| `all`       | `{ query, limit, offset }`   | `Promise<TidalSearchAllResponse>` | Search all types       |
-| `songs`     | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search tracks          |
-| `albums`    | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search albums          |
-| `artists`   | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search artists         |
-| `playlists` | `{ query, limit, offset }`   | `Promise<PaginatedResponse>`      | Search playlists       |
-| `byIsrc`    | `{ isrc: string }`           | `Promise<TidalTrack \| null>`     | Find track by ISRC     |
+| Function    | Parameters                 | Returns                           | Description        |
+| ----------- | -------------------------- | --------------------------------- | ------------------ |
+| `all`       | `{ query, limit, offset }` | `Promise<TidalSearchAllResponse>` | Search all types   |
+| `songs`     | `{ query, limit, offset }` | `Promise<PaginatedResponse>`      | Search tracks      |
+| `albums`    | `{ query, limit, offset }` | `Promise<PaginatedResponse>`      | Search albums      |
+| `artists`   | `{ query, limit, offset }` | `Promise<PaginatedResponse>`      | Search artists     |
+| `playlists` | `{ query, limit, offset }` | `Promise<PaginatedResponse>`      | Search playlists   |
+| `byIsrc`    | `{ isrc: string }`         | `Promise<TidalTrack \| null>`     | Find track by ISRC |
 
 ---
 
@@ -291,12 +291,12 @@ type TidalPlaylist = {
 
 Quality levels from `mediaMetadata.tags`:
 
-| Tag               | Description                      |
-| ----------------- | -------------------------------- |
-| `LOSSLESS`        | CD quality (16-bit/44.1kHz FLAC) |
-| `HIRES_LOSSLESS`  | Hi-Res (up to 24-bit/192kHz)     |
-| `MQA`             | Master Quality Authenticated     |
-| `DOLBY_ATMOS`     | Dolby Atmos                      |
+| Tag              | Description                      |
+| ---------------- | -------------------------------- |
+| `LOSSLESS`       | CD quality (16-bit/44.1kHz FLAC) |
+| `HIRES_LOSSLESS` | Hi-Res (up to 24-bit/192kHz)     |
+| `MQA`            | Master Quality Authenticated     |
+| `DOLBY_ATMOS`    | Dolby Atmos                      |
 
 ---
 
@@ -320,6 +320,7 @@ Track/Album/Artist IDs are numeric. Playlist IDs are UUIDs.
 ## Album Art
 
 Album art URL format:
+
 ```
 https://resources.tidal.com/images/{uuid}/{size}.jpg
 ```
@@ -327,6 +328,7 @@ https://resources.tidal.com/images/{uuid}/{size}.jpg
 Available sizes: `160x160`, `320x320`, `640x640`, `1280x1280`
 
 The cover UUID uses hyphens in API response but slashes in URLs:
+
 - API: `ab12cd34-ef56-gh78-ij90-klmnopqrstuv`
 - URL: `ab12cd34/ef56/gh78/ij90/klmnopqrstuv`
 

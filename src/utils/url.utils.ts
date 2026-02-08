@@ -62,10 +62,20 @@ const QOBUZ_PLAY_PATTERNS: Record<MusicEntity, RegExp> = {
     label: /play\.qobuz\.com\/label\/(\d+)/i,
 };
 
+const TIDAL_URL_PATTERNS: Record<MusicEntity, RegExp | null> = {
+    song: /tidal\.com\/(?:browse\/)?track\/(\d+)/i,
+    album: /tidal\.com\/(?:browse\/)?album\/(\d+)/i,
+    artist: /tidal\.com\/(?:browse\/)?artist\/(\d+)/i,
+    // Playlist UUIDs: 8-4-4-4-12 format
+    playlist: /tidal\.com\/(?:browse\/)?playlist\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i,
+    label: null,
+};
+
 const URL_PATTERNS: Record<Provider, Record<MusicEntity, RegExp | null>> = {
     saavn: SAAVN_PATTERNS,
     gaana: GAANA_PATTERNS,
     qobuz: QOBUZ_PATTERNS,
+    tidal: TIDAL_URL_PATTERNS,
 };
 
 /**
@@ -96,43 +106,6 @@ export const extractId = (link: string, provider: Provider, entity: MusicEntity)
     }
 
     if (!id) throw new AppError(`Link does not match ${provider} ${entity} format`, 400);
-
-    return id;
-};
-
-// Tidal URL patterns
-// Supports: https://listen.tidal.com/track/123456, https://tidal.com/browse/track/123456
-// Playlists use UUIDs: https://listen.tidal.com/playlist/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-type TidalEntity = 'track' | 'album' | 'artist' | 'playlist';
-
-const TIDAL_URL_PATTERNS: Record<TidalEntity, RegExp> = {
-    track: /tidal\.com\/(?:browse\/)?track\/(\d+)/i,
-    album: /tidal\.com\/(?:browse\/)?album\/(\d+)/i,
-    artist: /tidal\.com\/(?:browse\/)?artist\/(\d+)/i,
-    // Playlist UUIDs: 8-4-4-4-12 format
-    playlist: /tidal\.com\/(?:browse\/)?playlist\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i,
-};
-
-/**
- * Extracts the Tidal ID from a Tidal URL.
- * @param link - The Tidal URL to extract the ID from.
- * @param entity - The type of entity (track, album, artist, or playlist).
- * @returns The extracted Tidal ID (numeric for tracks/albums/artists, UUID for playlists).
- * @throws {AppError} If the link is empty or doesn't match the expected format.
- * @example
- * extractTidalId("https://listen.tidal.com/track/123456", "track") => "123456"
- * extractTidalId("https://tidal.com/browse/album/789", "album") => "789"
- */
-export const extractTidalId = (link: string, entity: TidalEntity): string => {
-    if (!link) {
-        throw new AppError('Link is required', 400);
-    }
-
-    const id = link.match(TIDAL_URL_PATTERNS[entity])?.[1];
-
-    if (!id) {
-        throw new AppError(`Link does not match Tidal ${entity} format`, 400);
-    }
 
     return id;
 };

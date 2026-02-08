@@ -1,7 +1,7 @@
 import type { TidalPaginatedResponse, TidalPlaylist, TidalPlaylistItem, TidalTrack } from '../../types/tidal';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractTidalId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { getTidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
@@ -14,7 +14,7 @@ export async function getById(id: string) {
 }
 
 export async function getByLink(link: string) {
-    const id = extractTidalId(link, 'playlist');
+    const id = extractId(link, 'tidal', 'playlist');
 
     return getById(id);
 }
@@ -24,12 +24,15 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
 
     const client = await getTidalClient();
 
-    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(TIDAL_ROUTES.PLAYLIST.TRACKS.replace('{uuid}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(
+        TIDAL_ROUTES.PLAYLIST.TRACKS.replace('{uuid}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Playlist tracks not found');
 
@@ -47,12 +50,15 @@ export async function getItems({ id, limit, offset }: { id: string; limit: numbe
 
     const client = await getTidalClient();
 
-    const res = await client.get<TidalPaginatedResponse<TidalPlaylistItem>>(TIDAL_ROUTES.PLAYLIST.ITEMS.replace('{uuid}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await client.get<TidalPaginatedResponse<TidalPlaylistItem>>(
+        TIDAL_ROUTES.PLAYLIST.ITEMS.replace('{uuid}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Playlist items not found');
 

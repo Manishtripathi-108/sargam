@@ -1,7 +1,7 @@
 import type { TidalAlbum, TidalPaginatedResponse, TidalTrack } from '../../types/tidal';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractTidalId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { getTidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
@@ -20,7 +20,7 @@ export async function getByIds(ids: string[]) {
 }
 
 export async function getByLink(link: string) {
-    const id = extractTidalId(link, 'album');
+    const id = extractId(link, 'tidal', 'album');
 
     return getById(id);
 }

@@ -1,6 +1,6 @@
-import axios, { type AxiosError, type AxiosInstance } from 'axios';
 import { AppError } from '../../utils/error.utils';
 import TIDAL_ROUTES from './tidal.routes';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 type TidalConfig = {
     clientId: string;

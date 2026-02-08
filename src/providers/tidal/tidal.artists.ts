@@ -1,7 +1,7 @@
 import type { TidalArtist, TidalPaginatedResponse, TidalSearchAlbum, TidalTrack } from '../../types/tidal';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { extractTidalId } from '../../utils/url.utils';
+import { extractId } from '../../utils/url.utils';
 import { getTidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
@@ -20,7 +20,7 @@ export async function getByIds(ids: string[]) {
 }
 
 export async function getByLink(link: string) {
-    const id = extractTidalId(link, 'artist');
+    const id = extractId(link, 'tidal', 'artist');
 
     return getById(id);
 }
@@ -30,12 +30,15 @@ export async function getTopTracks({ id, limit, offset }: { id: string; limit: n
 
     const client = await getTidalClient();
 
-    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(TIDAL_ROUTES.ARTIST.TOP_TRACKS.replace('{id}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(
+        TIDAL_ROUTES.ARTIST.TOP_TRACKS.replace('{id}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Top tracks not found');
 
@@ -53,12 +56,15 @@ export async function getAlbums({ id, limit, offset }: { id: string; limit: numb
 
     const client = await getTidalClient();
 
-    const res = await client.get<TidalPaginatedResponse<TidalSearchAlbum>>(TIDAL_ROUTES.ARTIST.ALBUMS.replace('{id}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await client.get<TidalPaginatedResponse<TidalSearchAlbum>>(
+        TIDAL_ROUTES.ARTIST.ALBUMS.replace('{id}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Albums not found');
 
