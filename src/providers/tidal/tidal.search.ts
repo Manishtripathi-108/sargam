@@ -8,7 +8,7 @@ import type {
 } from '../../types/tidal';
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
-import { getTidalClient } from './tidal.client';
+import { tidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
 type SearchParams = {
@@ -20,9 +20,7 @@ type SearchParams = {
 async function searchBase<T>(endpoint: string, query: string, limit: number, offset: number) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<T>>(endpoint, {
+    const res = await tidalClient.get<TidalPaginatedResponse<T>>(endpoint, {
         params: {
             query,
             limit: safeLimit,
@@ -44,9 +42,7 @@ async function searchBase<T>(endpoint: string, query: string, limit: number, off
 export async function all({ query, limit, offset }: SearchParams) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalSearchAllResponse>(TIDAL_ROUTES.SEARCH.BASE, {
+    const res = await tidalClient.get<TidalSearchAllResponse>(TIDAL_ROUTES.SEARCH.BASE, {
         params: {
             query,
             limit: safeLimit,

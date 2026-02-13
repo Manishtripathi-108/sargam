@@ -1,13 +1,11 @@
 import type { TidalPaginatedResponse, TidalTrack } from '../../types/tidal';
 import { assertData } from '../../utils/error.utils';
 import { extractId } from '../../utils/url.utils';
-import { getTidalClient } from './tidal.client';
+import { tidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
 export async function getById(id: string) {
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalTrack>(`${TIDAL_ROUTES.TRACK.DETAILS}/${id}`);
+    const res = await tidalClient.get<TidalTrack>(`${TIDAL_ROUTES.TRACK.DETAILS}/${id}`);
 
     return assertData(res.data, '[Tidal] Track not found');
 }
@@ -25,9 +23,7 @@ export async function getByLink(link: string) {
 }
 
 export async function getByIsrc(isrc: string) {
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(TIDAL_ROUTES.SEARCH.TRACKS, {
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalTrack>>(TIDAL_ROUTES.SEARCH.TRACKS, {
         params: {
             query: isrc,
             limit: 10,

@@ -1,17 +1,8 @@
+import { getBrowserHeaders } from '../../constants/user-agents.constants';
 import { AppError } from '../../utils/error.utils';
+import { getAccessToken } from './tidal.auth';
 import TIDAL_ROUTES from './tidal.routes';
-import axios, { type AxiosError, type AxiosInstance } from 'axios';
-
-type TidalConfig = {
-    clientId: string;
-    clientSecret: string;
-    countryCode: string;
-};
-
-type TidalToken = {
-    accessToken: string;
-    expiresAt: number;
-};
+import axios, { type AxiosError } from 'axios';
 
 type TidalErrorResponse = {
     status?: number;
@@ -19,120 +10,66 @@ type TidalErrorResponse = {
     userMessage?: string;
 };
 
-let config: TidalConfig | null = null;
-let tidalClient: AxiosInstance | null = null;
-let cachedToken: TidalToken | null = null;
+const countryCode = process.env.TIDAL_COUNTRY_CODE || 'US';
 
-function getConfig(): TidalConfig {
-    if (!config) {
-        const clientId = process.env.TIDAL_CLIENT_ID;
-        const clientSecret = process.env.TIDAL_CLIENT_SECRET;
-        const countryCode = process.env.TIDAL_COUNTRY_CODE || 'US';
+export const tidalClient = axios.create({
+    baseURL: TIDAL_ROUTES.BASE,
+    headers: {
+        Accept: 'application/json',
+        origin: 'https://tidal.com',
+        referer: 'https://tidal.com/',
+    },
+    params: { countryCode },
+});
 
-        if (!clientId) {
-            throw new AppError('[Tidal] TIDAL_CLIENT_ID environment variable is not set', 500);
-        }
+async function bootstrapClient(): Promise<void> {}
 
-        if (!clientSecret) {
-            throw new AppError('[Tidal] TIDAL_CLIENT_SECRET environment variable is not set', 500);
-        }
+void bootstrapClient();
 
-        config = { clientId, clientSecret, countryCode };
-    }
-
-    return config;
-}
-
-async function getAccessToken(): Promise<string> {
-    const now = Date.now();
-
-    if (cachedToken && cachedToken.expiresAt > now + 5 * 60 * 1000) {
-        return cachedToken.accessToken;
-    }
-
-    const { clientId, clientSecret } = getConfig();
-
-    const response = await axios.post(TIDAL_ROUTES.AUTH, 'grant_type=client_credentials', {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        auth: { username: clientId, password: clientSecret },
-    });
-
-    const { access_token, expires_in } = response.data as {
-        access_token: string;
-        expires_in: number;
-        token_type: string;
-    };
-
-    cachedToken = {
-        accessToken: access_token,
-        expiresAt: now + expires_in * 1000,
-    };
-
-    return access_token;
-}
-
-export async function getTidalClient(): Promise<AxiosInstance> {
+tidalClient.interceptors.request.use(async (config) => {
     const token = await getAccessToken();
-    const { countryCode } = getConfig();
 
-    if (!tidalClient) {
-        tidalClient = axios.create({
-            baseURL: TIDAL_ROUTES.BASE,
-            timeout: 30000,
-            headers: { Accept: 'application/json' },
-            params: { countryCode },
-        });
+    if (!token) {
+        throw new AppError('[Tidal] Failed to obtain access token', 500);
+    }
 
-        tidalClient.interceptors.response.use(
-            (response) => response,
-            (error: AxiosError<TidalErrorResponse>) => {
-                if (error.response) {
-                    const { status, data } = error.response;
+    const browserHeaders = getBrowserHeaders({ include: config.headers });
 
-                    switch (status) {
-                        case 401:
-                            cachedToken = null;
-                            throw new AppError('[Tidal] Authentication failed', 401);
-                        case 403:
-                            throw new AppError('[Tidal] Access forbidden', 403);
-                        case 404:
-                            throw new AppError('[Tidal] Resource not found', 404);
-                        case 429:
-                            throw new AppError('[Tidal] Rate limit exceeded', 429);
-                        default:
-                            throw new AppError(data?.userMessage || `[Tidal] API error: ${status}`, status);
-                    }
-                }
-
-                if (error.code === 'ECONNABORTED') {
-                    throw new AppError('[Tidal] Request timeout', 408);
-                }
-
-                throw new AppError(`[Tidal] Connection error: ${error.message}`, 500);
-            }
-        );
+    for (const [key, value] of Object.entries(browserHeaders)) {
+        if (value !== undefined) {
+            config.headers.set(key, value);
+        }
     }
 
     tidalClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    return tidalClient;
-}
+    return config;
+});
 
-export function getCountryCode(): string {
-    return getConfig().countryCode;
-}
+tidalClient.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError<TidalErrorResponse>) => {
+        if (error.response) {
+            const { status, data } = error.response;
 
-export function isTidalConfigured(): boolean {
-    return !!(process.env.TIDAL_CLIENT_ID && process.env.TIDAL_CLIENT_SECRET);
-}
+            switch (status) {
+                case 401:
+                    throw new AppError('[Tidal] Authentication failed', 401);
+                case 403:
+                    throw new AppError('[Tidal] Access forbidden', 403);
+                case 404:
+                    throw new AppError('[Tidal] Resource not found', 404);
+                case 429:
+                    throw new AppError('[Tidal] Rate limit exceeded', 429);
+                default:
+                    throw new AppError(data?.userMessage || `[Tidal] API error: ${status}`, status);
+            }
+        }
 
-export function resetTidalClient(): void {
-    config = null;
-    tidalClient = null;
-    cachedToken = null;
-}
+        if (error.code === 'ECONNABORTED') {
+            throw new AppError('[Tidal] Request timeout', 408);
+        }
 
-export function getAlbumArtUrl(coverUuid: string, size: keyof typeof TIDAL_ROUTES.IMAGES.SIZES = 'XL'): string {
-    const formattedUuid = coverUuid.replace(/-/g, '/');
-    return `${TIDAL_ROUTES.IMAGES.BASE}/${formattedUuid}/${TIDAL_ROUTES.IMAGES.SIZES[size]}.jpg`;
-}
+        throw new AppError(`[Tidal] Connection error: ${error.message}`, 500);
+    }
+);

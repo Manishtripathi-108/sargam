@@ -1,9 +1,8 @@
-import * as TidalSongs from './tidal.songs';
 import * as TidalAlbums from './tidal.albums';
 import * as TidalArtists from './tidal.artists';
 import * as TidalPlaylists from './tidal.playlists';
 import * as TidalSearch from './tidal.search';
-import { isTidalConfigured, resetTidalClient, getAlbumArtUrl, getCountryCode } from './tidal.client';
+import * as TidalSongs from './tidal.songs';
 
 export const TidalProvider = {
     songs: TidalSongs,
@@ -12,11 +11,7 @@ export const TidalProvider = {
     playlists: TidalPlaylists,
     search: TidalSearch,
 
-    // Utility functions
-    isConfigured: isTidalConfigured,
-    resetClient: resetTidalClient,
-    getAlbumArtUrl,
-    getCountryCode,
+    getAlbumArtUrl: TidalAlbums.getAlbumArtUrl,
 };
 
 export default TidalProvider;

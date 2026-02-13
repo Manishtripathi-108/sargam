@@ -2,13 +2,11 @@ import type { TidalArtist, TidalPaginatedResponse, TidalSearchAlbum, TidalTrack 
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractId } from '../../utils/url.utils';
-import { getTidalClient } from './tidal.client';
+import { tidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
 export async function getById(id: string) {
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalArtist>(`${TIDAL_ROUTES.ARTIST.DETAILS}/${id}`);
+    const res = await tidalClient.get<TidalArtist>(`${TIDAL_ROUTES.ARTIST.DETAILS}/${id}`);
 
     return assertData(res.data, '[Tidal] Artist not found');
 }
@@ -28,9 +26,7 @@ export async function getByLink(link: string) {
 export async function getTopTracks({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalTrack>>(
         TIDAL_ROUTES.ARTIST.TOP_TRACKS.replace('{id}', id),
         {
             params: {
@@ -54,9 +50,7 @@ export async function getTopTracks({ id, limit, offset }: { id: string; limit: n
 export async function getAlbums({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalSearchAlbum>>(
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalSearchAlbum>>(
         TIDAL_ROUTES.ARTIST.ALBUMS.replace('{id}', id),
         {
             params: {
@@ -80,14 +74,15 @@ export async function getAlbums({ id, limit, offset }: { id: string; limit: numb
 export async function getSimilarArtists({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalArtist>>(TIDAL_ROUTES.ARTIST.SIMILAR.replace('{id}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalArtist>>(
+        TIDAL_ROUTES.ARTIST.SIMILAR.replace('{id}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Similar artists not found');
 

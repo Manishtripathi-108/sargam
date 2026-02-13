@@ -2,13 +2,11 @@ import type { TidalAlbum, TidalPaginatedResponse, TidalTrack } from '../../types
 import { assertData } from '../../utils/error.utils';
 import { createPaginatedResponse, normalizePagination } from '../../utils/pagination.utils';
 import { extractId } from '../../utils/url.utils';
-import { getTidalClient } from './tidal.client';
+import { tidalClient } from './tidal.client';
 import TIDAL_ROUTES from './tidal.routes';
 
 export async function getById(id: string) {
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalAlbum>(`${TIDAL_ROUTES.ALBUM.DETAILS}/${id}`);
+    const res = await tidalClient.get<TidalAlbum>(`${TIDAL_ROUTES.ALBUM.DETAILS}/${id}`);
 
     return assertData(res.data, '[Tidal] Album not found');
 }
@@ -28,14 +26,15 @@ export async function getByLink(link: string) {
 export async function getTracks({ id, limit, offset }: { id: string; limit: number; offset: number }) {
     const { limit: safeLimit, offset: safeOffset } = normalizePagination(limit, offset);
 
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalTrack>>(TIDAL_ROUTES.ALBUM.TRACKS.replace('{id}', id), {
-        params: {
-            limit: safeLimit,
-            offset: safeOffset,
-        },
-    });
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalTrack>>(
+        TIDAL_ROUTES.ALBUM.TRACKS.replace('{id}', id),
+        {
+            params: {
+                limit: safeLimit,
+                offset: safeOffset,
+            },
+        }
+    );
 
     const data = assertData(res.data, '[Tidal] Album tracks not found');
 
@@ -49,9 +48,7 @@ export async function getTracks({ id, limit, offset }: { id: string; limit: numb
 }
 
 export async function getByUpc(upc: string) {
-    const client = await getTidalClient();
-
-    const res = await client.get<TidalPaginatedResponse<TidalAlbum>>(TIDAL_ROUTES.SEARCH.ALBUMS, {
+    const res = await tidalClient.get<TidalPaginatedResponse<TidalAlbum>>(TIDAL_ROUTES.SEARCH.ALBUMS, {
         params: {
             query: upc,
             limit: 10,
@@ -72,4 +69,9 @@ export async function getByUpc(upc: string) {
     }
 
     return null;
+}
+
+export function getAlbumArtUrl(coverUuid: string, size: keyof typeof TIDAL_ROUTES.IMAGES.SIZES = 'XL'): string {
+    const formattedUuid = coverUuid.replace(/-/g, '/');
+    return `${TIDAL_ROUTES.IMAGES.BASE}/${formattedUuid}/${TIDAL_ROUTES.IMAGES.SIZES[size]}.jpg`;
 }
